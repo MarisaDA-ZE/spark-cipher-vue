@@ -1,20 +1,20 @@
 <template>
-  <mrs-header v-if="viewsInfo.headerDisplay" :search_display="true" />
+  <mrs-header v-if="viewsInfo.headerDisplay" :search_display="true"/>
   <div class="mrs-center" :style="viewsInfo.styleText">
-    <router-view :key="$route.fullPath" />
+    <router-view :key="$route.fullPath"/>
   </div>
-  <mrs-docker v-if="viewsInfo.dockerDisplay" :dockers="dockers" :show_text="false" />
+  <mrs-docker v-if="viewsInfo.dockerDisplay" :dockers="dockers" :show_text="false"/>
 </template>
 
 <script lang="ts">
-import { reactive } from "vue";
-import { useRouter } from "vue-router";
+import {reactive} from "vue";
+import {RouteMeta, useRouter} from "vue-router";
 import MrsHeader from "./components/common/MrsHeader.vue";
 import MrsDocker from "./components/common/MrsDocker.vue";
 
 export default {
   name: "App",
-  components: { MrsHeader, MrsDocker },
+  components: {MrsHeader, MrsDocker},
   setup() {
     const router = useRouter();
     const routeMap = router.options.routes;
@@ -86,8 +86,8 @@ export default {
     dockers.forEach((docker) => {
       const index: number = keyMap.indexOf(docker.to);
       const routerInfo = routeMap[index];
-      if (routerInfo?.meta) {
-        const meta = routerInfo.meta;
+      const meta: RouteMeta | undefined = routerInfo?.meta;
+      if (meta) {
         docker.show_header = !!meta?.showHeader;
         docker.show_docker = !!meta?.showDocker;
       }
@@ -99,9 +99,9 @@ export default {
     const computedHeights = () => {
       // console.log("内容区域高度计算");
       viewsInfo.height =
-        viewsInfo.screensHeight -
-        viewsInfo.headersHeight -
-        viewsInfo.dockersHeight;
+          viewsInfo.screensHeight -
+          viewsInfo.headersHeight -
+          viewsInfo.dockersHeight;
       viewsInfo.styleText = `
       margin: ${viewsInfo.headersHeight}px 0px ${viewsInfo.dockersHeight}px;
       height: ${viewsInfo.height}px;
@@ -109,32 +109,32 @@ export default {
     };
     // 路由改变的时候会触发高度计算函数
     // 刷新、变更路由时都算
-    return { dockers, viewsInfo, computedHeights };
+    return {dockers, viewsInfo, computedHeights};
   },
 
   watch: {
     $route: {
       handler(_new: any, _old: any) {
-
+        const that: any = this;
         console.log("fullPath: ", _new.fullPath);
 
         // 检查router.ts中是否规定了要显示Header
         if (_new.meta?.showHeader) {
-          this.viewsInfo.headerDisplay = true;
-          this.viewsInfo.headersHeight = 40;
+          that.viewsInfo.headerDisplay = true;
+          that.viewsInfo.headersHeight = 40;
         } else {
-          this.viewsInfo.headerDisplay = false;
-          this.viewsInfo.headersHeight = 0;
+          that.viewsInfo.headerDisplay = false;
+          that.viewsInfo.headersHeight = 0;
         }
         // 检查router.ts中是否规定了要显示Docker
         if (_new.meta?.showDocker) {
-          this.viewsInfo.dockerDisplay = true;
-          this.viewsInfo.dockersHeight = 50;
+          that.viewsInfo.dockerDisplay = true;
+          that.viewsInfo.dockersHeight = 50;
         } else {
-          this.viewsInfo.dockerDisplay = false;
-          this.viewsInfo.dockersHeight = 0;
+          that.viewsInfo.dockerDisplay = false;
+          that.viewsInfo.dockersHeight = 0;
         }
-        this.computedHeights();
+        that.computedHeights();
       },
       deep: true,
     },
