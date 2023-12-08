@@ -1,16 +1,19 @@
 import { defineStore } from "pinia";
 
-type Password = {
+export type Record = {
     id: number;
     userId: number;
-    name: string;
+    title: string;
     account: string;
+    userName: string;
     password: string;
     view_password?: string;
+    phone: string;
+    email: string;
     url: string;
     view_url?: string;
-    remarks: string;
-    view_remarks?: string;
+    remark: string;
+    view_remark?: string;
     createDateTime: string;
     createDate: string;
     createTime: string;
@@ -20,19 +23,18 @@ type Password = {
     updateTime: string;
     updateBy: number;
 }
+
 type MrsPage = {
     current: number;
     size: number;
-    total: number;
 }
 export const usePasswordStore = defineStore("password", {
     state() {
         return {
-            passwordList: Array<Password>(),
+            passwordList: Array<Record>(),
             page: {
                 current: 1,
-                size: 10,
-                total: 0
+                size: 10
             }
         };
     },
@@ -41,18 +43,15 @@ export const usePasswordStore = defineStore("password", {
          * 清空仓库中的密码记录
          */
         cleanStoreList() {
-            this.passwordList = new Array<Password>();
+            this.passwordList = new Array<Record>();
         },
 
         /**
          * 添加一组密码
          * @param passwordList
          */
-        addPasswordList(passwordList: Array<Password>) {
-            console.log(passwordList);
-
+        addPasswordList(passwordList: Array<Record>) {
             this.passwordList.push(...passwordList);
-            console.log(JSON.parse(JSON.stringify(this.passwordList)));
         },
 
         /**
@@ -62,7 +61,6 @@ export const usePasswordStore = defineStore("password", {
         updateMrsPage(page: MrsPage) {
             this.page.current = page.current;
             this.page.size = page.size;
-            this.page.total = page.total;
         },
 
         /**
@@ -78,7 +76,7 @@ export const usePasswordStore = defineStore("password", {
          * 添加一个密码
          * @param password
          */
-        addPasswordOne(password: Password) {
+        addPasswordOne(password: Record) {
             this.passwordList.push(password);
         },
 
@@ -86,7 +84,7 @@ export const usePasswordStore = defineStore("password", {
          * 修改密码
          * @param password
          */
-        updatePasswordList(password: Password) {
+        updatePasswordList(password: Record) {
             const that = this;
             that.passwordList.forEach((e, i) => {
                 if (e.id === password.id) {

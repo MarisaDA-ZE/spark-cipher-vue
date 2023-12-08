@@ -4,7 +4,7 @@
     <div class="layout" v-if="displayParentPage">
       <!-- 图标LOGO -->
       <div class="logo">
-        <img src="../../assets/vite.svg" alt="图片加载失败" />
+        <img src="../../assets/vite.svg" alt="图片加载失败"/>
       </div>
 
       <!-- 内容输入区 -->
@@ -12,10 +12,10 @@
         <!-- 账户密码登录 -->
         <div class="item login_account">
           <p>
-            <input type="text" name="account" v-model="account" placeholder="请输入账号" />
+            <input type="text" name="account" v-model="account" placeholder="请输入账号"/>
           </p>
           <p>
-            <input class="mrs_password" type="password" name="password" v-model="password" placeholder="请输入密码" />
+            <input class="mrs_password" type="password" name="password" v-model="password" placeholder="请输入密码"/>
             <i class="iconfont show_password" @click="handlerHidePwdBtnClick($event)">&#xe65a;</i>
           </p>
         </div>
@@ -23,22 +23,22 @@
         <!-- 手机号登录 -->
         <div class="item login_phone">
           <p>
-            <input type="text" name="phone_no" v-model="phoneNo" placeholder="请输入手机号" />
+            <input type="text" name="phone_no" v-model="phoneNo" placeholder="请输入手机号"/>
           </p>
           <p class="append_button">
-            <input type="text" name="phone_code" v-model="verifyCode" placeholder="请输入验证码" />
-            <input type="button" value="获取验证码" @click="handlerSendVerifyCodeClick()" />
+            <input type="text" name="phone_code" v-model="verifyCode" placeholder="请输入验证码"/>
+            <input type="button" value="获取验证码" @click="handlerSendVerifyCodeClick()"/>
           </p>
         </div>
 
         <!-- 邮箱登录 -->
         <div class="item login_email">
           <p>
-            <input type="text" name="email" v-model="email" placeholder="请输入邮箱" />
+            <input type="text" name="email" v-model="email" placeholder="请输入邮箱"/>
           </p>
           <p class="append_button">
-            <input type="text" name="email_code" v-model="verifyCode" placeholder="请输入验证码" />
-            <input type="button" value="获取验证码" @click="handlerSendVerifyCodeClick()" />
+            <input type="text" name="email_code" v-model="verifyCode" placeholder="请输入验证码"/>
+            <input type="button" value="获取验证码" @click="handlerSendVerifyCodeClick()"/>
           </p>
         </div>
       </div>
@@ -98,15 +98,20 @@
       </div>
 
     </div>
-    <Toast />
+    <Toast/>
   </div>
 </template>
 
 <script lang="ts">
-import { reactive, toRefs } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useVerifyStore } from '../../store/verifyStore';
-import Toast, { showToast } from "../../components/common/Toast.vue";
+import {reactive, toRefs} from "vue";
+import {useRoute, useRouter} from "vue-router";
+import {useCryptoStore} from '../../store/cryptoStore';
+import {useTokenStore} from '../../store/tokenStore';
+import Toast, {showToast} from "../../components/common/Toast.vue";
+import {ENABLE_ENCRYPT_LINK, LOGIN_TYPE} from '../../common/constant';
+import {get, post} from "../../utils/util/http-util";
+import {SM2KeyPair, SM2Util} from "../../utils/sm2/sm2-util";
+
 /**
  * 登录业务逻辑
  */
@@ -114,7 +119,8 @@ export const useLoginEffect = () => {
   const route = useRoute();
   const router = useRouter();
 
-  const verifyStore = useVerifyStore();
+  const tokenStore = useTokenStore();
+  const cryptoStore = useCryptoStore();
 
   /* 账户数据 */
   const accounts = reactive({
@@ -123,11 +129,12 @@ export const useLoginEffect = () => {
     phoneNo: "",
     email: "",
     verifyCode: "",
+    loginType: LOGIN_TYPE.ACCOUNT
   });
 
   /* 应用数据 */
   const data = reactive({
-    loginType: 1, // 登录类型：1、账号密码，2、手机号，3、邮箱
+    loginType: LOGIN_TYPE.ACCOUNT, // 登录类型：1、账号密码，2、手机号，3、邮箱
     loginTypeSwitchLock: true,  // 登录类型切换的锁
     displayParentPage: true,    // 是否显示主页面
     hidePwd: false,             // 是否显示密码
@@ -151,7 +158,7 @@ export const useLoginEffect = () => {
     const inputBox: HTMLDivElement | null = document.querySelector(".input_box");
     const target: EventTarget | null = _event.target;
 
-    if (inputBox !== null && target !== null) {
+    if (inputBox !== null && target) {
       // 800毫秒内此方法只能触发一次
       if (!data.loginTypeSwitchLock) {
         return;
@@ -164,25 +171,25 @@ export const useLoginEffect = () => {
       // 切换
       const span = target as HTMLSpanElement;
       switch (data.loginType) {
-        // 账号密码登录时
-        case 1:
+          // 账号密码登录时
+        case LOGIN_TYPE.ACCOUNT:
           inputBox.style.transform = "translateX(-33.33333%)";
           span.innerHTML = "账号登录";
-          data.loginType = 2;
+          data.loginType = LOGIN_TYPE.PHONE;
           break;
-        // 手机号登录时
-        case 2:
+          // 手机号登录时
+        case LOGIN_TYPE.PHONE:
           inputBox.style.transform = "translateX(0)";
           span.innerHTML = "短信登录";
-          data.loginType = 1;
+          data.loginType = LOGIN_TYPE.ACCOUNT;
           break;
       }
+      accounts.loginType = data.loginType;
     }
   };
 
   /**
    * 处理获取验证码按钮的点击事件
-   * @param type 类型（1、手机号；2、邮箱）
    */
   const handlerSendVerifyCodeClick = (): void => {
     console.log("获取验证码");
@@ -195,13 +202,13 @@ export const useLoginEffect = () => {
     // 校验数据合法性
     let permitLogin = false;
     switch (data.loginType) {
-      case 1:
+      case LOGIN_TYPE.ACCOUNT:
         permitLogin = verifyAccountContent();
         break;
-      case 2:
+      case LOGIN_TYPE.PHONE:
         permitLogin = verifyPhoneContent();
         break;
-      case 3:
+      case LOGIN_TYPE.EMAIL:
         permitLogin = verifyEmailContent();
         break;
     }
@@ -214,23 +221,44 @@ export const useLoginEffect = () => {
    * 提交登录信息
    */
   const onSubmit = (): void => {
-    console.log("提交");
+    console.log("提交", data.loginType);
     const log = JSON.parse(JSON.stringify(accounts));
     console.log(log);
-    // 跳转到主页
-    // 假装自己已经登录成功
-    handlerLoginSuccess();
+    post("/auth/accountLogin", accounts).then(res => {
+      console.log(res);
+      // 跳转到主页
+      if (res?.code === 200) {
+        const token = res?.data;
+        console.log("登录成功！");
+        const now = (new Date()).getTime();
+        localStorage.setItem("lastLoginTime", now.toString());
+        tokenStore.setToken(token);
+        cryptoInit();
+        router.push("/password_view");
+      } else {
+        showToast("error", res.msg, 1.5);
+      }
+    });
   };
 
-  /**
-   * 处理登录成功后的事件
-   */
-  const handlerLoginSuccess = (): void => {
-    console.log("登录成功！");
-    const now = (new Date()).getTime();
-    localStorage.setItem("lastLoginTime", now.toString());
-    verifyStore.setToken("isToken.123456.Marisa");
-    router.push("/password_view");
+  // 初始化密钥
+  const cryptoInit = (): void => {
+    // 如果不启用数据加密，则不会生成和获取密钥对
+    if (!ENABLE_ENCRYPT_LINK) return;
+    const serviceKeyPair: SM2KeyPair = {
+      publicKey: null,
+      privateKey: null
+    };
+    get("/crypto/getServicePublicKey").then(res => {
+      console.log(res);
+      if (res.code === 200) {
+        serviceKeyPair.publicKey = res.data;
+        cryptoStore.setServicePublicKey(serviceKeyPair);  // 保存服务端密钥对
+        cryptoStore.createServiceKeyPair(); // 创建客户端密钥对
+      } else {
+        showToast("error", res.msg, 1.5);
+      }
+    });
   }
 
   /**
@@ -238,9 +266,9 @@ export const useLoginEffect = () => {
    */
   const verifyAccountContent = (): boolean => {
     // 用户名正则，4到16位（字母，数字，下划线，减号）
-    const accountRegExp: RegExp = /^[a-zA-Z0-9_-]{4,16}$/;
+    const accountRegExp: RegExp = /^[a-zA-Z0-9_-☆★]{4,16}$/;
     // 密码正则，最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符
-    const passwordRegExp: RegExp = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[._~!@#$^&*])[A-Za-z0-9._~!@#$^&*]{6,20}$/;
+    const passwordRegExp: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z-!@#&*$_.\d]{6,}$/;
     const verifyAccount: boolean = handlerVerifyText(accounts.account, accountRegExp);
     const verifyPassword: boolean = handlerVerifyText(accounts.password, passwordRegExp);
     if (!verifyAccount) {
@@ -259,7 +287,7 @@ export const useLoginEffect = () => {
    */
   const verifyPhoneContent = (): boolean => {
     // 手机号正则
-    const emailRegExp: RegExp = /^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/;
+    const emailRegExp: RegExp = /^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-79])|(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[1589]))\d{8}$/;
     // 验证码，6位数字
     const verifyCodeRegExp: RegExp = /^\d{6}$/;
     const verifyPhoneNo: boolean = handlerVerifyText(accounts.phoneNo, emailRegExp);
@@ -280,7 +308,7 @@ export const useLoginEffect = () => {
    */
   const verifyEmailContent = () => {
     // 邮箱正则
-    const emailRegExp: RegExp = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+    const emailRegExp: RegExp = /^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,4})$/;
     // 验证码，6位数字
     const verifyCodeRegExp: RegExp = /^\d{6}$/;
     const verifyEmail: boolean = handlerVerifyText(accounts.email, emailRegExp);
@@ -345,9 +373,9 @@ export const useLoginEffect = () => {
     }, 500);
   }
 
-  const { account, password, phoneNo, email, verifyCode } = toRefs(accounts);
+  const {account, password, phoneNo, email, verifyCode} = toRefs(accounts);
 
-  const { displayParentPage } = toRefs(data);
+  const {displayParentPage} = toRefs(data);
 
   return {
     account, password, phoneNo, email, verifyCode,
@@ -364,7 +392,7 @@ export const useLoginEffect = () => {
 
 export default {
   name: "LoginView",
-  components: { Toast },
+  components: {Toast},
   setup() {
     const {
       account, password, phoneNo, email, verifyCode,

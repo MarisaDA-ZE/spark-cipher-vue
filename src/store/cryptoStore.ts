@@ -1,21 +1,31 @@
-import { defineStore } from "pinia";
-import { SM2KeyPair, SM2Util } from "../utils/sm2/sm2-util";
-import { get, MrsResult } from "../utils/util/http-util";
-import { CRYPTO_PATH } from "../common/constant";
+import {defineStore} from "pinia";
+import {SM2KeyPair, SM2Util} from "../utils/sm2/sm2-util";
+import {get, MrsResult} from "../utils/util/http-util";
+import {CRYPTO_PATH} from "../common/constant";
+
+
+type STORE_DATA = {
+    initialized: boolean, // 是否已经初始化过了
+    clientKeyPair: SM2KeyPair    // 客户端密钥对
+    serviceKeyPair: SM2KeyPair   // 服务端密钥
+}
 
 export const useCryptoStore = defineStore("crypto", {
     state() {
-        return {
+        const data: STORE_DATA = {
             initialized: false, // 是否已经初始化过了
             clientKeyPair: {    // 客户端密钥对
-                privateKey: "",
-                publicKey: ""
+                privateKey: null,
+                publicKey: null
             },
             serviceKeyPair: {   // 服务端密钥
-                publicKey: "",
-                privateKey: ""
+                publicKey: null,
+                privateKey: null
             }
-        };
+        }
+
+
+        return data;
     },
     actions: {
         /**
@@ -25,9 +35,7 @@ export const useCryptoStore = defineStore("crypto", {
             const that = this;
             return new Promise(resolve => {
                 const keyPair: SM2KeyPair = SM2Util.getKeyPair();
-                const publicKey: string = keyPair.publicKey;    // 公钥
-                const privateKey: string = keyPair.privateKey;  // 私钥
-                that.setClientKeyPair(publicKey, privateKey);
+                that.setClientKeyPair(keyPair);
                 that.initialized = true;
                 resolve(keyPair);
             });
@@ -35,38 +43,20 @@ export const useCryptoStore = defineStore("crypto", {
 
         /**
          * 设置服务端公钥
-         * @param publicKey 公钥
-         * @param privateKey 私钥
+         * @param keyPair 密钥对
          */
-        setServicePublicKey(publicKey: string, privateKey: string = ""): void {
-            this.serviceKeyPair.publicKey = publicKey;
-            this.serviceKeyPair.privateKey = privateKey;
+        setServicePublicKey(keyPair: SM2KeyPair): void {
+            this.serviceKeyPair.publicKey = keyPair.publicKey;
+            this.serviceKeyPair.privateKey = keyPair.privateKey;
         },
 
         /**
          * 设置客户端密钥对
-         * @param publicKey 公钥
-         * @param privateKey 私钥
+         * @param keyPair 密钥对
          */
-        setClientKeyPair(publicKey: string, privateKey: string): void {
-            this.clientKeyPair.publicKey = publicKey;
-            this.clientKeyPair.privateKey = privateKey;
-        },
-
-        /**
-         * 获取服务端密钥对
-         */
-        getServiceKeyPair(): Promise<unknown> {
-            const that = this;
-            return new Promise(resolve => {
-                get(CRYPTO_PATH + "/getServicePublicKey").then((res: MrsResult) => {
-                    if (res?.data) {
-                        const key = res.data;
-                        that.setServicePublicKey(key);
-                        resolve(key);
-                    }
-                });
-            });
+        setClientKeyPair(keyPair: SM2KeyPair): void {
+            this.clientKeyPair.publicKey = keyPair.publicKey;
+            this.clientKeyPair.privateKey = keyPair.privateKey;
         }
     }
 });

@@ -24,7 +24,7 @@ export const isNotEmpty = (val: any): boolean => {
  * 判断字符串是否为空
  * @returns 是否为空
  */
-export const isBank = (val: string): boolean => {
+export const isBank = (val: string| null): boolean => {
     let strLength: number = 0;
     if (val !== null && (strLength = val.length) != 0) {
         for (let i = 0; i < strLength; ++i) {

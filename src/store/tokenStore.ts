@@ -1,11 +1,17 @@
-import { defineStore } from "pinia";
-import { encryptStore } from "../services/storeCipher";
+import {defineStore} from "pinia";
+import {encryptStore} from "../services/storeCipher";
 
-export const useVerifyStore = defineStore("verify", {
+type StoreType = {
+    token: string | null,
+}
+
+
+export const useTokenStore = defineStore("verify", {
     state() {
-        return {
+        const data: StoreType = {
             token: ""
         };
+        return data;
     },
     actions: {
         /**
@@ -20,12 +26,18 @@ export const useVerifyStore = defineStore("verify", {
          * 获取token
          * @returns token
          */
-        getToken(): string {
+        getToken(): string | null {
             return this.token;
+        },
+        /**
+         * 删除token
+         */
+        removeToken(): void {
+            this.token = null;
         }
     },
     // persist:true, // 开启持久化 
     persist: {// 开启持久化,并进行加密
         storage: encryptStore
-    } 
+    }
 });

@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory, RouteLocationNormalized, RouteRecordRaw } from "vue-router";
-import { useVerifyStore } from "../store/verifyStore";
+import { useTokenStore } from "../store/tokenStore";
 import { isBank } from "../utils/util/util";
 
 
@@ -100,7 +100,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    const store = useVerifyStore();
+    const store = useTokenStore();
 
 
     const token = store.getToken();

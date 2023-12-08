@@ -1,10 +1,21 @@
-import { useCryptoStore } from "../store/cryptoStore";
-import { get, MrsResult, post } from "../utils/util/http-util";
+import {useCryptoStore} from "../store/cryptoStore";
+import {get, MrsResult, post} from "../utils/util/http-util";
 
-export const CRYPTO_PATH: string = "/crypto";
-export const PASSWORD_PATH: string = "/password";
+// 登录类型
+export enum LOGIN_TYPE {
+    ACCOUNT = 0,
+    PHONE = 1,
+    EMAIL = 2
+}
 
-export let USER_TOKEN: string = "";
+export enum ROUTE_MAP {
+    CRYPTO_PATH = "/crypto",
+    PASSWORD_PATH = "/password"
+}
+
+// 是否开启加密传输
+export const ENABLE_ENCRYPT_LINK: boolean = false;
+
 
 // /**
 //  * 加密数据并发送到服务器
@@ -46,7 +57,7 @@ export const cryptoInit = (): void => {
 
     // 发送客户端公钥
     post("/crypto/setClientPublicKey",
-        { 'publicKey': store.clientKeyPair.publicKey }
+        {'publicKey': store.clientKeyPair.publicKey}
     ).then((res: MrsResult) => {
         if (res.code !== 200) console.log(res);
     });

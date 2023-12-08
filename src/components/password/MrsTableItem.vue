@@ -2,20 +2,20 @@
   <div class="mrs-item" data-flag="0">
     <div class="mrs-table-item">
       <div class="mrs-header">
-        <p class="name">{{ data.name }}</p>
-        <p class="time">{{ data['createDate'] }}</p>
+        <p class="name">{{ data.title }}</p>
+        <p class="time">{{ data.createDate }}</p>
       </div>
       <div class="content">
         <p>
           <span>标题: </span>
           <span>
-            {{ '无标题' }}
+            {{ data.userName }}
           </span>
         </p>
         <p>
           <span>账号: </span>
-          <span class="allow-copy" @click="writeToClipboard(data['account'])">
-            {{ data['account'] }}
+          <span class="allow-copy" @click="writeToClipboard(data.account)">
+            {{ data.account }}
           </span>
         </p>
         <p>
@@ -25,42 +25,24 @@
           </span>
           <span class="is-display iconfont" @click="displayPassword($event)">&#xe65a;</span>
         </p>
-        <p><span>备注: </span><span>{{ data.view_remarks }}</span></p>
+        <p><span>备注: </span><span>{{ data.view_remark }}</span></p>
       </div>
     </div>
     <div class="btn-box">
       <input class="mrs-edit-btn" @click="editRecord(item.id)" type="button" value="编 辑">
       <input class="mrs-delete-btn" @click="deleteRecord(item.id)" type="button" value="删 除">
     </div>
-    <Toast />
+    <Toast/>
   </div>
 </template>
 
 <script lang="ts">
-import { ElButton, ElCheckbox } from "element-plus";
-import Toast, { showToast } from "../../components/common/Toast.vue";
+import {ElButton, ElCheckbox} from "element-plus";
+import Toast, {showToast} from "../../components/common/Toast.vue";
+import {Record} from "../../store/passwordStore";
 
 type Pops = {
-  item: {
-    id: number;
-    userId: number;
-    name: string;
-    account: string;
-    password: string;
-    view_password: string;
-    url: string;
-    view_url: string;
-    remarks: string;
-    view_remarks: string;
-    createDateTime: string;
-    createDate: string;
-    createTime: string;
-    createBy: number;
-    updateDateTime: string;
-    updateDate: string;
-    updateTime: string;
-    updateBy: number;
-  }
+  item: Record
 }
 
 type Emits = {
@@ -71,24 +53,24 @@ export default {
   name: "MrsTableItem",
   props: ['item', 'mrsKey'],
   emits: ["showDetails", "editRecord", "deleteRecord", "deleteBatch"],
-  components: { ElButton, ElCheckbox, Toast },
+  components: {ElButton, ElCheckbox, Toast},
 
-  setup(pops: Readonly<Pops>, { emit }: Emits) {
+  setup(pops: Readonly<Pops>, {emit}: Emits) {
     // 预处理渲染的数据
     const beforeRender = (): void => {
-      pops.item['view_password'] = "********";
-      pops.item['view_remarks'] = pops.item?.remarks;
-      if (pops.item?.remarks && pops.item.remarks.length > 10) {
-        pops.item['view_remarks'] = (pops.item.remarks).substring(0, 10) + " ...";
+      const item: Record = pops.item;
+      item.view_password = "********";
+      item.view_remark = item?.remark;
+      if (item?.remark && item.remark.length > 10) {
+        item.view_remark = (item.remark).substring(0, 10) + " ...";
       } else {
-        if (!pops.item?.remarks) {
-          pops.item['view_remarks'] = "-";
+        if (!item?.remark) {
+          item.view_remark = "-";
         } else {
-          pops.item['view_remarks'] = pops.item.remarks;
+          item.view_remark = item.remark;
         }
       }
-      if (!pops.item?.url) pops.item['view_url'] = "-";
-
+      if (!item?.url) item.view_url = "-";
     }
     const showDetails = (id: number): void => emit("showDetails", id);
     const editRecord = (id: number): void => emit("editRecord", id);
@@ -212,9 +194,9 @@ export default {
             })
           }
           if (
-            (data.slide_start_x > data.slide_end_x + limitX)
-            &&
-            (Math.abs(data.slide_start_y - data.slide_end_y) < limitY)
+              (data.slide_start_x > data.slide_end_x + limitX)
+              &&
+              (Math.abs(data.slide_start_y - data.slide_end_y) < limitY)
           ) {
             if (data.slide_start_x > data.slide_end_x) {
               callback1(target);
@@ -262,6 +244,7 @@ export default {
 
 <style scoped lang="scss">
 @import "src/assets/style/common";
+
 $btn-box-width: 120px;
 
 .mrs-item {

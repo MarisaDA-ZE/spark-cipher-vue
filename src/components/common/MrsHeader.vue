@@ -26,7 +26,7 @@
 <script lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { useVerifyStore } from "../../store/verifyStore";
+import { useTokenStore } from "../../store/tokenStore";
 
 export default {
   name: "Header",
@@ -34,7 +34,7 @@ export default {
   setup() {
     const search_content = ref("");
     const router = useRouter();
-    const verifyStore = useVerifyStore();
+    const verifyStore = useTokenStore();
     
     /**
      * 处理返回点击事件

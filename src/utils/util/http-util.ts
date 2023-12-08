@@ -1,6 +1,7 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { useVerifyStore } from "../../store/verifyStore";
-const store = useVerifyStore();
+import axios, {AxiosRequestConfig, AxiosResponse} from "axios";
+import {useTokenStore} from "../../store/tokenStore";
+
+const store = useTokenStore();
 
 export type MrsResult = {
     code: number;
@@ -15,7 +16,7 @@ export type MrsResult = {
  * @type {any}
  */
 const instance = axios.create({
-    baseURL: "http://192.168.2.133:8001",
+    baseURL: "http://192.168.2.135:8001",
     timeout: 60000,
     headers: {
         "Accept": "application/json",
@@ -27,21 +28,26 @@ const instance = axios.create({
  * 请求拦截器
  */
 instance.interceptors.request.use((config: AxiosRequestConfig) => {
-    // console.log(config);
-    return config;
-}, (error) => {
-    return Promise.reject(error);
-}
+        // console.log(config);
+        const tk = store.getToken();
+        if (tk) {
+            // @ts-ignore
+            config.headers["Authorization"] = "Bearer " + tk;
+        }
+        return config;
+    }, (error) => {
+        return Promise.reject(error);
+    }
 );
 
 /**
  * 响应拦截器
  */
 instance.interceptors.response.use((config: AxiosResponse) => {
-    return config;
-}, (error) => {
-    return Promise.reject(error);
-}
+        return config;
+    }, (error) => {
+        return Promise.reject(error);
+    }
 );
 
 /**
@@ -136,18 +142,18 @@ const setHeaders = (headers: any = null): void => {
     if (headers !== null) {
         // 使用请求拦截器修改headers的内容
         instance.interceptors.request.use((config: AxiosRequestConfig) => {
-            const configHeader = config.headers;
-            for (const key in headers) {
-                if (headers.hasOwnProperty(key)) {
-                    if (configHeader) {
-                        configHeader[key] = headers[key];
+                const configHeader = config.headers;
+                for (const key in headers) {
+                    if (headers.hasOwnProperty(key)) {
+                        if (configHeader) {
+                            configHeader[key] = headers[key];
+                        }
                     }
                 }
+                return config;
+            }, (error) => {
+                return Promise.reject(error);
             }
-            return config;
-        }, (error) => {
-            return Promise.reject(error);
-        }
         );
     }
 }

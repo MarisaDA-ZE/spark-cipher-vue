@@ -4,121 +4,102 @@
       <!-- 数据列表 -->
       <div class="mrs-table">
         <!-- 表头 -->
-        <MrsTableHeader @createRecord="saveOrUpdateRecord" />
+        <MrsTableHeader @createRecord="saveOrUpdateRecord"/>
         <!-- 数据显示 -->
         <div class="mrs-content">
           <div class="mrs-item-list">
             <MrsTableItem v-for="(e, i) in passwordList" :item="e" :key="i" :mrsKey="i" @showDetails="showPwdDetails"
-              @editRecord="saveOrUpdateRecord" @deleteRecord="deletePwdRecord" @deleteBatch="deleteBatch" />
+                          @editRecord="saveOrUpdateRecord" @deleteRecord="deletePwdRecord" @deleteBatch="deleteBatch"/>
           </div>
         </div>
       </div>
+
       <!-- 查看信息对话框 -->
       <el-dialog v-model="detailVisible" :title="activeRecord.name" :width="'80%'" :show-close="false">
         <div class="mrs-dialog">
           <p><span>账号: </span><span class="allow-copy" @click="writeToClipboard(activeRecord.account)">{{
-            activeRecord.account }}</span>
+              activeRecord.account
+            }}</span>
           </p>
           <p><span>密码: </span><span class="allow-copy" @click="writeToClipboard(activeRecord.password)">{{
-            activeRecord.password }}</span>
+              activeRecord.password
+            }}</span>
           </p>
-          <p><span>备注: </span><span>{{ activeRecord.remarks }}</span></p>
+          <p><span>备注: </span><span>{{ activeRecord.remark }}</span></p>
           <p><span>官网: </span><a :class="activeRecord?.url ? 'dialog-url' : 'dialog-url-prevent'"
-              :href="activeRecord?.url">{{ activeRecord?.url }}</a></p>
+                                   :href="activeRecord?.url">{{ activeRecord?.url }}</a></p>
           <p><span>创建时间: </span><span>{{ activeRecord.createDateTime }}</span></p>
         </div>
       </el-dialog>
 
       <!-- 编辑、新建对话框 -->
       <el-dialog v-model="editedVisible" :title="saveOrUpdateFlag === 1 ? '修改密码' : '新建密码'" :width="'80%'"
-        :beforeClose="editDialogBeforeClose" :show-close="false">
+                 :beforeClose="editDialogBeforeClose" :show-close="false">
         <div class="mrs-dialog-edited">
           <p><label>
-              <span>名称: </span>
-              <input type="text" v-model="activeRecord.name" @focus="checkRules(activeRecord.name, 'name-in', $event)"
-                @blur="checkRules(activeRecord.name, 'name-out', $event)" class="mrs-input checked"
-                placeholder="请输入账户名称" />
-            </label></p>
+            <span>名称: </span>
+            <input type="text" v-model="activeRecord.name" @focus="checkRules(activeRecord.name, 'name-in', $event)"
+                   @blur="checkRules(activeRecord.name, 'name-out', $event)" class="mrs-input checked"
+                   placeholder="请输入账户名称"/>
+          </label></p>
           <p><label>
-              <span>账号: </span>
-              <input type="text" v-model="activeRecord.account"
-                @focus="checkRules(activeRecord.account, 'account-in', $event)"
-                @blur="checkRules(activeRecord.account, 'account-out', $event)" class="mrs-input checked"
-                placeholder="请输入账号" />
-            </label></p>
+            <span>账号: </span>
+            <input type="text" v-model="activeRecord.account"
+                   @focus="checkRules(activeRecord.account, 'account-in', $event)"
+                   @blur="checkRules(activeRecord.account, 'account-out', $event)" class="mrs-input checked"
+                   placeholder="请输入账号"/>
+          </label></p>
           <p><label>
-              <span>密码: </span>
-              <input type="text" v-model="activeRecord.password"
-                @focus="checkRules(activeRecord.password, 'password-in', $event)"
-                @blur="checkRules(activeRecord.password, 'password-out', $event)" class="mrs-input checked"
-                placeholder="请输入密码" />
-            </label></p>
+            <span>密码: </span>
+            <input type="text" v-model="activeRecord.password"
+                   @focus="checkRules(activeRecord.password, 'password-in', $event)"
+                   @blur="checkRules(activeRecord.password, 'password-out', $event)" class="mrs-input checked"
+                   placeholder="请输入密码"/>
+          </label></p>
           <p><label>
-              <span>备注: </span>
-              <input type="text" v-model="activeRecord.remarks" class="mrs-input" placeholder="请输入备注信息" />
-            </label></p>
+            <span>备注: </span>
+            <input type="text" v-model="activeRecord.remarks" class="mrs-input" placeholder="请输入备注信息"/>
+          </label></p>
           <p><label>
-              <span>官网: </span>
-              <input type="text" v-model="activeRecord.url" class="mrs-input" placeholder="请输入官网地址" />
-            </label></p>
+            <span>官网: </span>
+            <input type="text" v-model="activeRecord.url" class="mrs-input" placeholder="请输入官网地址"/>
+          </label></p>
           <div class="btn-info">
             <input type="button" class="submit" value="保 存" @click="onSubmitChange">
           </div>
         </div>
       </el-dialog>
     </div>
+    <Toast/>
   </div>
 </template>
 
 <script lang="ts">
-import { reactive, toRefs } from "vue";
-import { ElDialog } from "element-plus";
+import {reactive, toRefs} from "vue";
+import {ElDialog} from "element-plus";
 
 import MrsTableHeader from "../../components/password/MrsTableHeader.vue";
 import MrsTableItem from "../../components/password/MrsTableItem.vue";
-import { SM2Util } from "../../utils/sm2/sm2-util";
-import { useCryptoStore } from "../../store/cryptoStore";
-import { usePasswordStore } from "../../store/passwordStore";
-import { CRYPTO_PATH, PASSWORD_PATH } from "../../common/constant";
-import { _delete, MrsResult, post } from "../../utils/util/http-util";
-import { isEmpty, isNotEmpty } from "../../utils/util/util";
+import Toast, {showToast} from "../../components/common/Toast.vue";
+import {SM2Util} from "../../utils/sm2/sm2-util";
+import {useCryptoStore} from "../../store/cryptoStore";
+import {usePasswordStore, Record} from "../../store/passwordStore";
+import {ENABLE_ENCRYPT_LINK} from "../../common/constant";
+import {_delete, get, MrsResult, post} from "../../utils/util/http-util";
+import {isEmpty, isNotEmpty} from "../../utils/util/util";
 
 const cryptoStore = useCryptoStore();
 const passwordStore = usePasswordStore();
 
-type Password = {
-  id: number;
-  userId: number;
-  name: string;
-  account: string;
-  password: string;
-  view_password?: string;
-  url: string;
-  view_url?: string;
-  remarks: string;
-  view_remarks?: string;
-  createDateTime: string;
-  createDate: string;
-  createTime: string;
-  createBy: number;
-  updateDateTime: string;
-  updateDate: string;
-  updateTime: string;
-  updateBy: number;
-}
-
 const useCryptEffect = () => {
+
   const data = reactive({
-    clientPublicKey: "",  // 客户端公钥
-    clientPrivateKey: "", // 客户端私钥
-    servicePublicKey: "", // 服务端公钥
-    dataEncrypted: false, // 数据是否加密（方便调试）
-    passwordList: Array<Password>(),     // 密码列表
+
+    passwordList: Array<Record>(),     // 密码列表
     searchKeyWord: "",    // 搜索关键词
     page: {               // 分页对象
       current: 1,
-      size: 5,
-      total: 1
+      size: 10
     },
     detailVisible: false, // 查看弹框
     editedVisible: false, // 编辑弹窗
@@ -136,66 +117,37 @@ const useCryptEffect = () => {
   });
 
   /**
-   * 初始化
-   */
-  const init = (): Promise<boolean> => {
-    return new Promise(resolve => {
-      cryptoStore.createServiceKeyPair().then(() => {
-        cryptoStore.getServiceKeyPair().then(() => {
-          data.clientPublicKey = cryptoStore.clientKeyPair.publicKey;
-          data.clientPrivateKey = cryptoStore.clientKeyPair.privateKey;
-          data.servicePublicKey = cryptoStore.serviceKeyPair.publicKey;
-          resolve(true);
-        });
-      });
-    });
-  }
-
-  /**
-   * 发送客户端公钥到服务器
-   */
-  const sendClientPublicKey = (): void => {
-    const key = cryptoStore.clientKeyPair.publicKey;
-    post(CRYPTO_PATH + "/setClientPublicKey", {
-      'publicKey': key
-    });
-  }
-
-  /**
    * TODO: 分页查询密码信息
    */
-  const getPasswordsByPage = (): Promise<MrsResult> => {
+  const getPasswordsByPage = (): Promise<boolean> => {
     return new Promise(resolve => {
       console.log("data分页信息: ", JSON.parse(JSON.stringify(data.page)));
-
-      post(PASSWORD_PATH + "/getPasswordByPage", JSON.stringify(data.page))
-        .then((res: any) => {
-          let encrypt = res.data;
-          if (isNotEmpty(encrypt)) {
-            let decrypt: string = "";
-
-            // 数据是否发送的是明文
-            if (data.dataEncrypted) {// 密文
-              encrypt = encrypt.substring(2);
-              decrypt = SM2Util.decrypt(encrypt, data.clientPrivateKey);
+      get("/record/getRecordsList", data.page)
+          .then((res: any) => {
+            console.log(res);
+            let list;
+            if (res.code === 200) {
+              console.log("数据: ", res.data);
+              if (ENABLE_ENCRYPT_LINK) {
+                let encrypt = res.data;
+                console.log("密文: ", encrypt);
+                const keyPair = cryptoStore.clientKeyPair;
+                encrypt = encrypt.substring(2);
+                const decrypt = SM2Util.decrypt(encrypt, keyPair.privateKey + "");
+                list = JSON.parse(decrypt);
+              } else {
+                // 直接传的对象
+                list = res.data.records;
+              }
+              console.log(">>>>>", list);
+              // 添加数据到仓库
+              passwordStore.addPasswordList(list);
+              data.passwordList = passwordStore.passwordList;
+              resolve(true);
             } else {
-              decrypt = encrypt;
+              showToast("error", res.msg, 2);
             }
-            const result = JSON.parse(decrypt);
-            // console.log(result);
-            // 添加数据到仓库
-            passwordStore.addPasswordList(result.dataList);
-            data.passwordList = passwordStore.passwordList;
-            const page = {
-              current: result.current,
-              size: result.size,
-              total: result.total
-            }
-            console.log("store分页信息: ", page);
-            passwordStore.updateMrsPage(page);
-            resolve(JSON.parse(decrypt));
-          }
-        });
+          });
     });
 
   }
@@ -204,7 +156,7 @@ const useCryptEffect = () => {
    * 设置活动的记录
    */
   const setActiveRecordById = (id: number) => {
-    data.passwordList.forEach((p: Password) => {
+    data.passwordList.forEach((p: Record) => {
       if (p.id === id) {
         data.activeRecord = p;
         return 0;
@@ -229,7 +181,7 @@ const useCryptEffect = () => {
       name: '',
       account: '',
       password: '',
-      remarks: '',
+      remark: '',
       url: '',
       createDateTime: ''
     };
@@ -266,7 +218,7 @@ const useCryptEffect = () => {
    */
   const deletePwdRecord = (id: number) => {
     console.log("删除记录", id)
-    _delete(PASSWORD_PATH + "/deleteById/" + id).then((res: MrsResult) => {
+    _delete("/password/deleteById/" + id).then((res: MrsResult) => {
       console.log(res);
       if (res.code === 200) {
         setTimeout(() => {
@@ -290,13 +242,13 @@ const useCryptEffect = () => {
   const onSubmitChange = () => {
     const nodeList = [].slice.call(document.querySelectorAll(".checked"));
     resetStyle(nodeList, 'out');
-    const submitData: Password = JSON.parse(JSON.stringify(data.activeRecord));
+    const submitData: Record = JSON.parse(JSON.stringify(data.activeRecord));
     submitData["userId"] = 22;
     if (data.canSubmit.indexOf(false) == -1) {
       data.editedVisible = !data.editedVisible;
       const path = data.savePath === "save" ? "/createPassword" : "/updatePassword";
       const encrypt = SM2Util.encrypt(JSON.stringify(submitData), data.servicePublicKey);
-      post(PASSWORD_PATH + path + "/22", "04" + encrypt).then(res => {
+      post("/password" + path + "/22", "04" + encrypt).then(res => {
         console.log(res);
       })
     }
@@ -389,7 +341,7 @@ const useCryptEffect = () => {
               timer = setInterval(() => {
                 data.page.current++;
                 getPasswordsByPage().then((res: any) => {
-                  data.page.total = res.total;
+                  // data.page.total = res.total;
                 });
                 clearInterval(timer);
                 timer = null;
@@ -417,8 +369,6 @@ const useCryptEffect = () => {
     editedVisible,
     activeRecord,
     saveOrUpdateFlag,
-    init,                   // 初始化
-    sendClientPublicKey,    // 发送客户端公钥
     getPasswordsByPage,     // 分页查询密码数据
     showPwdDetails,         // 查看详情
     deletePwdRecord,        // 删除记录
@@ -434,7 +384,7 @@ const useCryptEffect = () => {
 
 export default {
   name: "PasswordView",
-  components: { MrsTableHeader, MrsTableItem, ElDialog },
+  components: {MrsTableHeader, MrsTableItem, ElDialog, Toast},
   setup() {
 
     const {
@@ -445,8 +395,6 @@ export default {
       editedVisible,
       activeRecord,
       saveOrUpdateFlag,
-      init,                   // 初始化
-      sendClientPublicKey,    // 发送客户端公钥
       getPasswordsByPage,     // 分页查询密码数据
       showPwdDetails,
       deletePwdRecord,
@@ -459,12 +407,9 @@ export default {
       mrsLazyLoading
     } = useCryptEffect();
 
-    init().then(() => {
-      sendClientPublicKey();
-      passwordStore.cleanStoreList();
-      getPasswordsByPage().then(() => {
-        mrsLazyLoading();
-      });
+    passwordStore.cleanStoreList();
+    getPasswordsByPage().then(() => {
+      mrsLazyLoading();
     });
 
     return {
@@ -518,7 +463,8 @@ export default {
       overflow-x: hidden;
       overflow-y: scroll;
 
-      .mrs-items-list {}
+      .mrs-items-list {
+      }
     }
   }
 
