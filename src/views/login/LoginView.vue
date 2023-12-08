@@ -226,7 +226,7 @@ export const useLoginEffect = () => {
     console.log(log);
     post("/auth/accountLogin", accounts).then(res => {
       console.log(res);
-      // 跳转到主页
+      // 登录成功
       if (res?.code === 200) {
         const token = res?.data;
         console.log("登录成功！");
@@ -245,20 +245,34 @@ export const useLoginEffect = () => {
   const cryptoInit = (): void => {
     // 如果不启用数据加密，则不会生成和获取密钥对
     if (!ENABLE_ENCRYPT_LINK) return;
-    const serviceKeyPair: SM2KeyPair = {
-      publicKey: null,
-      privateKey: null
-    };
+    // 获取服务端密钥
     get("/crypto/getServicePublicKey").then(res => {
-      console.log(res);
+      console.log("服务端密钥: ", res);
       if (res.code === 200) {
+        const serviceKeyPair: SM2KeyPair = {
+          publicKey: null,
+          privateKey: null
+        };
         serviceKeyPair.publicKey = res.data;
         cryptoStore.setServicePublicKey(serviceKeyPair);  // 保存服务端密钥对
-        cryptoStore.createServiceKeyPair(); // 创建客户端密钥对
+
       } else {
         showToast("error", res.msg, 1.5);
       }
     });
+
+    // 创建客户端密钥对
+    cryptoStore.createServiceKeyPair().then(kp => {
+      const keyPair: SM2KeyPair = {
+        publicKey: kp.publicKey,
+        privateKey: null
+      };
+      post("/crypto/setClientPublicKey", keyPair).then(r => {
+        console.log("客户端密钥: ", r);
+        if (r.code !== 200) showToast("error", r.msg, 2);
+      });
+    });
+
   }
 
   /**
@@ -492,7 +506,7 @@ export default {
           // 显示密码的按钮
           .show_password {
             position: absolute;
-            top: center;
+            //top: center;
             right: 5px;
             cursor: pointer;
             padding: 2px 5px;

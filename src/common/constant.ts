@@ -14,7 +14,7 @@ export enum ROUTE_MAP {
 }
 
 // 是否开启加密传输
-export const ENABLE_ENCRYPT_LINK: boolean = false;
+export const ENABLE_ENCRYPT_LINK: boolean = true;
 
 
 // /**

@@ -1,8 +1,5 @@
 import {defineStore} from "pinia";
 import {SM2KeyPair, SM2Util} from "../utils/sm2/sm2-util";
-import {get, MrsResult} from "../utils/util/http-util";
-import {CRYPTO_PATH} from "../common/constant";
-
 
 type STORE_DATA = {
     initialized: boolean, // 是否已经初始化过了
@@ -32,7 +29,7 @@ export const useCryptoStore = defineStore("crypto", {
          * 创建客户端密钥
          */
         createServiceKeyPair(): Promise<SM2KeyPair> {
-            const that = this;
+            const that: any = this;
             return new Promise(resolve => {
                 const keyPair: SM2KeyPair = SM2Util.getKeyPair();
                 that.setClientKeyPair(keyPair);
@@ -57,6 +54,20 @@ export const useCryptoStore = defineStore("crypto", {
         setClientKeyPair(keyPair: SM2KeyPair): void {
             this.clientKeyPair.publicKey = keyPair.publicKey;
             this.clientKeyPair.privateKey = keyPair.privateKey;
-        }
+            let item = sessionStorage.getItem("cpk");
+            if (!item) sessionStorage.setItem("cpk", JSON.stringify(keyPair));
+        },
+
+        /**
+         * 获取客户端密钥对
+         * @return res 密钥对
+         */
+        getClientKeyPair(): SM2KeyPair | null {
+            if (this.clientKeyPair.publicKey && this.clientKeyPair.privateKey) return this.clientKeyPair;
+            let item: string | null = sessionStorage.getItem("cpk");
+            console.log(item);
+            if (item) return JSON.parse(item);
+            return null;
+        },
     }
 });

@@ -81,7 +81,7 @@ import {ElDialog} from "element-plus";
 import MrsTableHeader from "../../components/password/MrsTableHeader.vue";
 import MrsTableItem from "../../components/password/MrsTableItem.vue";
 import Toast, {showToast} from "../../components/common/Toast.vue";
-import {SM2Util} from "../../utils/sm2/sm2-util";
+import {SM2KeyPair, SM2Util} from "../../utils/sm2/sm2-util";
 import {useCryptoStore} from "../../store/cryptoStore";
 import {usePasswordStore, Record} from "../../store/passwordStore";
 import {ENABLE_ENCRYPT_LINK} from "../../common/constant";
@@ -124,17 +124,20 @@ const useCryptEffect = () => {
       console.log("data分页信息: ", JSON.parse(JSON.stringify(data.page)));
       get("/record/getRecordsList", data.page)
           .then((res: any) => {
-            console.log(res);
+            console.log("返回值: ", res);
             let list;
             if (res.code === 200) {
-              console.log("数据: ", res.data);
               if (ENABLE_ENCRYPT_LINK) {
                 let encrypt = res.data;
-                console.log("密文: ", encrypt);
-                const keyPair = cryptoStore.clientKeyPair;
+                let keyPair: SM2KeyPair | null = cryptoStore.getClientKeyPair();
                 encrypt = encrypt.substring(2);
-                const decrypt = SM2Util.decrypt(encrypt, keyPair.privateKey + "");
-                list = JSON.parse(decrypt);
+                console.log(keyPair);
+                const decrypt = SM2Util.decrypt(encrypt, keyPair?.privateKey + "");
+                console.log("解码后: ", decrypt);
+                if (decrypt) {
+                  const dec = JSON.parse(decrypt);
+                  list = dec?.records;
+                }
               } else {
                 // 直接传的对象
                 list = res.data.records;

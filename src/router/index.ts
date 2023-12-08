@@ -111,20 +111,6 @@ router.beforeEach((to, from, next) => {
 
     if (to.meta?.loginRequired) {
         console.log("需要登录");
-
-        const llt = parseInt(localStorage.getItem("lastLoginTime") as string);
-        let second = parseInt((((new Date()).getTime() - llt) / 1000).toString()) + 1;
-        const overdueSecond = 300;  // 过期时间5分钟
-
-        if(second > overdueSecond -10){
-            console.log("请刷新登录时间");
-        }
-
-        if (!(second && second < overdueSecond)) {
-            console.log("登录过期");
-            router.push("/login");
-        }
-
         if (!isBank(token)) {
             next();
         } else {

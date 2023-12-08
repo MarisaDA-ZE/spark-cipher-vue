@@ -16,7 +16,7 @@ export type MrsResult = {
  * @type {any}
  */
 const instance = axios.create({
-    baseURL: "http://192.168.2.135:8001",
+    baseURL: "http://192.168.10.103:8001",
     timeout: 60000,
     headers: {
         "Accept": "application/json",
