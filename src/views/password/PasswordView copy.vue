@@ -92,9 +92,16 @@ const cryptoStore = useCryptoStore();
 const passwordStore = usePasswordStore();
 
 const useCryptEffect = () => {
-
+  const ar: any = {       // 操作中的记录
+    name: '',
+    account: '',
+    password: '',
+    remarks: '',
+    url: '',
+    createDateTime: ''
+  };
   const data = reactive({
-
+    servicePublicKey: "",
     passwordList: Array<Record>(),     // 密码列表
     searchKeyWord: "",    // 搜索关键词
     page: {               // 分页对象
@@ -104,14 +111,15 @@ const useCryptEffect = () => {
     detailVisible: false, // 查看弹框
     editedVisible: false, // 编辑弹窗
     saveOrUpdateFlag: 0,  // 操作是新建还是编辑
-    activeRecord: {       // 操作中的记录
-      name: '',
-      account: '',
-      password: '',
-      remarks: '',
-      url: '',
-      createDateTime: ''
-    },
+    // activeRecord: {       // 操作中的记录
+    //   name: '',
+    //   account: '',
+    //   password: '',
+    //   remarks: '',
+    //   url: '',
+    //   createDateTime: ''
+    // },
+    activeRecord: ar,// 操作中的记录
     canSubmit: [false, false, false],     // 是否允许提交
     savePath: 'save'
   });
@@ -337,7 +345,7 @@ const useCryptEffect = () => {
           if (distance <= 0) {
             console.log(passwordStore.page);
             const total = passwordStore.page.current * passwordStore.page.size;
-            if (timer == null && total <= passwordStore.page.total) {
+            if (timer == null && passwordStore.page?.total && total <= passwordStore.page.total) {
               timer = setInterval(() => {
                 data.page.current++;
                 getPasswordsByPage().then((res: any) => {

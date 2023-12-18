@@ -83,18 +83,26 @@ import MrsTableItem from "../../components/password/MrsTableItem.vue";
 import Toast, {showToast} from "../../components/common/Toast.vue";
 import {SM2KeyPair, SM2Util} from "../../utils/sm2/sm2-util";
 import {useCryptoStore} from "../../store/cryptoStore";
-import {usePasswordStore, Record} from "../../store/passwordStore";
+import {ActiveRecord, Record, usePasswordStore} from "../../store/passwordStore";
 import {ENABLE_ENCRYPT_LINK} from "../../common/constant";
 import {_delete, get, MrsResult, post} from "../../utils/util/http-util";
-import {isEmpty, isNotEmpty} from "../../utils/util/util";
+import {isEmpty} from "../../utils/util/util";
 
 const cryptoStore = useCryptoStore();
 const passwordStore = usePasswordStore();
 
 const useCryptEffect = () => {
+  const arc: ActiveRecord = {
+    name: "",
+    account: "",
+    password: "",
+    remark: "",
+    url: "",
+    createDateTime: "",
+  };
+
 
   const data = reactive({
-
     passwordList: Array<Record>(),     // 密码列表
     searchKeyWord: "",    // 搜索关键词
     page: {               // 分页对象
@@ -104,16 +112,10 @@ const useCryptEffect = () => {
     detailVisible: false, // 查看弹框
     editedVisible: false, // 编辑弹窗
     saveOrUpdateFlag: 0,  // 操作是新建还是编辑
-    activeRecord: {       // 操作中的记录
-      name: '',
-      account: '',
-      password: '',
-      remarks: '',
-      url: '',
-      createDateTime: ''
-    },
+    activeRecord: arc,
     canSubmit: [false, false, false],     // 是否允许提交
-    savePath: 'save'
+    savePath: 'save',
+    servicePublicKey: "",
   });
 
   /**
@@ -161,7 +163,14 @@ const useCryptEffect = () => {
   const setActiveRecordById = (id: number) => {
     data.passwordList.forEach((p: Record) => {
       if (p.id === id) {
-        data.activeRecord = p;
+        data.activeRecord = {
+          name: p.userName,
+          account: p.account,
+          password: p.password,
+          remark: p.remark,
+          url: p.url,
+          createDateTime: p.createDateTime,
+        };
         return 0;
       }
     })
@@ -340,7 +349,7 @@ const useCryptEffect = () => {
           if (distance <= 0) {
             console.log(passwordStore.page);
             const total = passwordStore.page.current * passwordStore.page.size;
-            if (timer == null && total <= passwordStore.page.total) {
+            if (timer == null && passwordStore.page.total && total <= passwordStore.page.total) {
               timer = setInterval(() => {
                 data.page.current++;
                 getPasswordsByPage().then((res: any) => {
