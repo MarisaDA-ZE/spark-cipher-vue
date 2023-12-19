@@ -39,7 +39,7 @@ import {useCryptoStore} from "../../store/cryptoStore";
 import {StateTree} from "pinia";
 import {get, post} from "../../utils/util/http-util";
 import {SM2Util} from "../../utils/sm2/sm2-util";
-import {CRYPTO_PATH} from "../../common/constant";
+import {ROUTE_MAP} from "../../common/constant";
 
 
 const useCryptEffect = (store: StateTree) => {
@@ -68,7 +68,7 @@ const useCryptEffect = (store: StateTree) => {
    */
   const getServicePublicKey = (): Promise<unknown> => {
     return new Promise(resolve => {
-      get(CRYPTO_PATH + "/getServicePublicKey").then((res: any) => {
+      get(ROUTE_MAP.CRYPTO_PATH + "/getServicePublicKey").then((res: any) => {
         if (res?.data?.data) {
           const key = res.data.data;
           store.setServicePublicKey(key);
@@ -124,10 +124,12 @@ const useCryptEffect = (store: StateTree) => {
   const test = (): void => {
     const keyPair = SM2Util.getKeyPair();
     const text = "Marisa";
-    const encrypt = SM2Util.encrypt(text, keyPair.publicKey);
-    console.log(encrypt);
-    const decrypt = SM2Util.decrypt(encrypt, keyPair.privateKey);
-    console.log(decrypt);
+    if (keyPair.publicKey && keyPair.privateKey) {
+      const encrypt = SM2Util.encrypt(text, keyPair.publicKey);
+      console.log(encrypt);
+      const decrypt = SM2Util.decrypt(encrypt, keyPair.privateKey);
+      console.log(decrypt);
+    }
   }
 
   const {clientPlainText, clientCipherText, servicePlainText, serviceCipherText} = toRefs(data);

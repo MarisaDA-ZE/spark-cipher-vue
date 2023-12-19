@@ -1,8 +1,18 @@
 import {defineStore} from "pinia";
 import {encryptStore} from "../services/storeCipher";
 
+export type User = {
+    id: string;
+    userName: string;
+    level: number;
+    phone: string;
+    email: string;
+    avatar: string;
+};
+
 type StoreType = {
     token: string | null,
+    authUser?: User | null
 }
 
 
@@ -34,6 +44,29 @@ export const useTokenStore = defineStore("verify", {
          */
         removeToken(): void {
             this.token = null;
+        },
+
+        /**
+         * 设置登录用户
+         * @param user 用户
+         */
+        setUser(user: User): void {
+            this.authUser = user;
+        },
+
+        /**
+         * 获取用户
+         * @returns 用户
+         */
+        getUser(): User | null {
+            if (this.authUser) return this.authUser;
+            return null;
+        },
+        /**
+         * 删除用户
+         */
+        removeUser(): void {
+            this.authUser = null;
         }
     },
     // persist:true, // 开启持久化 

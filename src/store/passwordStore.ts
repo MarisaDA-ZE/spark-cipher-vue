@@ -1,41 +1,17 @@
-import { defineStore } from "pinia";
+import {defineStore} from "pinia";
+import {Record, MrsPage} from "./passwordType";
 
-export type Record = {
-    id: number;
-    userId: number;
-    title: string;
-    account: string;
-    userName: string;
-    password: string;
-    view_password?: string;
-    phone: string;
-    email: string;
-    url: string;
-    view_url?: string;
-    remark: string;
-    view_remark?: string;
-    createDateTime: string;
-    createDate: string;
-    createTime: string;
-    createBy: number;
-    updateDateTime: string;
-    updateDate: string;
-    updateTime: string;
-    updateBy: number;
-}
 
-type MrsPage = {
-    current: number;
-    size: number;
-}
 export const usePasswordStore = defineStore("password", {
     state() {
+        const page: MrsPage = {
+            current: 1,
+            size: 10
+        };
+
         return {
             passwordList: Array<Record>(),
-            page: {
-                current: 1,
-                size: 10
-            }
+            page: page
         };
     },
     actions: {
@@ -98,7 +74,7 @@ export const usePasswordStore = defineStore("password", {
          * 移除一个密码
          * @param id
          */
-        removePasswordOne(id: number) {
+        removePasswordOne(id: any) {
             const that = this;
             that.passwordList.forEach((e, i) => {
                 if (e.id === id) {
@@ -112,7 +88,7 @@ export const usePasswordStore = defineStore("password", {
          * 移除一组密码
          * @param ids
          */
-        removePasswordList(ids: Array<number>) {
+        removePasswordList(ids: Array<any>) {
             const that = this;
             that.passwordList.forEach((e, i) => {
                 for (const id of ids) {
@@ -125,3 +101,5 @@ export const usePasswordStore = defineStore("password", {
         }
     }
 });
+
+export type {Record, MrsPage};

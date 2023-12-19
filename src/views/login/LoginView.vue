@@ -228,11 +228,13 @@ export const useLoginEffect = () => {
       console.log(res);
       // 登录成功
       if (res?.code === 200) {
-        const token = res?.data;
+        const dt = res?.data;
         console.log("登录成功！");
+        console.log(data);
         const now = (new Date()).getTime();
         localStorage.setItem("lastLoginTime", now.toString());
-        tokenStore.setToken(token);
+        tokenStore.setToken(dt.token);
+        tokenStore.setUser(dt.user);
         cryptoInit();
         router.push("/password_view");
       } else {

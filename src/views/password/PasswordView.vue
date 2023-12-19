@@ -83,18 +83,27 @@ import MrsTableItem from "../../components/password/MrsTableItem.vue";
 import Toast, {showToast} from "../../components/common/Toast.vue";
 import {SM2KeyPair, SM2Util} from "../../utils/sm2/sm2-util";
 import {useCryptoStore} from "../../store/cryptoStore";
-import {usePasswordStore, Record} from "../../store/passwordStore";
+import {useTokenStore, User} from "../../store/tokenStore";
+import {usePasswordStore} from "../../store/passwordStore";
+import {ActiveRecord, Record} from "../../store/passwordType";
 import {ENABLE_ENCRYPT_LINK} from "../../common/constant";
 import {_delete, get, MrsResult, post} from "../../utils/util/http-util";
 import {isEmpty, isNotEmpty} from "../../utils/util/util";
 
 const cryptoStore = useCryptoStore();
 const passwordStore = usePasswordStore();
+const tokenStore = useTokenStore();
 
 const useCryptEffect = () => {
-
+  const tActiveRecord: ActiveRecord = {       // 操作中的记录
+    name: '',
+    account: '',
+    password: '',
+    remarks: '',
+    url: '',
+    createDateTime: ''
+  };
   const data = reactive({
-
     passwordList: Array<Record>(),     // 密码列表
     searchKeyWord: "",    // 搜索关键词
     page: {               // 分页对象
@@ -104,16 +113,10 @@ const useCryptEffect = () => {
     detailVisible: false, // 查看弹框
     editedVisible: false, // 编辑弹窗
     saveOrUpdateFlag: 0,  // 操作是新建还是编辑
-    activeRecord: {       // 操作中的记录
-      name: '',
-      account: '',
-      password: '',
-      remarks: '',
-      url: '',
-      createDateTime: ''
-    },
+    activeRecord: tActiveRecord,
     canSubmit: [false, false, false],     // 是否允许提交
-    savePath: 'save'
+    savePath: 'save',
+    servicePublicKey: "",
   });
 
   /**
@@ -158,10 +161,17 @@ const useCryptEffect = () => {
   /**
    * 设置活动的记录
    */
-  const setActiveRecordById = (id: number) => {
+  const setActiveRecordById = (id: any) => {
     data.passwordList.forEach((p: Record) => {
       if (p.id === id) {
-        data.activeRecord = p;
+        data.activeRecord = {
+          name: p.userName,
+          account: p.account,
+          password: p.password,
+          remarks: p.remark,
+          url: p.url,
+          createDateTime: p.createDateTime,
+        };
         return 0;
       }
     })
@@ -184,7 +194,7 @@ const useCryptEffect = () => {
       name: '',
       account: '',
       password: '',
-      remark: '',
+      remarks: '',
       url: '',
       createDateTime: ''
     };
@@ -244,16 +254,23 @@ const useCryptEffect = () => {
    */
   const onSubmitChange = () => {
     const nodeList = [].slice.call(document.querySelectorAll(".checked"));
-    resetStyle(nodeList, 'out');
-    const submitData: Record = JSON.parse(JSON.stringify(data.activeRecord));
-    submitData["userId"] = 22;
-    if (data.canSubmit.indexOf(false) == -1) {
-      data.editedVisible = !data.editedVisible;
-      const path = data.savePath === "save" ? "/createPassword" : "/updatePassword";
-      const encrypt = SM2Util.encrypt(JSON.stringify(submitData), data.servicePublicKey);
-      post("/password" + path + "/22", "04" + encrypt).then(res => {
-        console.log(res);
-      })
+    const authUser: User | null = tokenStore.getUser();
+    if (authUser) {
+      const userId: string = authUser.id;
+      resetStyle(nodeList, 'out');
+      const submitData: Record = JSON.parse(JSON.stringify(data.activeRecord));
+      submitData.userId = userId;
+      if (data.canSubmit.indexOf(false) == -1) {
+        data.editedVisible = !data.editedVisible;
+        const path = data.savePath === "save" ? "/add" : "/edit";
+        let pk: string | null | undefined = cryptoStore.getServicePublicKey()?.publicKey;
+        if (pk) {
+          const encrypt = SM2Util.encrypt(JSON.stringify(submitData), pk);
+          post("/record" + path, "04" + encrypt).then(res => {
+            console.log(res);
+          })
+        }
+      }
     }
   }
 
@@ -340,7 +357,7 @@ const useCryptEffect = () => {
           if (distance <= 0) {
             console.log(passwordStore.page);
             const total = passwordStore.page.current * passwordStore.page.size;
-            if (timer == null && total <= passwordStore.page.total) {
+            if (timer == null && passwordStore.page?.total && total <= passwordStore.page.total) {
               timer = setInterval(() => {
                 data.page.current++;
                 getPasswordsByPage().then((res: any) => {

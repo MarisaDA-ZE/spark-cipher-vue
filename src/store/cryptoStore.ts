@@ -43,8 +43,20 @@ export const useCryptoStore = defineStore("crypto", {
          * @param keyPair 密钥对
          */
         setServicePublicKey(keyPair: SM2KeyPair): void {
+            console.log(keyPair);
             this.serviceKeyPair.publicKey = keyPair.publicKey;
             this.serviceKeyPair.privateKey = keyPair.privateKey;
+        },
+        /**
+         * 获取客户端密钥对
+         * @return res 密钥对
+         */
+        getServicePublicKey(): SM2KeyPair | null {
+            if (this.serviceKeyPair.publicKey) return this.serviceKeyPair;
+            let item: string | null = sessionStorage.getItem("spk");
+            console.log(item);
+            if (item) return JSON.parse(item);
+            return null;
         },
 
         /**
