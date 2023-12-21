@@ -1,8 +1,9 @@
 import {defineStore} from "pinia";
 import {Record, MrsPage} from "./passwordType";
+import {encryptStore} from "../services/storeCipher";
 
 
-export const usePasswordStore = defineStore("password", {
+export const usePasswordStore = defineStore("p", {
     state() {
         const page: MrsPage = {
             current: 1,
@@ -99,6 +100,9 @@ export const usePasswordStore = defineStore("password", {
                 }
             });
         }
+    },
+    persist: {// 开启持久化,并进行加密
+        storage: encryptStore
     }
 });
 

@@ -1,4 +1,3 @@
-// @ts-ignore
 import Fingerprint2 from 'fingerprintjs2';
 
 export const whitespaceArray: Array<number> = [10, 13, 32];

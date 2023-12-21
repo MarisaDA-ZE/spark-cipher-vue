@@ -70,7 +70,7 @@ export const useAuthorizationStore = defineStore("authorization", {
             return this.finger;
         },
         /**
-         * 删除用户
+         * 删除指纹
          */
         removeFinger(): void {
             this.finger = undefined;
@@ -80,3 +80,5 @@ export const useAuthorizationStore = defineStore("authorization", {
         storage: encryptStore
     }
 });
+
+export type {User, StoreType};

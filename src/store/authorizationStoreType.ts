@@ -6,6 +6,11 @@ export type User = {
     phone: string;
     email: string;
     avatar: string;
+    gender: string;
+    createTime: string;
+    createBy: string;
+    updateTime: string;
+    updateBy: string;
 };
 
 // 仓库类型

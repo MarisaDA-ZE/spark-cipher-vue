@@ -25,7 +25,7 @@
               activeRecord.password
             }}</span>
           </p>
-          <p><span>备注: </span><span>{{ activeRecord.remark }}</span></p>
+          <p><span>备注: </span><span>{{ activeRecord.remarks }}</span></p>
           <p><span>官网: </span><a :class="activeRecord?.url ? 'dialog-url' : 'dialog-url-prevent'"
                                    :href="activeRecord?.url">{{ activeRecord?.url }}</a></p>
           <p><span>创建时间: </span><span>{{ activeRecord.createDateTime }}</span></p>
@@ -33,27 +33,22 @@
       </el-dialog>
 
       <!-- 编辑、新建对话框 -->
-      <el-dialog v-model="editedVisible" :title="saveOrUpdateFlag === 1 ? '修改密码' : '新建密码'" :width="'80%'"
-                 :beforeClose="editDialogBeforeClose" :show-close="false">
+      <el-dialog v-model="editedVisible" :title="saveOrUpdateFlag === 1 ? '修改密码' : '新建密码'" :width="'80%'" :show-close="false">
         <div class="mrs-dialog-edited">
           <p><label>
             <span>名称: </span>
-            <input type="text" v-model="activeRecord.name" @focus="checkRules(activeRecord.name, 'name-in', $event)"
-                   @blur="checkRules(activeRecord.name, 'name-out', $event)" class="mrs-input checked"
+            <input type="text" v-model="activeRecord.name"
+                   class="mrs-input checked"
                    placeholder="请输入账户名称"/>
           </label></p>
           <p><label>
             <span>账号: </span>
-            <input type="text" v-model="activeRecord.account"
-                   @focus="checkRules(activeRecord.account, 'account-in', $event)"
-                   @blur="checkRules(activeRecord.account, 'account-out', $event)" class="mrs-input checked"
+            <input type="text" v-model="activeRecord.account" class="mrs-input checked"
                    placeholder="请输入账号"/>
           </label></p>
           <p><label>
             <span>密码: </span>
-            <input type="text" v-model="activeRecord.password"
-                   @focus="checkRules(activeRecord.password, 'password-in', $event)"
-                   @blur="checkRules(activeRecord.password, 'password-out', $event)" class="mrs-input checked"
+            <input type="text" v-model="activeRecord.password" class="mrs-input checked"
                    placeholder="请输入密码"/>
           </label></p>
           <p><label>
@@ -88,11 +83,10 @@ import {usePasswordStore} from "../../store/passwordStore";
 import {ActiveRecord, Record} from "../../store/passwordType";
 import {ENABLE_ENCRYPT_LINK} from "../../common/constant";
 import {_delete, get, MrsResult, post} from "../../utils/util/http-util";
-import {isEmpty, isNotEmpty} from "../../utils/util/util";
 
 const cryptoStore = useCryptoStore();
 const passwordStore = usePasswordStore();
-const tokenStore = useAuthorizationStore();
+const authorizationStore = useAuthorizationStore();
 
 const useCryptEffect = () => {
   const tActiveRecord: ActiveRecord = {       // 操作中的记录
@@ -132,13 +126,14 @@ const useCryptEffect = () => {
             if (res.code === 200) {
               if (ENABLE_ENCRYPT_LINK) {
                 let encrypt = res.data;
-                let keyPair: SM2KeyPair | null = cryptoStore.getClientKeyPair();
                 encrypt = encrypt.substring(2);
+                let t: any = cryptoStore.getClientKeyPair();
+                let keyPair: SM2KeyPair | null = JSON.parse(JSON.stringify(t));
                 console.log(keyPair);
-                const decrypt = SM2Util.decrypt(encrypt, keyPair?.privateKey + "");
+                const decrypt: string = SM2Util.decrypt(encrypt, keyPair?.privateKey + "");
                 console.log("解码后: ", decrypt);
                 if (decrypt) {
-                  const dec = JSON.parse(decrypt);
+                  const dec: any = JSON.parse(decrypt);
                   list = dec?.records;
                 }
               } else {
@@ -253,11 +248,9 @@ const useCryptEffect = () => {
    * 提交更新
    */
   const onSubmitChange = () => {
-    const nodeList = [].slice.call(document.querySelectorAll(".checked"));
-    const authUser: User | null = tokenStore.getUser();
+    const authUser: User | undefined = authorizationStore.getUser();
     if (authUser) {
       const userId: string = authUser.id;
-      resetStyle(nodeList, 'out');
       const submitData: Record = JSON.parse(JSON.stringify(data.activeRecord));
       submitData.userId = userId;
       if (data.canSubmit.indexOf(false) == -1) {
@@ -274,14 +267,6 @@ const useCryptEffect = () => {
     }
   }
 
-  /**
-   * 重置样式
-   */
-  const resetStyle = (domList: Array<HTMLInputElement>, str: string) => {
-    checkRules(data.activeRecord.name, 'name-' + str, null, domList[0]);
-    checkRules(data.activeRecord.account, 'account-' + str, null, domList[1]);
-    checkRules(data.activeRecord.password, 'password-' + str, null, domList[2]);
-  }
 
   /**
    * 搜索
@@ -291,52 +276,6 @@ const useCryptEffect = () => {
     alert(word);
   }
 
-  /**
-   * 弹出框关闭后清除样式
-   */
-  const editDialogBeforeClose = () => {
-    data.editedVisible = !data.editedVisible;
-    const nodeList = [].slice.call(document.querySelectorAll(".checked"));
-    resetStyle(nodeList, 'in');
-  }
-
-  /**
-   * TODO: 表单数据校验
-   */
-  const checkRules = (text: string, type: string, event: Event | null, d: HTMLInputElement | null = null) => {
-    let target: HTMLInputElement;
-    // @ts-ignore
-    if (d == null) target = event.target;
-    else target = d;
-    const split = type.split('-');
-    const checkSuccess = (dom: HTMLInputElement, index: number) => {
-      data.canSubmit[index] = true;
-      dom.removeAttribute('style');
-    }
-    const checkFailed = (dom: HTMLInputElement, index: number) => {
-      data.canSubmit[index] = false;
-      dom.style.border = "1px solid #F00";
-    }
-    const namePattern = /^.{1,16}$/;
-    const accountPattern = /^.{1,32}$/;
-    const passwordPattern = /^.{1,32}$/;
-    if (split[1] === 'in') {  // 获得焦点
-      target.removeAttribute('style');
-    } else { // 失去焦点
-      if (isEmpty(text)) checkFailed(target, 0);
-      switch (split[0]) {
-        case 'name':
-          namePattern.test(text) ? checkSuccess(target, 0) : checkFailed(target, 0);
-          break;
-        case 'account':
-          accountPattern.test(text) ? checkSuccess(target, 1) : checkFailed(target, 1);
-          break;
-        case 'password':
-          passwordPattern.test(text) ? checkSuccess(target, 2) : checkFailed(target, 2);
-          break;
-      }
-    }
-  }
 
   /**
    * TODO: 滚动监听
@@ -396,8 +335,6 @@ const useCryptEffect = () => {
     onSubmitChange,         // 提交更新
     deleteBatch,            // 批量删除
     searchByKeyword,
-    editDialogBeforeClose,
-    checkRules,
     mrsLazyLoading
   };
 }
@@ -422,8 +359,6 @@ export default {
       onSubmitChange,
       deleteBatch,
       searchByKeyword,
-      editDialogBeforeClose,
-      checkRules,
       mrsLazyLoading
     } = useCryptEffect();
 
@@ -446,8 +381,6 @@ export default {
       saveOrUpdateRecord,
       deleteBatch,
       searchByKeyword,
-      editDialogBeforeClose,
-      checkRules
     };
   },
 
