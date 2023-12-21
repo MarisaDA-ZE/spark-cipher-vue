@@ -1,4 +1,5 @@
-import Fingerprint2 from "fingerprintjs2";
+// @ts-ignore
+import Fingerprint2 from 'fingerprintjs2';
 
 export const whitespaceArray: Array<number> = [10, 13, 32];
 
@@ -26,9 +27,9 @@ export const isNotEmpty = (val: any): boolean => {
  * 判断字符串是否为空
  * @returns 是否为空
  */
-export const isBank = (val: string | null): boolean => {
+export const isBank = (val: string | null | undefined): boolean => {
     let strLength: number = 0;
-    if (val !== null && (strLength = val.length) != 0) {
+    if (val && (strLength = val.length) != 0) {
         for (let i = 0; i < strLength; ++i) {
             const isSpace: number = whitespaceArray.indexOf(val.charCodeAt(i));
             if (isSpace === -1) {
@@ -72,7 +73,7 @@ export const getDeviceFingerprint = (): Promise<string | undefined> => {
         let options = {
             excludes: excludes
         };
-        Fingerprint2.get(options, function (components) {
+        Fingerprint2.get(options, function (components: any[]) {
             // 参数
             const values: any[] = components.map(function (component) {
                 return component.value
