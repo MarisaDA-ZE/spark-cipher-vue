@@ -140,7 +140,7 @@ const useCryptEffect = (store: StateTree) => {
     servicePlainText,       // 服务端明文
     serviceCipherText,      // 服务端密文
     init,                   // 初始化
-    getServicePublicKey,    // 获取服务端公钥
+    getServiceKeyPair: getServicePublicKey,    // 获取服务端公钥
     sendClientPublicKey,    // 发送客户端公钥
     getPasswordById,        // 根据Id查询对象
     encryptAndSend,         // 加密数据并发送

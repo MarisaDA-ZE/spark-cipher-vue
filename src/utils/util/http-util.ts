@@ -1,7 +1,7 @@
 import axios, {AxiosRequestConfig, AxiosResponse} from "axios";
-import {useTokenStore} from "../../store/tokenStore";
+import {useAuthorizationStore} from "../../store/authorizationStore";
 
-const store = useTokenStore();
+const store = useAuthorizationStore();
 
 export type MrsResult = {
     code: number;
@@ -16,7 +16,8 @@ export type MrsResult = {
  * @type {any}
  */
 const instance = axios.create({
-    baseURL: "http://47.109.66.127:8001",
+    // baseURL: "http://47.109.66.127:8001",
+    baseURL: "http://192.168.2.135:8001",
     timeout: 60000,
     headers: {
         "Accept": "application/json",

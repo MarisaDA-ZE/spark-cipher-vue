@@ -26,7 +26,7 @@
 <script lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { useTokenStore } from "../../store/tokenStore";
+import { useAuthorizationStore } from "../../store/authorizationStore";
 
 export default {
   name: "Header",
@@ -34,7 +34,7 @@ export default {
   setup() {
     const search_content = ref("");
     const router = useRouter();
-    const verifyStore = useTokenStore();
+    const verifyStore = useAuthorizationStore();
     
     /**
      * 处理返回点击事件

@@ -83,7 +83,7 @@ import MrsTableItem from "../../components/password/MrsTableItem.vue";
 import Toast, {showToast} from "../../components/common/Toast.vue";
 import {SM2KeyPair, SM2Util} from "../../utils/sm2/sm2-util";
 import {useCryptoStore} from "../../store/cryptoStore";
-import {useTokenStore, User} from "../../store/tokenStore";
+import {useAuthorizationStore, User} from "../../store/authorizationStore";
 import {usePasswordStore} from "../../store/passwordStore";
 import {ActiveRecord, Record} from "../../store/passwordType";
 import {ENABLE_ENCRYPT_LINK} from "../../common/constant";
@@ -92,7 +92,7 @@ import {isEmpty, isNotEmpty} from "../../utils/util/util";
 
 const cryptoStore = useCryptoStore();
 const passwordStore = usePasswordStore();
-const tokenStore = useTokenStore();
+const tokenStore = useAuthorizationStore();
 
 const useCryptEffect = () => {
   const tActiveRecord: ActiveRecord = {       // 操作中的记录
@@ -263,7 +263,7 @@ const useCryptEffect = () => {
       if (data.canSubmit.indexOf(false) == -1) {
         data.editedVisible = !data.editedVisible;
         const path = data.savePath === "save" ? "/add" : "/edit";
-        let pk: string | null | undefined = cryptoStore.getServicePublicKey()?.publicKey;
+        let pk: string | null | undefined = cryptoStore.getServiceKeyPair()?.publicKey;
         if (pk) {
           const encrypt = SM2Util.encrypt(JSON.stringify(submitData), pk);
           post("/record" + path, "04" + encrypt).then(res => {

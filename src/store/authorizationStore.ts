@@ -1,22 +1,8 @@
 import {defineStore} from "pinia";
 import {encryptStore} from "../services/storeCipher";
+import {User, StoreType} from "./authorizationStoreType";
 
-export type User = {
-    id: string;
-    userName: string;
-    level: number;
-    phone: string;
-    email: string;
-    avatar: string;
-};
-
-type StoreType = {
-    token: string | null,
-    authUser?: User | null
-}
-
-
-export const useTokenStore = defineStore("verify", {
+export const useAuthorizationStore = defineStore("authorization", {
     state() {
         const data: StoreType = {
             token: ""
@@ -36,14 +22,14 @@ export const useTokenStore = defineStore("verify", {
          * 获取token
          * @returns token
          */
-        getToken(): string | null {
+        getToken(): string | undefined {
             return this.token;
         },
         /**
          * 删除token
          */
         removeToken(): void {
-            this.token = null;
+            this.token = undefined;
         },
 
         /**
@@ -58,18 +44,38 @@ export const useTokenStore = defineStore("verify", {
          * 获取用户
          * @returns 用户
          */
-        getUser(): User | null {
-            if (this.authUser) return this.authUser;
-            return null;
+        getUser(): User | undefined {
+            return this.authUser;
         },
         /**
          * 删除用户
          */
         removeUser(): void {
-            this.authUser = null;
-        }
+            this.authUser = undefined;
+        },
+
+        /**
+         * 设置登录用户
+         * @param finger 用户
+         */
+        setFinger(finger: string): void {
+            this.finger = finger;
+        },
+
+        /**
+         * 获取用户
+         * @returns 用户
+         */
+        getFinger(): string | undefined {
+            return this.finger;
+        },
+        /**
+         * 删除用户
+         */
+        removeFinger(): void {
+            this.finger = undefined;
+        },
     },
-    // persist:true, // 开启持久化 
     persist: {// 开启持久化,并进行加密
         storage: encryptStore
     }

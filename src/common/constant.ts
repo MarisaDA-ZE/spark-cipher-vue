@@ -1,5 +1,3 @@
-import {useCryptoStore} from "../store/cryptoStore";
-import {get, MrsResult, post} from "../utils/util/http-util";
 
 // 登录类型
 export enum LOGIN_TYPE {
@@ -36,29 +34,3 @@ export const ENABLE_ENCRYPT_LINK: boolean = true;
 //       if (res?.data?.data) data.serviceCipherText = res.data.data;
 //     });
 // }
-
-/**
- * 初始化密钥对
- */
-export const cryptoInit = (): void => {
-    const store = useCryptoStore();
-
-    // 生成客户端公私钥
-    store.createServiceKeyPair();
-
-    // 请求服务端公钥
-    get("/crypto/getServicePublicKey").then((res: MrsResult) => {
-        if (res.code === 200) {
-            store.setServicePublicKey(res.data);
-        } else {
-            console.log(res);
-        }
-    });
-
-    // 发送客户端公钥
-    post("/crypto/setClientPublicKey",
-        {'publicKey': store.clientKeyPair.publicKey}
-    ).then((res: MrsResult) => {
-        if (res.code !== 200) console.log(res);
-    });
-}

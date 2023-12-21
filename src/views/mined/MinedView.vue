@@ -6,9 +6,9 @@
 </template>
 
 <script lang="ts">
-import {useTokenStore} from '../../store/tokenStore';
+import {useAuthorizationStore} from '../../store/authorizationStore';
 
-const verifyStore = useTokenStore();
+const verifyStore = useAuthorizationStore();
 export default {
   name: "MinedView",
   components: {},
