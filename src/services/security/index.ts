@@ -1,1 +1,1 @@
-export const TP = 0;
+export const DF = {};

@@ -1,16 +1,17 @@
 <template>
   <div class="login_view">
     <!-- 布局 -->
-    <div class="layout" v-if="displayParentPage">
+    <div class="layout">
       <!-- 图标LOGO -->
       <div class="logo">
         <img src="../../assets/vite.svg" alt="图片加载失败"/>
       </div>
 
       <!-- 内容输入区 -->
-      <div class="input_box">
+      <div class="input_box" ref="mrsInputBox">
+
         <!-- 账户密码登录 -->
-        <div class="item login_account">
+        <div class="item login_account" v-if="systemData.loginType === LOGIN_TYPE.ACCOUNT">
           <p>
             <input type="text" name="account" v-model="account" placeholder="请输入账号"/>
           </p>
@@ -21,7 +22,7 @@
         </div>
 
         <!-- 手机号登录 -->
-        <div class="item login_phone">
+        <div class="item login_phone" v-if="systemData.loginType === LOGIN_TYPE.PHONE">
           <p>
             <input type="text" name="phone_no" v-model="phoneNo" placeholder="请输入手机号"/>
           </p>
@@ -32,7 +33,7 @@
         </div>
 
         <!-- 邮箱登录 -->
-        <div class="item login_email">
+        <div class="item login_email" v-if="systemData.loginType === LOGIN_TYPE.EMAIL">
           <p>
             <input type="text" name="email" v-model="email" placeholder="请输入邮箱"/>
           </p>
@@ -45,13 +46,13 @@
 
       <!-- 提交按钮 -->
       <div class="submit_button">
-        <button @click="handlerSubmitButtonClick()">登 录</button>
+        <button @click="login()">登 录</button>
       </div>
 
       <!-- 选择登录方式 -->
       <div class="select_login_type">
         <p>
-          <span @click="handlerPhoneLoginClick($event)">短信登录</span>
+          <span @click="switchLoginType()" ref="mrsSwitchSpan">短信登录</span>
         </p>
         <p>
           <span @click="handlerForgotPasswordClick()">忘记密码</span>
@@ -59,10 +60,10 @@
       </div>
 
       <!-- 其它方式登录 -->
-      <div class="more_login">
+      <div class="more_login" v-if="false">
         <p class="highlight">选择其它方式登录</p>
         <div class="items">
-          <div class="item">
+          <div class="item" @click="switchLoginType(LOGIN_TYPE.EMAIL)">
             <p>
               <svg aria-hidden="true">
                 <use xlink:href="#icon-youxiang"></use>
@@ -70,370 +71,279 @@
             </p>
             <p>邮箱</p>
           </div>
-          <div class="item">
-            <p>
-              <svg aria-hidden="true">
-                <use xlink:href="#icon-QQ"></use>
-              </svg>
-            </p>
-            <p>QQ</p>
-          </div>
-          <div class="item">
-            <p>
-              <svg aria-hidden="true">
-                <use xlink:href="#icon-weixin"></use>
-              </svg>
-            </p>
-            <p>微信</p>
-          </div>
-          <div class="item">
-            <p>
-              <svg aria-hidden="true">
-                <use xlink:href="#icon-zhifubao"></use>
-              </svg>
-            </p>
-            <p>支付宝</p>
-          </div>
         </div>
       </div>
-
     </div>
     <Toast/>
   </div>
 </template>
 
-<script lang="ts">
-import {reactive, toRefs} from "vue";
-import {useRoute, useRouter} from "vue-router";
+<script lang="ts" setup>
+import {reactive, Ref, ref, toRefs} from "vue";
+import {useRouter} from "vue-router";
 import {useCryptoStore} from '../../store/cryptoStore';
-import {useTokenStore} from '../../store/tokenStore';
+import {useAuthorizationStore} from '../../store/authorizationStore';
 import Toast, {showToast} from "../../components/common/Toast.vue";
 import {ENABLE_ENCRYPT_LINK, LOGIN_TYPE} from '../../common/constant';
-import {get, post} from "../../utils/util/http-util";
+import {post} from "../../utils/util/http-util";
 import {SM2KeyPair, SM2Util} from "../../utils/sm2/sm2-util";
+import {regVerify, getDeviceFingerprint} from "../../utils/util/util";
+
+type ACCOUNT = {
+  account?: string;   // 用户名
+  password?: string;  // 密码
+  phoneNo?: string;   // 手机号
+  email?: string;     // 邮箱
+  verifyCode?: string;// 验证码
+  f?: string;         // 设备标识
+  loginType?: LOGIN_TYPE;// 登录方式
+};
+
+const router = useRouter();
+const authorizationStore = useAuthorizationStore();
+const cryptoStore = useCryptoStore();
+
+/* 输入框 */
+const mrsInputBox: Ref<HTMLDivElement | null> = ref(null);
+const mrsSwitchSpan: Ref<HTMLSpanElement | null> = ref(null);
+
+/* 账户数据 */
+const accounts: ACCOUNT = reactive({
+  account: "",
+  password: "",
+  phoneNo: "",
+  email: "",
+  verifyCode: "",
+  f: "",
+  loginType: LOGIN_TYPE.ACCOUNT
+});
+
+/* 应用数据 */
+const systemData = reactive({
+  loginType: LOGIN_TYPE.ACCOUNT, // 登录类型：1、账号密码，2、手机号，3、邮箱
+  loginTypeSwitchLock: true,  // 登录类型切换的锁
+  hidePwd: false,             // 是否显示密码
+  hidePwdLock: false,         // 显示密码点击冷却
+});
+
 
 /**
- * 登录业务逻辑
+ * 切换登录方式
  */
-export const useLoginEffect = () => {
-  const route = useRoute();
-  const router = useRouter();
+const switchLoginType = (lType?: LOGIN_TYPE): void => {
 
-  const tokenStore = useTokenStore();
-  const cryptoStore = useCryptoStore();
-
-  /* 账户数据 */
-  const accounts = reactive({
-    account: "",
-    password: "",
-    phoneNo: "",
-    email: "",
-    verifyCode: "",
-    loginType: LOGIN_TYPE.ACCOUNT
-  });
-
-  /* 应用数据 */
-  const data = reactive({
-    loginType: LOGIN_TYPE.ACCOUNT, // 登录类型：1、账号密码，2、手机号，3、邮箱
-    loginTypeSwitchLock: true,  // 登录类型切换的锁
-    displayParentPage: true,    // 是否显示主页面
-    hidePwd: false,             // 是否显示密码
-    hidePwdLock: false,         // 显示密码点击冷却
-  });
-
-  /**
-   * 初始化
-   */
-  const init = (): void => {
-    data.displayParentPage = true;
-    console.log(data.displayParentPage);
-
-  };
-
-  /**
-   * 处理切换登录方式按钮的点击事件
-   * @param _event Event对象
-   */
-  const handlerPhoneLoginClick = (_event: Event): void => {
-    const inputBox: HTMLDivElement | null = document.querySelector(".input_box");
-    const target: EventTarget | null = _event.target;
-
-    if (inputBox !== null && target) {
-      // 800毫秒内此方法只能触发一次
-      if (!data.loginTypeSwitchLock) {
-        return;
-      }
-      data.loginTypeSwitchLock = false;
-      setTimeout(() => {
-        data.loginTypeSwitchLock = true;
-      }, 800);
-
-      // 切换
-      const span = target as HTMLSpanElement;
-      switch (data.loginType) {
-          // 账号密码登录时
-        case LOGIN_TYPE.ACCOUNT:
-          inputBox.style.transform = "translateX(-33.33333%)";
-          span.innerHTML = "账号登录";
-          data.loginType = LOGIN_TYPE.PHONE;
-          break;
-          // 手机号登录时
-        case LOGIN_TYPE.PHONE:
-          inputBox.style.transform = "translateX(0)";
-          span.innerHTML = "短信登录";
-          data.loginType = LOGIN_TYPE.ACCOUNT;
-          break;
-      }
-      accounts.loginType = data.loginType;
+  if (mrsInputBox.value && mrsSwitchSpan.value) {
+    // 500毫秒内此方法只能触发一次
+    if (!systemData.loginTypeSwitchLock) {
+      return;
     }
-  };
+    systemData.loginTypeSwitchLock = false;
+    setTimeout(() => {
+      systemData.loginTypeSwitchLock = true;
+    }, 500);
 
-  /**
-   * 处理获取验证码按钮的点击事件
-   */
-  const handlerSendVerifyCodeClick = (): void => {
-    console.log("获取验证码");
-  };
-
-  /**
-   * 处理登录按钮点击事件
-   */
-  const handlerSubmitButtonClick = (): void => {
-    // 校验数据合法性
-    let permitLogin = false;
-    switch (data.loginType) {
+    // 切换
+    switch (systemData.loginType) {
+        // 账号密码登录时
       case LOGIN_TYPE.ACCOUNT:
-        permitLogin = verifyAccountContent();
+        mrsSwitchSpan.value.innerHTML = "账号登录";
+        systemData.loginType = LOGIN_TYPE.PHONE;
         break;
+        // 手机号登录时
       case LOGIN_TYPE.PHONE:
-        permitLogin = verifyPhoneContent();
-        break;
-      case LOGIN_TYPE.EMAIL:
-        permitLogin = verifyEmailContent();
+        mrsSwitchSpan.value.innerHTML = "短信登录";
+        systemData.loginType = LOGIN_TYPE.ACCOUNT;
         break;
     }
-    console.log("登录：", permitLogin);
-    if (!permitLogin) return;
-    onSubmit();
+    if (lType) {
+      // systemData.loginType = lType;
+      console.log(lType)
+    }
+    accounts.loginType = systemData.loginType;
   }
+};
 
-  /**
-   * 提交登录信息
-   */
-  const onSubmit = (): void => {
-    console.log("提交", data.loginType);
-    const log = JSON.parse(JSON.stringify(accounts));
-    console.log(log);
-    post("/auth/accountLogin", accounts).then(res => {
-      console.log(res);
-      // 登录成功
-      if (res?.code === 200) {
-        const token = res?.data;
-        console.log("登录成功！");
-        const now = (new Date()).getTime();
-        localStorage.setItem("lastLoginTime", now.toString());
-        tokenStore.setToken(token);
-        cryptoInit();
-        router.push("/password_view");
-      } else {
-        showToast("error", res.msg, 1.5);
-      }
-    });
-  };
+/**
+ * 处理获取验证码按钮的点击事件
+ */
+const handlerSendVerifyCodeClick = (): void => {
+  console.log("获取验证码");
+};
 
-  // 初始化密钥
-  const cryptoInit = (): void => {
-    // 如果不启用数据加密，则不会生成和获取密钥对
-    if (!ENABLE_ENCRYPT_LINK) return;
-    // 获取服务端密钥
-    get("/crypto/getServicePublicKey").then(res => {
-      console.log("服务端密钥: ", res);
-      if (res.code === 200) {
-        const serviceKeyPair: SM2KeyPair = {
-          publicKey: null,
-          privateKey: null
-        };
-        serviceKeyPair.publicKey = res.data;
-        cryptoStore.setServicePublicKey(serviceKeyPair);  // 保存服务端密钥对
+/**
+ * 处理登录按钮点击事件
+ */
+const login = (): void => {
+  // 校验数据
+  let permitLogin = false;
+  switch (systemData.loginType) {
+    case LOGIN_TYPE.ACCOUNT:
+      permitLogin = verifyAccountContent();
+      break;
+    case LOGIN_TYPE.PHONE:
+      permitLogin = verifyPhoneContent();
+      break;
+    case LOGIN_TYPE.EMAIL:
+      permitLogin = verifyEmailContent();
+      break;
+  }
+  console.log("数据校验：", permitLogin);
+  if (!permitLogin) return;
+  onSubmit();
+}
 
-      } else {
-        showToast("error", res.msg, 1.5);
-      }
-    });
+/**
+ * 提交登录信息
+ */
+const onSubmit = (): void => {
+  console.log("提交", systemData.loginType);
+  const spk = cryptoStore.getServicePublicKey();
+  let encrypt: string = "";
+  if (spk) encrypt = "04" + SM2Util.encrypt(JSON.stringify(accounts), spk);
+  const s: string = ENABLE_ENCRYPT_LINK ? encrypt : JSON.stringify(accounts);
+  post("/auth/accountLogin", {text: s, f: authorizationStore.getFinger()}).then(res => {
+    console.log(res);
+    // 登录成功
+    if (res?.code === 200) {
+      const dt = res?.data;
+      console.log("登录成功！");
+      authorizationStore.setToken(dt.token);
+      authorizationStore.setUser(dt.user);
+      router.push("/password_view");
+    } else {
+      showToast("error", res.msg, 1.5);
+    }
+  });
+};
 
-    // 创建客户端密钥对
-    cryptoStore.createServiceKeyPair().then(kp => {
-      const keyPair: SM2KeyPair = {
-        publicKey: kp.publicKey,
-        privateKey: null
-      };
-      post("/crypto/setClientPublicKey", keyPair).then(r => {
-        console.log("客户端密钥: ", r);
-        if (r.code !== 200) showToast("error", r.msg, 2);
+/**
+ * 校验账户名和密码
+ */
+const verifyAccountContent = (): boolean => {
+  // 用户名正则，4到16位（字母，数字，下划线，减号）
+  const accountRegExp: RegExp = /^[a-zA-Z0-9_-☆★]{4,16}$/;
+  // 密码正则，最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符
+  const passwordRegExp: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z-!@#&*$_.\d]{6,}$/;
+  const verifyAccount: boolean = regVerify(accounts.account, accountRegExp);
+  const verifyPassword: boolean = regVerify(accounts.password, passwordRegExp);
+  if (!verifyAccount) {
+    showToast('error', "用户名为4~16位可包含字母，数字，下划线，减号", 2);
+    return false;
+  }
+  if (!verifyPassword) {
+    showToast('error', "密码最少6位，确保包含大小写字母、数字、特殊字符", 2);
+    return false;
+  }
+  return true;
+};
+
+/**
+ * 校验手机号验证码
+ */
+const verifyPhoneContent = (): boolean => {
+  // 手机号正则
+  // /^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-79])|(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[1589]))\d{8}$/;
+  const emailRegExp: RegExp = /^(?:(?:\+|00)86)?1(?:3\d|4[5-79]|5[0-35-9]|6[5-7]|7[0-8]|8\d|9[1589])\d{8}$/;
+  // 验证码，6位数字
+  const verifyCodeRegExp: RegExp = /^\d{6}$/;
+  const verifyPhoneNo: boolean = regVerify(accounts.phoneNo, emailRegExp);
+  const verifyVCode: boolean = regVerify(accounts.verifyCode, verifyCodeRegExp);
+  if (!verifyPhoneNo) {
+    showToast('error', "请输入正确的手机号", 2);
+    return false;
+  }
+  if (!verifyVCode) {
+    showToast('error', "验证码输入有误！", 2);
+    return false;
+  }
+  return true;
+};
+
+/**
+ * 校验邮箱验证码
+ */
+const verifyEmailContent = () => {
+  // 邮箱正则
+  const emailRegExp: RegExp = /^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,4})$/;
+  // 验证码，6位数字
+  const verifyCodeRegExp: RegExp = /^\d{6}$/;
+  const verifyEmail: boolean = regVerify(accounts.email, emailRegExp);
+  const verifyVCode: boolean = regVerify(accounts.verifyCode, verifyCodeRegExp);
+  if (!verifyEmail) {
+    showToast('error', "请输入正确的邮箱地址", 2);
+    return false;
+  }
+  if (!verifyVCode) {
+    showToast('error', "验证码输入有误！", 2);
+    return false;
+  }
+  return true;
+};
+
+
+/**
+ * 处理忘记密码按钮的单击事件
+ */
+const handlerForgotPasswordClick = (): void => {
+  console.log("忘记密码");
+};
+
+
+/**
+ * 处理显示密码按钮点击事件
+ */
+const handlerHidePwdBtnClick = (event: Event) => {
+  if (systemData.hidePwdLock) return;
+  systemData.hidePwdLock = true;
+  const target = event.target as HTMLLIElement;
+  const input = document.querySelector(".mrs_password") as HTMLInputElement;
+  if (systemData.hidePwd) {
+    target.innerHTML = "&#xe65a;";
+    systemData.hidePwd = false;
+    input.type = "password";
+  } else {
+    target.innerHTML = "&#xe660;";
+    systemData.hidePwd = true;
+    input.type = "text";
+  }
+  setTimeout(() => {
+    systemData.hidePwdLock = false;
+  }, 500);
+}
+
+/**
+ * 初始化
+ */
+const init = () => {
+  // 如果不启用数据加密，则不会生成和获取密钥对
+  if (!ENABLE_ENCRYPT_LINK) return;
+  getDeviceFingerprint().then((finger: string | undefined) => {
+    console.log(finger);
+    if (finger) authorizationStore.setFinger(finger);
+    // 创建客户端密钥
+    cryptoStore.createClientKeyPair().then(ckp => {
+      // 协商密钥对
+      post("/crypto/negotiateKeyPair", {publicKey: ckp.publicKey, f: finger}).then(res => {
+        console.log("服务端密钥: ", res);
+        if (res.code === 200) {
+          const keyPair: SM2KeyPair = {
+            publicKey: null,
+            privateKey: null
+          };
+          keyPair.publicKey = res.data;
+          cryptoStore.setServiceKeyPair(keyPair);  // 保存服务端密钥对
+        } else {
+          showToast("error", res.msg, 1.5);
+        }
       });
     });
-
-  }
-
-  /**
-   * 校验账户名和密码
-   */
-  const verifyAccountContent = (): boolean => {
-    // 用户名正则，4到16位（字母，数字，下划线，减号）
-    const accountRegExp: RegExp = /^[a-zA-Z0-9_-☆★]{4,16}$/;
-    // 密码正则，最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符
-    const passwordRegExp: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z-!@#&*$_.\d]{6,}$/;
-    const verifyAccount: boolean = handlerVerifyText(accounts.account, accountRegExp);
-    const verifyPassword: boolean = handlerVerifyText(accounts.password, passwordRegExp);
-    if (!verifyAccount) {
-      showToast('error', "用户名为4~16位可包含字母，数字，下划线，减号", 2);
-      return false;
-    }
-    if (!verifyPassword) {
-      showToast('error', "密码最少6位，确保包含大小写字母、数字、特殊字符", 2);
-      return false;
-    }
-    return true;
-  };
-
-  /**
-   * 校验手机号验证码
-   */
-  const verifyPhoneContent = (): boolean => {
-    // 手机号正则
-    const emailRegExp: RegExp = /^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-79])|(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[1589]))\d{8}$/;
-    // 验证码，6位数字
-    const verifyCodeRegExp: RegExp = /^\d{6}$/;
-    const verifyPhoneNo: boolean = handlerVerifyText(accounts.phoneNo, emailRegExp);
-    const verifyVCode: boolean = handlerVerifyText(accounts.verifyCode, verifyCodeRegExp);
-    if (!verifyPhoneNo) {
-      showToast('error', "请输入正确的手机号", 2);
-      return false;
-    }
-    if (!verifyVCode) {
-      showToast('error', "验证码输入有误！", 2);
-      return false;
-    }
-    return true;
-  };
-
-  /**
-   * 校验邮箱验证码
-   */
-  const verifyEmailContent = () => {
-    // 邮箱正则
-    const emailRegExp: RegExp = /^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,4})$/;
-    // 验证码，6位数字
-    const verifyCodeRegExp: RegExp = /^\d{6}$/;
-    const verifyEmail: boolean = handlerVerifyText(accounts.email, emailRegExp);
-    const verifyVCode: boolean = handlerVerifyText(accounts.verifyCode, verifyCodeRegExp);
-    if (!verifyEmail) {
-      showToast('error', "请输入正确的邮箱地址", 2);
-      return false;
-    }
-    if (!verifyVCode) {
-      showToast('error', "验证码输入有误！", 2);
-      return false;
-    }
-    return true;
-  };
-
-  /**
-   * 通过正则校验数据合法性
-   * @param text 被校验的内容
-   * @param regExp 正则表达式
-   */
-  const handlerVerifyText = (text: string, regExp: RegExp): boolean => {
-    const e = new RegExp(regExp);
-    return e.test(text);
-  };
-
-  /**
-   * 处理忘记密码按钮的单击事件
-   */
-  const handlerForgotPasswordClick = (): void => {
-    console.log("忘记密码");
-  };
-
-  /**
-   * 处理更多登录按钮的点击事件
-   */
-  const handlerMoreLoginClick = (): void => {
-    router.push("/login/more_login");
-    data.displayParentPage = false;
-    console.log("更多登录方式");
-  };
-
-  /**
-   * 处理显示密码按钮点击事件
-   */
-  const handlerHidePwdBtnClick = (event: Event) => {
-    if (data.hidePwdLock) return;
-    data.hidePwdLock = true;
-    const target = event.target as HTMLLIElement;
-    const input = document.querySelector(".mrs_password") as HTMLInputElement;
-    if (data.hidePwd) {
-      target.innerHTML = "&#xe65a;";
-      data.hidePwd = false;
-      input.type = "password";
-    } else {
-      target.innerHTML = "&#xe660;";
-      data.hidePwd = true;
-      input.type = "text";
-    }
-
-    setTimeout(() => {
-      data.hidePwdLock = false;
-    }, 500);
-  }
-
-  const {account, password, phoneNo, email, verifyCode} = toRefs(accounts);
-
-  const {displayParentPage} = toRefs(data);
-
-  return {
-    account, password, phoneNo, email, verifyCode,
-    displayParentPage,
-    init,
-    handlerSubmitButtonClick,
-    handlerPhoneLoginClick,
-    handlerForgotPasswordClick,
-    handlerSendVerifyCodeClick,
-    handlerMoreLoginClick,
-    handlerHidePwdBtnClick,
-  };
+  });
 };
+init();
 
-export default {
-  name: "LoginView",
-  components: {Toast},
-  setup() {
-    const {
-      account, password, phoneNo, email, verifyCode,
-      displayParentPage,
-      init,
-      handlerSubmitButtonClick,
-      handlerPhoneLoginClick,
-      handlerForgotPasswordClick,
-      handlerSendVerifyCodeClick,
-      handlerMoreLoginClick,
-      handlerHidePwdBtnClick,
-    } = useLoginEffect();
+const {account, password, phoneNo, email, verifyCode} = toRefs(accounts);
 
-    init();
-
-    return {
-      account, password, phoneNo, email, verifyCode,
-      displayParentPage,
-      handlerSubmitButtonClick,
-      handlerPhoneLoginClick,
-      handlerForgotPasswordClick,
-      handlerSendVerifyCodeClick,
-      handlerMoreLoginClick,
-      handlerHidePwdBtnClick,
-    };
-  },
-};
+// defineExpose({});
 </script>
 
 <style scoped lang="scss">

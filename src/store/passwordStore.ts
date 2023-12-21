@@ -1,17 +1,17 @@
 import {defineStore} from "pinia";
-import {MrsPage, Record, ActiveRecord} from "./passwwordStore";
+import {Record, MrsPage} from "./passwordType";
 
 
 export const usePasswordStore = defineStore("password", {
     state() {
-        const pg: MrsPage = {
+        const page: MrsPage = {
             current: 1,
-            size: 10,
-            total: 0,
-        }
+            size: 10
+        };
+
         return {
             passwordList: Array<Record>(),
-            page: pg
+            page: page
         };
     },
     actions: {
@@ -74,7 +74,7 @@ export const usePasswordStore = defineStore("password", {
          * 移除一个密码
          * @param id
          */
-        removePasswordOne(id: number) {
+        removePasswordOne(id: any) {
             const that = this;
             that.passwordList.forEach((e, i) => {
                 if (e.id === id) {
@@ -88,7 +88,7 @@ export const usePasswordStore = defineStore("password", {
          * 移除一组密码
          * @param ids
          */
-        removePasswordList(ids: Array<number>) {
+        removePasswordList(ids: Array<any>) {
             const that = this;
             that.passwordList.forEach((e, i) => {
                 for (const id of ids) {
@@ -102,4 +102,4 @@ export const usePasswordStore = defineStore("password", {
     }
 });
 
-export type {Record, ActiveRecord, MrsPage};
+export type {Record, MrsPage};
