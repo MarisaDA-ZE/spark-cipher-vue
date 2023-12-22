@@ -41,6 +41,7 @@ const logout = (): void => {
     background: rgba(0,135,227,0.7);
     color: #FFF;
     font: 16px/100% "";
+
   }
 }
 </style>
