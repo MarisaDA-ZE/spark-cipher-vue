@@ -5,21 +5,24 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import {useAuthorizationStore} from '../../store/authorizationStore';
+import {useRouter} from "vue-router";
+import {get} from "../../utils/util/http-util";
 
+const router = useRouter();
 const verifyStore = useAuthorizationStore();
-export default {
-  name: "MinedView",
-  components: {},
-  setup() {
-  },
-  methods: {
-    logout() {
-      verifyStore.removeToken();
+
+/*登出*/
+const logout = (): void => {
+  verifyStore.removeToken();
+  get("/auth/logout").then(res => {
+    if (res.code === 200) {
+      router.push("/login_view");
     }
-  }
+  });
 }
+
 </script>
 
 <style scoped lang="scss">
