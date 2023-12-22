@@ -11,14 +11,14 @@ import {useRouter} from "vue-router";
 import {get} from "../../utils/util/http-util";
 
 const router = useRouter();
-const verifyStore = useAuthorizationStore();
+const authorizationStore = useAuthorizationStore();
 
 /*登出*/
 const logout = (): void => {
-  verifyStore.removeToken();
   get("/auth/logout").then(res => {
     if (res.code === 200) {
       router.push("/login_view");
+      authorizationStore.removeToken();
     }
   });
 }
@@ -32,7 +32,8 @@ const logout = (): void => {
   overflow-x: hidden;
   overflow-y: scroll;
   .logout{
-    width: 60px;
+    margin: 0 auto;
+    width: 100px;
     height: 25px;
     display: flex;
     justify-content: center;
