@@ -1,7 +1,7 @@
 <template>
   <div class="mined_view">
     个人页
-    <button @click="logout">退出登录</button>
+    <button class="logout" @click="logout">退出登录</button>
   </div>
 </template>
 
@@ -31,5 +31,16 @@ const logout = (): void => {
   height: 100%;
   overflow-x: hidden;
   overflow-y: scroll;
+  .logout{
+    width: 60px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 0;
+    background: rgba(0,135,227,0.7);
+    color: #FFF;
+    font: 16px/100% "";
+  }
 }
 </style>
