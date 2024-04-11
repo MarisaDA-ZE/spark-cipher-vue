@@ -1,7 +1,11 @@
 import { defineStore } from "pinia";
-import { encryptStore } from "../services/storeCipher";
+import { encryptStore } from "@/services/storeCipher";
+import {PINIA_NAMES_ENUM} from "@/common/constant";
 
-export const useDockerStore = defineStore("mrs_docker", {
+/**
+ * 底部docker栏
+ */
+export const useDockerStore = defineStore(PINIA_NAMES_ENUM.DOCKER_STORE, {
     state() {
         return {
             index: 0,

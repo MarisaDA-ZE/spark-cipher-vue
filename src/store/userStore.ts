@@ -1,13 +1,12 @@
 import {defineStore} from "pinia";
+import {PINIA_NAMES_ENUM} from "@/common/constant";
 
-type User = {}
-
-
-export const useUserStore = defineStore("user", {
+/**
+ * 用户信息
+ */
+export const useUserStore = defineStore(PINIA_NAMES_ENUM.USER_STORE, {
     state() {
-        return {
-            user: {}
-        };
+        return {};
     },
     actions: {}
 });

@@ -1,15 +1,18 @@
 import {defineStore} from "pinia";
-import {SM2KeyPair, SM2Util} from "../utils/sm2/sm2-util";
-import {encryptStore} from "../services/storeCipher";
+import {SM2Util} from "@/utils/sm2/sm2-util";
+import {encryptStore} from "@/services/storeCipher";
+import {PINIA_NAMES_ENUM} from "@/common/constant";
 
-type STORE_DATA = {
+type StoreData = {
     clientKeyPair: SM2KeyPair    // 客户端密钥对
     serviceKeyPair: SM2KeyPair   // 服务端密钥
 }
-
-export const useCryptoStore = defineStore("crypto", {
+/**
+ * 密钥信息
+ */
+export const useCryptoStore = defineStore(PINIA_NAMES_ENUM.CRYPTO_STORE, {
     state() {
-        const data: STORE_DATA = {
+        const data: StoreData = {
             clientKeyPair: {    // 客户端密钥对
                 privateKey: null,
                 publicKey: null
@@ -74,7 +77,7 @@ export const useCryptoStore = defineStore("crypto", {
          * @return res 密钥对
          */
         getClientKeyPair(): SM2KeyPair | null {
-            console.log(this.clientKeyPair.publicKey , this.clientKeyPair.privateKey)
+            console.log(this.clientKeyPair.publicKey, this.clientKeyPair.privateKey)
             if (this.clientKeyPair.publicKey && this.clientKeyPair.privateKey) return this.clientKeyPair;
             return null;
         },

@@ -1,22 +1,8 @@
-// @ts-ignore
 import SparkMD5 from "spark-md5";
 
-import { post, put } from "./http-util";
+import {post, put} from "./http-util";
 
 const chunkSize: number = 5 * 1024 * 1024;  // 分片大小为5MB
-type FileInfo = {
-    name: string,
-    type: string,
-    size: number,
-    md5: string | null,
-    count: number,
-    nameList: Array<string>
-}
-
-type MrsFileList = {
-    fileInfo: FileInfo,
-    blobList: Array<Blob>
-}
 
 /**
  * 生成文件的MD5值
@@ -54,6 +40,7 @@ export const readFileMD5 = (file: File | Blob): Promise<string | null> => {
     });
 }
 
+
 /**
  * 分片上传文件
  * @param file  文件数据
@@ -65,8 +52,8 @@ export const zoneUpload = async (file: File) => {
     const fileList: MrsFileList | null = await zoneFile(file);
     if (fileList != null) {
         // 首先上传文件整体信息
-        const { fileInfo } = fileList;
-        const { blobList } = fileList;
+        const {fileInfo} = fileList;
+        const {blobList} = fileList;
         console.log(fileInfo);
         const fileInfoBase64: string = window.btoa(JSON.stringify(fileInfo));
         post(fileInfoURL, fileInfoBase64).then(res => {
@@ -82,7 +69,7 @@ export const zoneUpload = async (file: File) => {
                                     data.append("md5", name);
                                     data.append("file", blobList[index]);
                                     console.log(data);
-                                    put(fileBlobsURL, data, { "Content-Type": "text/plain" }).then(result => {
+                                    put(fileBlobsURL, data, {"Content-Type": "text/plain"}).then(result => {
                                         console.log(index, result);
                                     });
                                 }

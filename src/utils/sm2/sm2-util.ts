@@ -1,13 +1,5 @@
 import {sm2} from "sm-crypto";
 
-/**
- * 密钥对类型
- */
-export type SM2KeyPair = {
-    publicKey: string | null,
-    privateKey: string | null
-}
-
 export class SM2Util {
 
     /**

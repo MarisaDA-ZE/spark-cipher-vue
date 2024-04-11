@@ -1,24 +1,13 @@
-import axios, {AxiosRequestConfig, AxiosResponse} from "axios";
-import {useAuthorizationStore} from "../../store/authorizationStore";
+import axios, {AxiosResponse, InternalAxiosRequestConfig} from "axios";
+import {useAuthorizationStore} from "@/store/authorizationStore";
 
 const store = useAuthorizationStore();
 
-export type MrsResult = {
-    code: number;
-    msg: string;
-    status: boolean;
-    time: string;
-    data: any
-}
-
 /**
  * 创建 instance
- * @type {any}
  */
 const instance = axios.create({
-    baseURL: "http://47.109.66.127:8001",
-    // baseURL: "http://192.168.2.135:8001",
-    // baseURL: "http://192.168.10.103:8001",
+    baseURL: "http://kmarisa.icu:8001",
     timeout: 60000,
     headers: {
         "Accept": "application/json",
@@ -29,12 +18,10 @@ const instance = axios.create({
 /**
  * 请求拦截器
  */
-instance.interceptors.request.use((config: AxiosRequestConfig) => {
-        // console.log(config);
-        const tk = store.getToken();
-        if (tk) {
-            // @ts-ignore
-            config.headers["Authorization"] = "Bearer " + tk;
+instance.interceptors.request.use((config: InternalAxiosRequestConfig<any>) => {
+        const token: string | undefined = store.getToken();
+        if (token) {
+            config.headers["Authorization"] = "Bearer " + token;
         }
         return config;
     }, (error) => {
@@ -59,7 +46,7 @@ instance.interceptors.response.use((config: AxiosResponse) => {
  * @param headers   headers配置信息
  * @returns {Promise<unknown>}  返回Promise
  */
-export function get(url: string, data: any = {}, headers: any = null): Promise<MrsResult> {
+export function get(url: string, data: any = {}, headers: any = null): Promise<MrsResult<any>> {
     setHeaders(headers);
     return new Promise((resolve, reject) => {
         instance
@@ -82,7 +69,7 @@ export function get(url: string, data: any = {}, headers: any = null): Promise<M
  * @param headers   headers配置信息
  * @returns {Promise<unknown>}  返回Promise
  */
-export const post = (url: string, data: any = {}, headers: any = null): Promise<MrsResult> => {
+export const post = (url: string, data: any = {}, headers: any = null): Promise<MrsResult<any>> => {
     setHeaders(headers);
     return new Promise((resolve, reject) => {
         instance.post(url, data).then(
@@ -103,9 +90,9 @@ export const post = (url: string, data: any = {}, headers: any = null): Promise<
  * @param headers   headers配置信息
  * @returns {Promise<unknown>}  返回Promise
  */
-export const put = (url: string, data: any = {}, headers: any = null): Promise<MrsResult> => {
+export const put = (url: string, data: any = {}, headers: any = null): Promise<MrsResult<any>> => {
     setHeaders(headers);
-    return new Promise<MrsResult>((resolve, reject) => {
+    return new Promise<MrsResult<any>>((resolve, reject) => {
         instance.put(url, data).then(
             (response) => {
                 resolve(response.data);
@@ -117,6 +104,7 @@ export const put = (url: string, data: any = {}, headers: any = null): Promise<M
     });
 }
 
+
 /**
  * 发送delete请求
  * @param url   请求地址
@@ -124,7 +112,7 @@ export const put = (url: string, data: any = {}, headers: any = null): Promise<M
  * @param headers   headers配置信息
  * @returns {Promise<unknown>}  返回Promise
  */
-export function _delete(url: string, data: any = {}, headers: any = null): Promise<MrsResult> {
+export function _delete(url: string, data: any = {}, headers: any = null): Promise<MrsResult<any>> {
     setHeaders(headers);
     return new Promise((resolve, reject) => {
         instance.delete(url, data).then(
@@ -143,7 +131,7 @@ export function _delete(url: string, data: any = {}, headers: any = null): Promi
 const setHeaders = (headers: any = null): void => {
     if (headers !== null) {
         // 使用请求拦截器修改headers的内容
-        instance.interceptors.request.use((config: AxiosRequestConfig) => {
+        instance.interceptors.request.use((config: InternalAxiosRequestConfig<any>) => {
                 const configHeader = config.headers;
                 for (const key in headers) {
                     if (headers.hasOwnProperty(key)) {

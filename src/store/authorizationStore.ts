@@ -1,11 +1,16 @@
 import {defineStore} from "pinia";
-import {encryptStore} from "../services/storeCipher";
-import {User, StoreType} from "./authorizationStoreType";
+import {encryptStore} from "@/services/storeCipher";
+import {PINIA_NAMES_ENUM} from "@/common/constant";
 
-export const useAuthorizationStore = defineStore("authorization", {
+/**
+ * 权限相关
+ */
+export const useAuthorizationStore = defineStore(PINIA_NAMES_ENUM.AUTH_STORE, {
     state() {
-        const data: StoreType = {
-            token: ""
+        const data: AuthStoreType = {
+            token: "",
+            authUser: null,
+            finger: null
         };
         return data;
     },
@@ -22,21 +27,24 @@ export const useAuthorizationStore = defineStore("authorization", {
          * 获取token
          * @returns token
          */
-        getToken(): string | undefined {
-            return this.token;
+        getToken(): string | null {
+            const token = this.token;
+            if (token) return token;
+            return null;
         },
+
         /**
          * 删除token
          */
         removeToken(): void {
-            this.token = undefined;
+            this.token = null;
         },
 
         /**
          * 设置登录用户
          * @param user 用户
          */
-        setUser(user: User): void {
+        setUser(user: MrsUser): void {
             this.authUser = user;
         },
 
@@ -44,14 +52,17 @@ export const useAuthorizationStore = defineStore("authorization", {
          * 获取用户
          * @returns 用户
          */
-        getUser(): User | undefined {
-            return this.authUser;
+        getUser(): MrsUser | null {
+            const authUser = this.authUser;
+            if (authUser) return authUser;
+            return null;
         },
+
         /**
          * 删除用户
          */
         removeUser(): void {
-            this.authUser = undefined;
+            this.authUser = null;
         },
 
         /**
@@ -63,22 +74,24 @@ export const useAuthorizationStore = defineStore("authorization", {
         },
 
         /**
-         * 获取用户
-         * @returns 用户
+         * 获取浏览器指纹
+         * @returns 指纹信息
          */
-        getFinger(): string | undefined {
-            return this.finger;
+        getFinger(): string | null {
+            const finger = this.finger;
+            if (finger) return finger;
+            return null;
         },
+
         /**
          * 删除指纹
          */
         removeFinger(): void {
-            this.finger = undefined;
+            this.finger = null;
         },
     },
+
     persist: {// 开启持久化,并进行加密
         storage: encryptStore
     }
 });
-
-export type {User, StoreType};

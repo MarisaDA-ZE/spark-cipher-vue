@@ -1,6 +1,11 @@
-import { createRouter, createWebHashHistory, RouteLocationNormalized, RouteRecordRaw } from "vue-router";
-import { useAuthorizationStore } from "../store/authorizationStore";
-import { isBank } from "../utils/util/util";
+import {
+    createRouter,
+    createWebHashHistory,
+    RouteLocationNormalized,
+    RouteRecordRaw
+} from "vue-router";
+import {useAuthorizationStore} from "@/store/authorizationStore";
+import {isBank} from "@/utils/util/util";
 
 
 const routesMap: Array<RouteRecordRaw> = [
@@ -50,17 +55,6 @@ const routesMap: Array<RouteRecordRaw> = [
             showDocker: true,
         }
     },
-    {// 文件管理页
-        path: "/files_view",
-        name: "files",
-        component: () => import("../views/file/FilesView.vue"),
-        meta: {
-            title: "文件管理",
-            loginRequired: true,
-            showHeader: true,
-            showDocker: true,
-        }
-    },
     {// 个人主页
         path: "/mined_view",
         name: "home",
@@ -76,16 +70,6 @@ const routesMap: Array<RouteRecordRaw> = [
         path: "/login",
         name: "login",
         component: () => import("../views/login/LoginView.vue"),
-        children: [
-            {
-                path: "more_login",
-                name: "moreLogin",
-                component: () => import("../pages/login/moreLogin.vue"),
-                meta: {
-                    title: "更多登录方式",
-                }
-            }
-        ],
         meta: {
             title: "登录页",
             loginRequired: false,
@@ -94,33 +78,30 @@ const routesMap: Array<RouteRecordRaw> = [
         }
     }
 ];
+
 const router = createRouter({
     history: createWebHashHistory(),
     routes: routesMap
 });
 
 router.beforeEach((to, from, next) => {
-    const store = useAuthorizationStore();
+    next();
 
-
-    const token = store.getToken();
-    console.log("to", to.fullPath);
-    console.log("from", from.fullPath);
-    console.log("token: ", token);
-
-
-    if (to.meta?.loginRequired) {
-        console.log("需要登录");
-        if (!isBank(token)) {
-            next();
-        } else {
-            console.log("没有token, 跳转到登录页");
-            router.push("/login");
-        }
-    } else {
-        console.log("不需要登录");
-        next();
-    }
+    // const store = useAuthorizationStore();
+    // const token = store.getToken();
+    // if (to.meta?.loginRequired) {
+    //     console.log("需要登录");
+    //     if (!isBank(token)) {
+    //         next();
+    //     } else {
+    //         console.log("没有token, 跳转到登录页");
+    //         router.push("/login")
+    //             .then((r: void | NavigationFailure | undefined) => console.log("拦截至: ", r?.to));
+    //     }
+    // } else {
+    //     console.log("不需要登录");
+    //     next();
+    // }
 });
 
 router.afterEach((to: RouteLocationNormalized) => {

@@ -8,7 +8,6 @@
 
 <script lang="ts">
 
-import { ElButton, ElCheckbox, ElCol, ElInput, ElRow } from 'element-plus';
 import { reactive, toRefs } from "vue";
 type Emits = {
   emit: Function
@@ -18,7 +17,6 @@ type Emits = {
 export default {
   name: "MrsTableHeader",
   emits: ["createRecord", "searchByKeyword"],
-  components: { ElCheckbox, ElInput, ElButton, ElRow, ElCol },
   setup(pops: Readonly<any>, { emit }: Emits) {
     const data = reactive({
       searchStr: ""

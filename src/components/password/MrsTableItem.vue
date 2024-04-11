@@ -37,9 +37,8 @@
 </template>
 
 <script lang="ts">
-import {ElButton, ElCheckbox} from "element-plus";
-import Toast, {showToast} from "../../components/common/Toast.vue";
-import {Record} from "../../store/passwordStore";
+import Toast, {showToast} from "@/components/common/Toast.vue";
+import {Record} from "@/store/passwordType";
 
 type Pops = {
   item: Record
@@ -53,7 +52,7 @@ export default {
   name: "MrsTableItem",
   props: ['item', 'mrsKey'],
   emits: ["showDetails", "editRecord", "deleteRecord", "deleteBatch"],
-  components: {ElButton, ElCheckbox, Toast},
+  components: { Toast},
 
   setup(pops: Readonly<Pops>, {emit}: Emits) {
     // 预处理渲染的数据
@@ -302,7 +301,7 @@ $btn-box-width: 120px;
 
         .is-display {
           position: absolute;
-          top: center;
+          top: 0;
           right: 120px;
           display: flex;
           justify-content: center;
