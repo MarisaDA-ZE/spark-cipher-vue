@@ -1,7 +1,7 @@
 <template>
   <div class="mrs-header">
     <!-- 返回按钮 -->
-    <div class="mrs-backer" @click="backClickHandler()">
+    <div class="mrs-backer" @click="backClickHandler()" v-if="false">
       <i class="iconfont">&#xe60d;</i>
     </div>
 
@@ -10,23 +10,22 @@
       <label>
         <i class="iconfont">&#xe60e;</i>
         <input type="text" name="search" placeholder="请输入关键词" v-model="search_content"
-          @keyup.enter="searchClickHandler()">
+               @keyup.enter="searchClickHandler()">
       </label>
       <i id="mrs-clean-btn" class="iconfont mrs-clean-btn" v-show="search_content"
-        @click="cleanClickHandler()">&#xe620;</i>
+         @click="cleanClickHandler()">&#xe620;</i>
     </div>
 
     <!-- 搜索按钮（平时隐藏） -->
     <i id="mrs-search-btn" class="iconfont mrs-search-btn" v-show="search_content"
-      @click="searchClickHandler()">&#xe648;</i>
+       @click="searchClickHandler()">&#xe648;</i>
 
   </div>
 </template>
 
 <script lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { useAuthorizationStore } from "../../store/authorizationStore";
+import {ref} from "vue";
+import {useRouter} from "vue-router";
 
 export default {
   name: "Header",
@@ -34,8 +33,7 @@ export default {
   setup() {
     const search_content = ref("");
     const router = useRouter();
-    const verifyStore = useAuthorizationStore();
-    
+
     /**
      * 处理返回点击事件
      */
@@ -72,7 +70,7 @@ export default {
       alert(search_content.value);
     }
 
-    return { search_content, backClickHandler, cleanClickHandler, searchClickHandler };
+    return {search_content, backClickHandler, cleanClickHandler, searchClickHandler};
   }
 }
 </script>
@@ -80,9 +78,11 @@ export default {
 <style scoped lang="scss">
 @import "src/assets/style/common";
 
+$header-height: calc(var(--header-height) * 1px);
+
 @keyframes beforeHeaderAppear {
   from {
-    transform: translateY(-40px) scaleY(0);
+    transform: translateY(calc($header-height * -1px)) scaleY(0);
   }
 
   to {
@@ -91,11 +91,10 @@ export default {
 }
 
 .mrs-header {
-
   position: fixed;
   top: 0;
   width: 100%;
-  height: 40px;
+  height: $header-height;
   user-select: none;
   background: $color-gray-light-9;
   display: flex;
@@ -104,6 +103,7 @@ export default {
   animation-name: beforeHeaderAppear;
   animation-duration: 200ms;
   z-index: 10;
+  overflow: hidden;
 
   // 返回按钮
   .mrs-backer {

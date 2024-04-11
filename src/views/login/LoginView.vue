@@ -81,13 +81,13 @@
 <script lang="ts" setup>
 import {reactive, Ref, ref, toRefs} from "vue";
 import {useRouter} from "vue-router";
-import {useCryptoStore} from '../../store/cryptoStore';
-import {useAuthorizationStore} from '../../store/authorizationStore';
-import Toast, {showToast} from "../../components/common/Toast.vue";
-import {ENABLE_ENCRYPT_LINK, LOGIN_TYPE} from '../../common/constant';
-import {post} from "../../utils/util/http-util";
-import {SM2KeyPair, SM2Util} from "../../utils/sm2/sm2-util";
-import {regVerify, getDeviceFingerprint} from "../../utils/util/util";
+import {useCryptoStore} from '@/store/cryptoStore';
+import {useAuthorizationStore} from '@/store/authorizationStore';
+import Toast, {showToast} from "@/components/common/Toast.vue";
+import {ENABLE_ENCRYPT_LINK, LOGIN_TYPE} from '@/common/constant';
+import {post} from "@/utils/util/http-util";
+import {SM2Util} from "@/utils/sm2/sm2-util";
+import {getDeviceFingerprint, regVerify} from "@/utils/util/util";
 
 type ACCOUNT = {
   account?: string;   // 用户名
@@ -209,9 +209,9 @@ const onSubmit = (): void => {
       console.log("登录成功！");
       authorizationStore.setToken(dt.token);
       authorizationStore.setUser(dt.user);
-      router.push("/password_view");
+      router.push("/password-view");
     } else {
-      showToast("error", res.msg, 1.5);
+      showToast(TOAST_TYPE.ERROR, res.msg, 1.5);
     }
   });
 };
@@ -227,11 +227,11 @@ const verifyAccountContent = (): boolean => {
   const verifyAccount: boolean = regVerify(accounts.account, accountRegExp);
   const verifyPassword: boolean = regVerify(accounts.password, passwordRegExp);
   if (!verifyAccount) {
-    showToast('error', "用户名为4~16位可包含字母，数字，下划线，减号", 2);
+    showToast(TOAST_TYPE.ERROR, "用户名为4~16位可包含字母，数字，下划线，减号", 2);
     return false;
   }
   if (!verifyPassword) {
-    showToast('error', "密码最少6位，确保包含大小写字母、数字、特殊字符", 2);
+    showToast(TOAST_TYPE.ERROR, "密码最少6位，确保包含大小写字母、数字、特殊字符", 2);
     return false;
   }
   return true;
@@ -249,11 +249,11 @@ const verifyPhoneContent = (): boolean => {
   const verifyPhoneNo: boolean = regVerify(accounts.phoneNo, emailRegExp);
   const verifyVCode: boolean = regVerify(accounts.verifyCode, verifyCodeRegExp);
   if (!verifyPhoneNo) {
-    showToast('error', "请输入正确的手机号", 2);
+    showToast(TOAST_TYPE.ERROR, "请输入正确的手机号", 2);
     return false;
   }
   if (!verifyVCode) {
-    showToast('error', "验证码输入有误！", 2);
+    showToast(TOAST_TYPE.ERROR, "验证码输入有误！", 2);
     return false;
   }
   return true;
@@ -270,11 +270,11 @@ const verifyEmailContent = () => {
   const verifyEmail: boolean = regVerify(accounts.email, emailRegExp);
   const verifyVCode: boolean = regVerify(accounts.verifyCode, verifyCodeRegExp);
   if (!verifyEmail) {
-    showToast('error', "请输入正确的邮箱地址", 2);
+    showToast(TOAST_TYPE.ERROR, "请输入正确的邮箱地址", 2);
     return false;
   }
   if (!verifyVCode) {
-    showToast('error', "验证码输入有误！", 2);
+    showToast(TOAST_TYPE.ERROR, "验证码输入有误！", 2);
     return false;
   }
   return true;
@@ -333,7 +333,7 @@ const init = () => {
           keyPair.publicKey = res.data;
           cryptoStore.setServiceKeyPair(keyPair);  // 保存服务端密钥对
         } else {
-          showToast("error", res.msg, 1.5);
+          showToast(TOAST_TYPE.ERROR, res.msg, 1.5);
         }
       });
     });
@@ -343,7 +343,6 @@ init();
 
 const {account, password, phoneNo, email, verifyCode} = toRefs(accounts);
 
-// defineExpose({});
 </script>
 
 <style scoped lang="scss">

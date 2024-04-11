@@ -1,5 +1,5 @@
 <template>
-  <div class="mrs-docker">
+  <div class="mrs-docker" :style="{height: height+'px'}">
     <div class="item" v-for="(e, i) in dockers" :key="i" @click="changeIndexHandler(i, e.to)">
       <div class="icon"><i class="iconfont" v-html="e.icon"></i></div>
       <div class="text" v-show="show_text"> {{ e.text }}</div>
@@ -11,23 +11,27 @@
 <script lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { useDockerStore } from "../../store/dockerStore";
+import { useDockerStore } from "@/store/dockerStore";
+import {DOCKER_HEIGHT} from "@/common/constant";
 
 export default {
   name: "Docker",
   props: ["dockers", "show_text"],
+  data(){
+    return {
+      height: DOCKER_HEIGHT,
+    };
+  },
   setup(props: any) {
     const store = useDockerStore();
     const router = useRouter();
     let ix = store.getIndex();
     store.init(ix, props.dockers.length, 40, window.screen.width);
     const changeIndexHandler = (index: number, path: string) => {
-      // console.log("index: ", index);
       store.changeIndex(index);
       router.push(path);
     };
     const position_x = ref(store.position_x);
-    // console.log(position_x.value);
     store.$onAction(() => {
       setTimeout(() => {
         position_x.value = store.position_x;
@@ -59,11 +63,11 @@ export default {
 
 .mrs-docker {
   //opacity: 50%;
+  //height: 50px;
   width: 100%;
   background: $color-gray-light-9;
   position: fixed;
   bottom: 0;
-  height: 50px; // Docker栏整体的高度
   display: flex;
   justify-content: space-around;
   align-items: center;

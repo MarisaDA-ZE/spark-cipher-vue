@@ -19,7 +19,7 @@ const instance = axios.create({
  * 请求拦截器
  */
 instance.interceptors.request.use((config: InternalAxiosRequestConfig<any>) => {
-        const token: string | undefined = store.getToken();
+        const token: string | null = store.getToken();
         if (token) {
             config.headers["Authorization"] = "Bearer " + token;
         }
@@ -112,7 +112,7 @@ export const put = (url: string, data: any = {}, headers: any = null): Promise<M
  * @param headers   headers配置信息
  * @returns {Promise<unknown>}  返回Promise
  */
-export function _delete(url: string, data: any = {}, headers: any = null): Promise<MrsResult<any>> {
+export function deleted(url: string, data: any = {}, headers: any = null): Promise<MrsResult<any>> {
     setHeaders(headers);
     return new Promise((resolve, reject) => {
         instance.delete(url, data).then(

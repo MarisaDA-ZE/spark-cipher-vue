@@ -4,16 +4,13 @@ import {
     RouteLocationNormalized,
     RouteRecordRaw
 } from "vue-router";
-import {useAuthorizationStore} from "@/store/authorizationStore";
-import {isBank} from "@/utils/util/util";
-
 
 const routesMap: Array<RouteRecordRaw> = [
     {// 主页，默认重定向到密码详情页
         path: "/",
         name: "Index",
         redirect: {
-            path: "/password_view"
+            path: "/password-view"
         },
         meta: {
             title: "火花密码",
@@ -23,18 +20,29 @@ const routesMap: Array<RouteRecordRaw> = [
         }
     },
     {// 密码详情页
-        path: "/password_view",
+        path: "/password-view",
         name: "password",
-        component: () => import("../views/password/PasswordView.vue"),
+        component: () => import("@/views/password/PasswordView.vue"),
         meta: {
             title: "密码管理",
             loginRequired: true,
             showHeader: true,
             showDocker: true,
+        },
+    },
+    {// 密码编辑页面
+        path: "/password-view/edit",
+        name: "password-edit",
+        component: () => import("@/views/password/PasswordEdit.vue"),
+        meta: {
+            title: "修改密码",
+            loginRequired: true,
+            showHeader: false,
+            showDocker: true,
         }
     },
     {// 图片详情页
-        path: "/images_view",
+        path: "/images-view",
         name: "images",
         component: () => import("../views/image/ImagesView.vue"),
         meta: {
@@ -45,7 +53,7 @@ const routesMap: Array<RouteRecordRaw> = [
         }
     },
     {// 视频管理页
-        path: "/videos_view",
+        path: "/videos-view",
         name: "video",
         component: () => import("../views/videos/VideosView.vue"),
         meta: {
@@ -56,7 +64,7 @@ const routesMap: Array<RouteRecordRaw> = [
         }
     },
     {// 个人主页
-        path: "/mined_view",
+        path: "/mined-view",
         name: "home",
         component: () => import("../views/mined/MinedView.vue"),
         meta: {

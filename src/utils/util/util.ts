@@ -1,6 +1,6 @@
 import Fingerprint2 from 'fingerprintjs2';
-
-export const whitespaceArray: Array<number> = [10, 13, 32];
+import {RouteMeta, useRouter} from "vue-router";
+import {C_CONTENT_HEIGHT} from "@/common/constant";
 
 /**
  * 判断空
@@ -10,6 +10,8 @@ export const whitespaceArray: Array<number> = [10, 13, 32];
 export const isEmpty = (val: any): boolean => {
     if (val === null || val === undefined) return true;
     if (val === "") return true;
+    const empty = {};
+    if (val === empty) return true;
     return val.length === 0 || val.toString() === "<empty string>";
 }
 
@@ -23,41 +25,12 @@ export const isNotEmpty = (val: any): boolean => {
 }
 
 /**
- * 判断字符串是否为空
- * @returns 是否为空
- */
-export const isBank = (val: string | null | undefined): boolean => {
-    let strLength: number = 0;
-    if (val && (strLength = val.length) != 0) {
-        for (let i = 0; i < strLength; ++i) {
-            const isSpace: number = whitespaceArray.indexOf(val.charCodeAt(i));
-            if (isSpace === -1) {
-                return false;
-            }
-        }
-        return true;
-    } else {
-        return true;
-    }
-}
-
-/**
- * base64编码
- * @param str
- * @return .
- */
-export const base64Encode = (str: string): string | undefined => {
-    if (isEmpty(str)) return undefined;
-    return window.btoa(str);
-}
-
-/**
  * 正则校验
  * @param text 被校验的内容
  * @param regExp 正则表达式
  */
 export const regVerify = (text: string | undefined, regExp: RegExp): boolean => {
-    if (typeof text === "undefined") return false;
+    if (!text) return false;
     const e = new RegExp(regExp);
     return e.test(text);
 };
@@ -83,3 +56,23 @@ export const getDeviceFingerprint = (): Promise<string | undefined> => {
         });
     });
 };
+
+/**
+ * 计算当前的可用视口高度
+ */
+export const computedHeightByRoute = (route: RouteMeta): number => {
+    const router = useRouter();
+    console.log(router);
+    return 0;
+}
+
+/**
+ * 获取当前内容区域的高度
+ */
+export const getCurrentContentHeight = (): number => {
+    const h: string | null = sessionStorage.getItem(C_CONTENT_HEIGHT);
+    if (h) {
+        return parseFloat(h);
+    }
+    return 0;
+}

@@ -6,9 +6,9 @@
 </template>
 
 <script lang="ts" setup>
-import {useAuthorizationStore} from '../../store/authorizationStore';
+import {useAuthorizationStore} from '@/store/authorizationStore';
 import {useRouter} from "vue-router";
-import {get} from "../../utils/util/http-util";
+import {get} from "@/utils/util/http-util";
 
 const router = useRouter();
 const authorizationStore = useAuthorizationStore();

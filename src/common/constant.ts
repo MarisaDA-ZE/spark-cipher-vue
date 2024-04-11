@@ -1,17 +1,13 @@
 // 登录类型
-import {useCryptoStore} from "@/store/cryptoStore";
-
 export enum LOGIN_TYPE {
     ACCOUNT = 0,
     PHONE = 1,
     EMAIL = 2
 }
 
-
-// 是否开启加密传输
-export const ENABLE_ENCRYPT_LINK: boolean = true;
-
-// Pinia仓库名称枚举
+/**
+ * Pinia仓库名称枚举
+ */
 export enum PINIA_NAMES_ENUM {
     AUTH_STORE = "authorization",
     CRYPTO_STORE = "cryptoStore",
@@ -19,32 +15,15 @@ export enum PINIA_NAMES_ENUM {
     USER_STORE = "user",
 }
 
-export enum HTTP_STATUS {
-    SUCCESS = 200,
-    ERROR = 500,
-    UNAUTHORIZED = 501,
-    FORBIDDEN = 403,
-    NOT_FOUND = 404,
-    METHOD_NOT_ALLOWED = 405
-}
+// 是否开启自定义加密传输（此操作需要服务器端同步开启）
+export const ENABLE_ENCRYPT_LINK: boolean = true;
+
+// 客户端加密算法计算完成后，需要在密文开头拼接上一个04后端才能正常解析
+export const CLIENT_ENCRYPT_PREFIX: string = "04";
 
 
-// /**
-//  * 加密数据并发送到服务器
-//  * @param text  被加密的内容
-//  */
-// const encryptAndSend = (text: string): void => {
-//     data.clientCipherText = SM2Util.encrypt(text, data.servicePublicKey);
-//     post(PASSWORD_PATH + "/createPassword", {
-//       text: "04" + data.clientCipherText,
-//     });
-// }
-//
-// /**
-//  * 获取服务端数据
-//  */
-// const getPasswordById = (): void => {
-//     get(PASSWORD_PATH + "/getPasswordById/1").then((res: any) => {
-//       if (res?.data?.data) data.serviceCipherText = res.data.data;
-//     });
-// }
+export const HEADER_HEIGHT: number = 40;    // 顶部导航栏的高度, 默认40px
+export const DOCKER_HEIGHT: number = 50;    // 底部docker栏的高度, 默认50px
+
+//当前内容高度的键（值在sessionStorage中）
+export const C_CONTENT_HEIGHT: string = "CURRENT_CONTENT_HEIGHT";
