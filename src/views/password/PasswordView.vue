@@ -1,20 +1,23 @@
 <template>
   <div class="main">
     <div class="layout">
+      <div class="table-header" :style="{'--header-height': tableHeadHeight}">
+        <div @click="showRouter" class="m-button">编辑</div>
+      </div>
+
       <!-- 数据列表 -->
       <div class="mrs-table">
-
-
-        <div @click="showRouter">编辑</div>
         <!-- 数据显示 -->
         <div class="mrs-content">
           <div class="mrs-item-list">
-            <my-scroll style="background: rgba(0,255,128,0.5)" :container-height="contentViewHeight - 57" @scroll="loadRecordsPage">
+            <!-- 滚动组件 -->
+            <my-scroll :container-height="contentViewHeight - tableHeadHeight" @scroll="loadRecordsPage">
 
+              <!-- item -->
               <MrsTableItem v-for="(e, i) in passwordList" :item="e" :key="i" :mrsKey="i" @showDetails="showPwdDetails"
-                            @editRecord="saveOrUpdateRecord" @deleteRecord="deletePwdRecord" @deleteBatch="deleteBatch"/>
+                            @editRecord="saveOrUpdateRecord" @deleteRecord="deletePwdRecord"
+                            @deleteBatch="deleteBatch"/>
             </my-scroll>
-
           </div>
         </div>
       </div>
@@ -94,11 +97,11 @@ const cryptoStore = useCryptoStore();
 
 // 成员变量
 const passwordList: Ref<PasswordRecord []> = ref([
-  {},{},
-  {},{},
-  {},{},
-  {},{},
-  {},{}
+  {}, {},
+  {}, {},
+  {}, {},
+  {}, {},
+  {}, {}
 ]);     // 密码列表
 const keyWords: Ref<string> = ref("");    // 搜索关键词
 // 分页对象
@@ -112,6 +115,9 @@ const detailVisible: Ref<boolean> = ref(false); // 查看弹框
 const editedVisible: Ref<boolean> = ref(false); // 编辑弹窗
 const saveOrUpdateFlag: Ref<number> = ref(0);  // 操作是新建还是编辑
 const contentViewHeight: Ref<number> = ref(getCurrentContentHeight());  // 内容区高度
+
+// 表头上面搜索框的高度
+const tableHeadHeight: Ref<number> = ref(40);
 
 /**
  * 分页查询密码信息
@@ -291,11 +297,13 @@ const showRouter = () => {
   router.push("/password-view/edit");
 }
 
+/**
+ *
+ */
 const loadRecordsPage = () => {
   for (let i = 0; i < 10; i++) {
-    passwordList.value.push({})
+    passwordList.value.push({});
   }
-
 }
 
 defineExpose({
@@ -312,7 +320,25 @@ defineExpose({
   overflow-x: hidden;
   overflow-y: scroll;
 
+  // 表头、搜索框那些
+  .table-header {
+    $headHeight: calc(var(--header-height) * 1px);
+    width: 100%;
+    height: $headHeight;
 
+    .m-button{
+
+      width: 50px;
+      height: 30px;
+      background: #67C23A;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+  }
+
+  // 列表区域
   .mrs-table {
     overflow: hidden;
 
@@ -325,6 +351,7 @@ defineExpose({
     }
   }
 
+  // 弹出框
   .mrs-dialog {
     p {
       span {
@@ -361,6 +388,7 @@ defineExpose({
     }
   }
 
+  // 编辑框
   .mrs-dialog-edited {
     p {
       margin: 10px 0;
