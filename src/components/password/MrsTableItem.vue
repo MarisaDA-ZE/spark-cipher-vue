@@ -38,10 +38,9 @@
 
 <script lang="ts">
 import Toast, {showToast} from "@/components/common/Toast.vue";
-import {Record} from "@/store/passwordType";
 
 type Pops = {
-  item: Record
+  item: PasswordRecord
 }
 
 type Emits = {
@@ -57,7 +56,7 @@ export default {
   setup(pops: Readonly<Pops>, {emit}: Emits) {
     // 预处理渲染的数据
     const beforeRender = (): void => {
-      const item: Record = pops.item;
+      const item: PasswordRecord = pops.item;
       item.view_password = "********";
       item.view_remark = item?.remark;
       if (item?.remark && item.remark.length > 10) {

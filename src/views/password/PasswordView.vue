@@ -96,13 +96,7 @@ import {getCurrentContentHeight} from "@/utils/util/util";
 const cryptoStore = useCryptoStore();
 
 // 成员变量
-const passwordList: Ref<PasswordRecord []> = ref([
-  {}, {},
-  {}, {},
-  {}, {},
-  {}, {},
-  {}, {}
-]);     // 密码列表
+const passwordList: Ref<PasswordRecord []> = ref([]);     // 密码列表
 const keyWords: Ref<string> = ref("");    // 搜索关键词
 // 分页对象
 const page = reactive({
@@ -302,7 +296,7 @@ const showRouter = () => {
  */
 const loadRecordsPage = () => {
   for (let i = 0; i < 10; i++) {
-    passwordList.value.push({});
+    passwordList.value.push();
   }
 }
 
