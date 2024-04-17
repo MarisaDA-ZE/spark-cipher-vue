@@ -32,10 +32,10 @@ declare global {
         email: string;              // 邮箱号
         url: string;                // 访问网址
         remark: string;             // 备注信息
-        createTime: string;         // 创建时间
-        createBy: number;           // 创建者
-        updateTime: string;         // 更新时间
-        updateBy: number;           // 更新者
+        createTime: number;         // 创建时间
+        createBy: string;           // 创建者
+        updateTime: number | null;  // 更新时间
+        updateBy: string | null;    // 更新者
     }
 
     /**
@@ -55,7 +55,7 @@ declare global {
         code: number;       // 状态码
         msg: string;        // 提示信息
         status: boolean;    // 响应状态
-        time: string;       // 响应时间
+        time: number;       // 响应时间(时间戳)
         data: T;            // 响应内容
     }
 
@@ -96,27 +96,4 @@ declare global {
         privateKey: string | null   // 私钥
     }
 
-    /**
-     * 提示框的提示类型枚举
-     */
-    enum TOAST_TYPE {
-        SUCCESS = "success",    // 成功消息
-        INFO = "info",          // 通知消息
-        WARNING = "warning",    // 警告消息
-        ERROR = "error",        // 错误消息
-        UNKNOWN = "unknown",    // 未知消息
-    }
-
-    /**
-     * HTTP状态码枚举
-     */
-    enum HTTP_STATUS {
-        SUCCESS = 200,          // 成功
-        ERROR = 500,            // 错误
-        UNAUTHORIZED = 501,     // 未授权
-        FORBIDDEN = 403,        // 禁止访问
-        NOT_FOUND = 404,        // 未找到
-        METHOD_NOT_ALLOWED = 405,// 方法不允许
-        UNKNOWN = 0,             // 未知
-    }
 }

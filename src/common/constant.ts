@@ -27,3 +27,26 @@ export const DOCKER_HEIGHT: number = 50;    // 底部docker栏的高度, 默认5
 
 //当前内容高度的键（值在sessionStorage中）
 export const C_CONTENT_HEIGHT: string = "CURRENT_CONTENT_HEIGHT";
+
+/**
+ * HTTP状态码枚举
+ */
+export enum HTTP_STATUS {
+    SUCCESS = 200,          // 成功
+    ERROR = 500,            // 错误
+    UNAUTHORIZED = 501,     // 未授权
+    FORBIDDEN = 403,        // 禁止访问
+    NOT_FOUND = 404,        // 未找到
+    METHOD_NOT_ALLOWED = 405,// 方法不允许
+    UNKNOWN = 0,             // 未知
+}
+/**
+ * 提示框的提示类型枚举
+ */
+export enum TOAST_TYPE {
+    SUCCESS = "success",    // 成功消息
+    INFO = "info",          // 通知消息
+    WARNING = "warning",    // 警告消息
+    ERROR = "error",        // 错误消息
+    UNKNOWN = "unknown",    // 未知消息
+}

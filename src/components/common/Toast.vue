@@ -9,6 +9,7 @@
 
 <script lang="ts">
 import {ref} from 'vue';
+import {TOAST_TYPE} from "@/common/constant";
 // 数据
 let visible = ref(false);
 let toastStyle = ref({});

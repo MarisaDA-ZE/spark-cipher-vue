@@ -32,12 +32,10 @@
       <input class="mrs-edit-btn" @click="editRecord(item.id)" type="button" value="编 辑">
       <input class="mrs-delete-btn" @click="deleteRecord(item.id)" type="button" value="删 除">
     </div>
-    <Toast/>
   </div>
 </template>
 
 <script lang="ts">
-import Toast, {showToast} from "@/components/common/Toast.vue";
 
 type Pops = {
   item: PasswordRecord
@@ -51,7 +49,6 @@ export default {
   name: "MrsTableItem",
   props: ['item', 'mrsKey'],
   emits: ["showDetails", "editRecord", "deleteRecord", "deleteBatch"],
-  components: { Toast},
 
   setup(pops: Readonly<Pops>, {emit}: Emits) {
     // 预处理渲染的数据
@@ -133,7 +130,6 @@ export default {
       const that: any = this;
       that.$copyText(str);
       that.num = 1;
-      showToast("success", "复制成功！");
     },
 
     /**

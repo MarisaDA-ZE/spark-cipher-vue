@@ -1,6 +1,7 @@
 <template>
   <div class="main">
     <div class="layout">
+      <!-- 顶部 -->
       <div class="table-header" :style="{'--header-height': tableHeadHeight}">
         <div @click="showRouter" class="m-button">编辑</div>
       </div>
@@ -12,7 +13,6 @@
           <div class="mrs-item-list">
             <!-- 滚动组件 -->
             <my-scroll :container-height="contentViewHeight - tableHeadHeight" @scroll="loadRecordsPage">
-
               <!-- item -->
               <MrsTableItem v-for="(e, i) in passwordList" :item="e" :key="i" :mrsKey="i" @showDetails="showPwdDetails"
                             @editRecord="saveOrUpdateRecord" @deleteRecord="deletePwdRecord"
@@ -73,24 +73,26 @@
       <!--          </div>-->
       <!--        </div>-->
       <!--      </el-dialog>-->
-
     </div>
     <Toast/>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref, Ref} from "vue";
 
-import api from "@/api/api";
 import MyScroll from "@/components/common/MyScroll.vue";
-import MrsTableItem from "@/components/password/MrsTableItem.vue";
 import Toast, {showToast} from "@/components/common/Toast.vue";
-import {SM2Util} from "@/utils/sm2/sm2-util";
-import {useCryptoStore} from "@/store/cryptoStore";
-import {CLIENT_ENCRYPT_PREFIX, ENABLE_ENCRYPT_LINK} from "@/common/constant";
+import MrsTableItem from "@/components/password/MrsTableItem.vue";
+
+import {onMounted, reactive, ref, Ref} from "vue";
 import {useRouter} from "vue-router";
+
+import {HTTP_STATUS, TOAST_TYPE, CLIENT_ENCRYPT_PREFIX, ENABLE_ENCRYPT_LINK} from "@/common/constant";
+import api from "@/api/api";
+import mockApi from "@/mocks/passwordMocks";
+import {useCryptoStore} from "@/store/cryptoStore";
 import {getCurrentContentHeight} from "@/utils/util/util";
+import {SM2Util} from "@/utils/sm2/sm2-util";
 
 // 仓库
 const cryptoStore = useCryptoStore();
@@ -287,7 +289,6 @@ const writeToClipboard = async (str: string) => {
 }
 const router = useRouter();
 const showRouter = () => {
-
   router.push("/password-view/edit");
 }
 
@@ -295,10 +296,18 @@ const showRouter = () => {
  *
  */
 const loadRecordsPage = () => {
-  for (let i = 0; i < 10; i++) {
-    passwordList.value.push();
-  }
+  console.log("到底了...")
 }
+
+onMounted(() => {
+  mockApi.getRecordsList({}).then(res => {
+    if (res.code === HTTP_STATUS.SUCCESS) {
+      passwordList.value = [...res.data];
+    } else {
+      showToast(TOAST_TYPE.ERROR, res.msg, 1.5);
+    }
+  });
+});
 
 defineExpose({
   writeToClipboard, showRouter, loadRecordsPage
@@ -320,9 +329,9 @@ defineExpose({
     width: 100%;
     height: $headHeight;
 
-    .m-button{
+    .m-button {
 
-      width: 50px;
+      width: 40px;
       height: 30px;
       background: #67C23A;
       display: flex;
