@@ -160,6 +160,7 @@ $header-height: calc(var(--header-height) * -1px);
   animation-name: beforeCenterAppear;
   animation-duration: 200ms;
   transition: all 200ms;
+  overflow: hidden;
 }
 
 .icon {

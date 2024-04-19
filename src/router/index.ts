@@ -38,7 +38,7 @@ const routesMap: Array<RouteRecordRaw> = [
             title: "修改密码",
             loginRequired: true,
             showHeader: false,
-            showDocker: true,
+            showDocker: false,
         }
     },
     {// 图片详情页
