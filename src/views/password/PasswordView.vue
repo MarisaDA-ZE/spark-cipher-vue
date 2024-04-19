@@ -3,7 +3,7 @@
     <div class="layout">
       <!-- 顶部 -->
       <div class="table-header" :style="{'--header-height': tableHeadHeight}">
-        <div @click="showRouter" class="m-button">编辑</div>
+        <div @click="showRouter" class="m-button iconfont">&#xe665;</div>
       </div>
 
       <!-- 数据列表 -->
@@ -14,75 +14,25 @@
             <!-- 滚动组件 -->
             <my-scroll :container-height="contentViewHeight - tableHeadHeight" @scroll="loadRecordsPage">
               <!-- item -->
-              <MrsTableItem v-for="(e, i) in passwordList" :item="e" :key="i" :mrsKey="i" @showDetails="showPwdDetails"
-                            @editRecord="saveOrUpdateRecord" @deleteRecord="deletePwdRecord"
+              <MrsTableItem :class="{'record-slided': slidedId === e.id}" v-for="(e, i) in passwordList" :item="e" :key="i" :m-index="e.id"
+                            @show-toast="myShowToast"
+                            @click="itemClick"
+                            @item-slided="itemSlided"
+                            @delete-by-id="deletePwdRecord"
                             @deleteBatch="deleteBatch"/>
             </my-scroll>
           </div>
         </div>
       </div>
-
-      <!-- 查看信息对话框 -->
-      <!--      <el-dialog v-model="detailVisible" :title="activeRecord.name" :width="'80%'" :show-close="false">-->
-      <!--        <div class="mrs-dialog">-->
-      <!--          <p><span>账号: </span><span class="allow-copy" @click="writeToClipboard(activeRecord.account)">{{-->
-      <!--              activeRecord.account-->
-      <!--            }}</span>-->
-      <!--          </p>-->
-      <!--          <p><span>密码: </span><span class="allow-copy" @click="writeToClipboard(activeRecord.password)">{{-->
-      <!--              activeRecord.password-->
-      <!--            }}</span>-->
-      <!--          </p>-->
-      <!--          <p><span>备注: </span><span>{{ activeRecord.remarks }}</span></p>-->
-      <!--          <p><span>官网: </span><a :class="activeRecord?.url ? 'dialog-url' : 'dialog-url-prevent'"-->
-      <!--                                   :href="activeRecord?.url">{{ activeRecord?.url }}</a></p>-->
-      <!--          <p><span>创建时间: </span><span>{{ activeRecord.createDateTime }}</span></p>-->
-      <!--        </div>-->
-      <!--      </el-dialog>-->
-
-      <!-- 编辑、新建对话框 -->
-      <!--      <el-dialog v-model="editedVisible" :title="saveOrUpdateFlag === 1 ? '修改密码' : '新建密码'" :width="'80%'"-->
-      <!--                 :show-close="false">-->
-      <!--        <div class="mrs-dialog-edited">-->
-      <!--          <p><label>-->
-      <!--            <span>名称: </span>-->
-      <!--            <input type="text" v-model="activeRecord.name"-->
-      <!--                   class="mrs-input checked"-->
-      <!--                   placeholder="请输入账户名称"/>-->
-      <!--          </label></p>-->
-      <!--          <p><label>-->
-      <!--            <span>账号: </span>-->
-      <!--            <input type="text" v-model="activeRecord.account" class="mrs-input checked"-->
-      <!--                   placeholder="请输入账号"/>-->
-      <!--          </label></p>-->
-      <!--          <p><label>-->
-      <!--            <span>密码: </span>-->
-      <!--            <input type="text" v-model="activeRecord.password" class="mrs-input checked"-->
-      <!--                   placeholder="请输入密码"/>-->
-      <!--          </label></p>-->
-      <!--          <p><label>-->
-      <!--            <span>备注: </span>-->
-      <!--            <input type="text" v-model="activeRecord.remarks" class="mrs-input" placeholder="请输入备注信息"/>-->
-      <!--          </label></p>-->
-      <!--          <p><label>-->
-      <!--            <span>官网: </span>-->
-      <!--            <input type="text" v-model="activeRecord.url" class="mrs-input" placeholder="请输入官网地址"/>-->
-      <!--          </label></p>-->
-      <!--          <div class="btn-info">-->
-      <!--            <input type="button" class="submit" value="保 存" @click="onSubmitChange">-->
-      <!--          </div>-->
-      <!--        </div>-->
-      <!--      </el-dialog>-->
     </div>
     <Toast/>
   </div>
 </template>
 
 <script lang="ts" setup>
-
 import MyScroll from "@/components/common/MyScroll.vue";
 import Toast, {showToast} from "@/components/common/Toast.vue";
-import MrsTableItem from "@/components/password/MrsTableItem.vue";
+import MrsTableItem from "@/views/password/components/MrsTableItem.vue";
 
 import {onMounted, reactive, ref, Ref} from "vue";
 import {useRouter} from "vue-router";
@@ -109,11 +59,12 @@ const page = reactive({
 const currentRecord: Ref<PasswordRecord | null> = ref(null);  // 当前正在操作的密码对象
 const detailVisible: Ref<boolean> = ref(false); // 查看弹框
 const editedVisible: Ref<boolean> = ref(false); // 编辑弹窗
-const saveOrUpdateFlag: Ref<number> = ref(0);  // 操作是新建还是编辑
+const saveOrUpdateFlag: Ref<number> = ref(0);   // 操作是新建还是编辑
+const slidedId: Ref<string | null> = ref(null); // 当前滑动ID
 const contentViewHeight: Ref<number> = ref(getCurrentContentHeight());  // 内容区高度
 
 // 表头上面搜索框的高度
-const tableHeadHeight: Ref<number> = ref(40);
+const tableHeadHeight: Ref<number> = ref(45);
 
 /**
  * 分页查询密码信息
@@ -275,18 +226,6 @@ const searchByKeyword = (word: string) => {
   alert(word);
 }
 
-
-/**
- * 剪切板操作
- * @param str
- */
-const writeToClipboard = async (str: string) => {
-  try {
-    await navigator.clipboard.writeText(str);
-  } catch (err) {
-    console.error('Failed to copy text:', err);
-  }
-}
 const router = useRouter();
 const showRouter = () => {
   router.push("/password-view/edit");
@@ -309,13 +248,36 @@ onMounted(() => {
   });
 });
 
+const itemClick = ():void => {
+  console.log('itemClick');
+  slidedId.value = null;
+}
+
+/**
+ * 元素滑动
+ * @param id
+ */
+const itemSlided = (id: string | null):void => {
+  console.log('ID: ', id);
+  slidedId.value = id;
+}
+
+/**
+ * 提示消息
+ */
+const myShowToast = (msg: string, type: TOAST_TYPE) => {
+  console.log( msg, type);
+  showToast(type, msg, 1.5);
+}
+
 defineExpose({
-  writeToClipboard, showRouter, loadRecordsPage
+  myShowToast, itemSlided, itemClick,
+  showRouter, loadRecordsPage
 });
 </script>
 
 <style scoped lang="scss">
-@import "../../assets/style/common";
+@import "@/assets/style/common.scss";
 
 .layout {
   width: 100%;
@@ -328,15 +290,19 @@ defineExpose({
     $headHeight: calc(var(--header-height) * 1px);
     width: 100%;
     height: $headHeight;
+    background: $color-gray-light-9;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
 
     .m-button {
-
-      width: 40px;
-      height: 30px;
-      background: #67C23A;
       display: flex;
       justify-content: center;
       align-items: center;
+      width: $headHeight;
+      height: $headHeight;
+      font-size: 30px;
+      color: $brand-blue;
     }
 
   }
@@ -353,89 +319,9 @@ defineExpose({
       }
     }
   }
-
-  // 弹出框
-  .mrs-dialog {
-    p {
-      span {
-        margin-right: 5px;
-        font-size: $font-content-size-16;
-      }
-
-      span:nth-child(1) {
-        font-size: $font-content-size-14;
-        font-weight: bold;
-      }
-
-      .allow-copy {
-        cursor: pointer;
-      }
-
-      .allow-copy::after {
-        content: "点击复制";
-        margin: 0 10px;
-        color: $brand-blue;
-        font: 11px/100% "Microsoft YaHei";
-      }
-
-      .dialog-url {
-        color: $brand-blue;
-        border-bottom: 1px solid;
-        font-size: $font-content-size-16;
-      }
-
-      .dialog-url-prevent {
-        user-select: none;
-        pointer-events: none;
-      }
-    }
-  }
-
-  // 编辑框
-  .mrs-dialog-edited {
-    p {
-      margin: 10px 0;
-
-      label {
-        display: flex;
-
-        span {
-          flex: 0.2;
-          display: flex;
-          justify-content: flex-start;
-          font-weight: bold;
-          align-items: center;
-          font-size: $font-content-size-14;
-        }
-
-        .mrs-input {
-          flex: 0.7;
-          outline: none;
-          border: 1px solid $color-gray-light-7;
-          padding: 10px;
-        }
-      }
-    }
-
-    .btn-info {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 20px 0 0 0;
-
-      input[type='button'] {
-        border: 0;
-        outline: none;
-        margin: 0 10px;
-        padding: 5px 30px;
-        color: $color-gray-light-9;
-        font-size: $font-content-size-16;
-      }
-
-      .submit {
-        background-color: $brand-blue;
-      }
-    }
-  }
 }
+.record-slided {
+  transform: translateX(-120px);
+}
+
 </style>

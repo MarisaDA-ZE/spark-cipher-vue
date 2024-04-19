@@ -36,6 +36,40 @@ export const regVerify = (text: string | undefined, regExp: RegExp): boolean => 
 };
 
 /**
+ * 格式化给定的日期对象为指定格式的字符串。
+ *
+ * @param {Date} date - 要格式化的日期对象，默认为当前时间。
+ * @param {string} format - 输出的日期时间格式，默认为 "yyyy-MM-dd hh:mm:ss"。
+ * @returns {string} - 格式化后的日期时间字符串。
+ */
+export const formatTime = (date = new Date(), format = "yyyy-MM-dd hh:mm:ss"): string => {
+    const fullYear = date.getFullYear();
+    // 定义日期和时间格式化映射
+    const formatMap: any = {
+        "YY": fullYear.toString().slice(-2),
+        "yyyy": fullYear,
+        "MM": String(date.getMonth() + 1).padStart(2, "0"),
+        "dd": String(date.getDate()).padStart(2, "0"),
+        "hh": String(date.getHours()).padStart(2, "0"),
+        "mm": String(date.getMinutes()).padStart(2, "0"),
+        "ss": String(date.getSeconds()).padStart(2, "0"),
+    };
+    // 使用正则表达式替换对应格式占位符
+    return format.replace(/YY|yyyy|MM|dd|hh|mm|ss/g, match => formatMap[match]);
+}
+
+/**
+ * 判断一个字符串是否是一个可访问链接
+ * @param url   url字符串
+ * @return boolean 是否可访问
+ */
+export const isURL = (url: string | null | undefined): boolean => {
+    if(!url) return false;
+    const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+    return urlPattern.test(url);
+}
+
+/**
  * 获取当前设备指纹
  * Tips: 设备指纹每次刷新时都会变化
  */
@@ -75,4 +109,33 @@ export const getCurrentContentHeight = (): number => {
         return parseFloat(h);
     }
     return 0;
+}
+
+
+/**
+ * 替换超出字符串
+ * @param text {string}  要处理的字符串
+ * @param size {number}  超出的长度
+ * @param defaultVal {string}  如果text为空，则返回的默认值
+ * @param overflow {string}  溢出部分显示为
+ * @return {string}  处理后的结果
+ */
+export const stringReplace = (text: string, size: number = 8, defaultVal: string = '暂无数据', overflow: string = "..."): string => {
+    if (isEmpty(text)) return defaultVal;
+    if (text.length > size) {
+        return text.substring(0, size) + overflow;
+    }
+    return text;
+}
+
+/**
+ * 剪切板操作
+ * @param str
+ */
+export const writeClipboard = async (str: string) => {
+    try {
+        await navigator.clipboard.writeText(str);
+    } catch (err) {
+        console.error('Failed to copy text:', err);
+    }
 }

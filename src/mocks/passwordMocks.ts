@@ -12,23 +12,29 @@ const apiService = {
         if (params) console.log("参数列表: ", params);
         return new Promise<MrsResult<PasswordRecord[]>>((resolve) => {
             const recordList: PasswordRecord[] = [];
-            const record: PasswordRecord = {
-                id: "1771434139937464321",    // ID
-                userId: "12313212313",        // 用户ID
-                title: "这是一段标题",          // 记录标题
-                account: "MarisaDAZE",        // 账户名
-                userName: "MarisaDAZE",       // 用户名
-                password: "marisa@123",       // 密码
-                phone: "18384669885",         // 手机号
-                email: "3038488053@qq.com",   // 邮箱号
-                url: "https://kmarisa.icu",   // 访问网址
-                remark: "这是一段备注信息>_<",   // 备注信息
-                createTime: (new Date()).getTime(), // 创建时间
-                createBy: "string;",          // 创建者
-                updateTime: null,             // 更新时间
-                updateBy: null,               // 更新者
-            }
+
+            let s = '13714341399374643';
+            let ix = 10;
+
             for (let i = 0; i < 10; i++) {
+                const record: PasswordRecord = {
+                    id: "1771434139937464320",    // ID
+                    userId: "12313212313",        // 用户ID
+                    title: "这是一段标题",          // 记录标题
+                    account: "MarisaDAZE",        // 账户名
+                    userName: "MarisaDAZE",       // 用户名
+                    password: "marisa@123marisa@123marisa@123marisa@123",       // 密码
+                    phone: "18384669885",         // 手机号
+                    email: "3038488053@qq.com",   // 邮箱号
+                    url: "https://kmarisa.icu/",   // 访问网址
+                    remark: "这是一段备注信息>_<",   // 备注信息
+                    createTime: (new Date()).getTime(), // 创建时间
+                    createBy: "string;",          // 创建者
+                    updateTime:  1710510180932 ,             // 更新时间
+                    updateBy: null,               // 更新者
+                }
+                ix++;
+                record.id = s + ix;
                 recordList.push(record);
             }
 

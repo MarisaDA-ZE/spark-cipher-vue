@@ -10,6 +10,7 @@ import App from './App.vue';
 import '@/assets/icons/iconfont.js';
 import '@/assets/icons/iconfont.css';
 
+VueClipboard.config.autoSetContainer = true // 自动设置到容器
 const app = createApp(App);
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);   // 持久化层

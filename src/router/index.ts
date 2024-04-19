@@ -26,7 +26,7 @@ const routesMap: Array<RouteRecordRaw> = [
         meta: {
             title: "密码管理",
             loginRequired: true,
-            showHeader: true,
+            showHeader: false,
             showDocker: true,
         },
     },
@@ -48,7 +48,7 @@ const routesMap: Array<RouteRecordRaw> = [
         meta: {
             title: "图片管理",
             loginRequired: true,
-            showHeader: true,
+            showHeader: false,
             showDocker: true,
         }
     },
@@ -59,7 +59,7 @@ const routesMap: Array<RouteRecordRaw> = [
         meta: {
             title: "视频管理",
             loginRequired: true,
-            showHeader: true,
+            showHeader: false,
             showDocker: true,
         }
     },

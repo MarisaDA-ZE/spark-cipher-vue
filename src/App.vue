@@ -1,4 +1,5 @@
 <template>
+  <!-- 这个header没用了，页面中的header都统一在组件中进行插入 -->
   <mrs-header v-if="viewsInfo.headerDisplay" :style="'--header-height: ' + HEADER_HEIGHT" :search_display="true"/>
   <div class="mrs-center" :style="viewsInfo.styleText +';--header-height: ' + HEADER_HEIGHT">
     <router-view :key="$route.fullPath"/>
