@@ -64,7 +64,7 @@ export const formatTime = (date = new Date(), format = "yyyy-MM-dd hh:mm:ss"): s
  * @return boolean 是否可访问
  */
 export const isURL = (url: string | null | undefined): boolean => {
-    if(!url) return false;
+    if (!url) return false;
     const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
     return urlPattern.test(url);
 }
@@ -126,6 +126,16 @@ export const stringReplace = (text: string, size: number = 8, defaultVal: string
         return text.substring(0, size) + overflow;
     }
     return text;
+}
+
+/**
+ * 判断字符串是否为空（包括空字符串、null、undefined）
+ *
+ * @param {string | null | undefined} str 待检查的字符串
+ * @returns {boolean} 如果字符串为空返回 true，否则返回 false
+ */
+export const isBlank = (str: string | null | undefined): boolean => {
+    return str === null || str === undefined || str.trim().length === 0;
 }
 
 /**

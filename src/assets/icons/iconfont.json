@@ -1,10 +1,31 @@
 {
   "id": "3849543",
-  "name": "password_manager",
+  "name": "spark-cipher",
   "font_family": "iconfont",
   "css_prefix_text": "icon-",
-  "description": "",
+  "description": "火花管理器",
   "glyphs": [
+    {
+      "icon_id": "5387519",
+      "name": "对号",
+      "font_class": "duihao",
+      "unicode": "eaf1",
+      "unicode_decimal": 60145
+    },
+    {
+      "icon_id": "6119227",
+      "name": "对勾",
+      "font_class": "confirm-line",
+      "unicode": "e669",
+      "unicode_decimal": 58985
+    },
+    {
+      "icon_id": "7954334",
+      "name": "对勾_块",
+      "font_class": "duigou_kuai",
+      "unicode": "ed1d",
+      "unicode_decimal": 60701
+    },
     {
       "icon_id": "4552970",
       "name": "邮箱",

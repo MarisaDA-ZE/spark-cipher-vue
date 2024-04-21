@@ -144,9 +144,13 @@ watch(
 <style scoped lang="scss">
 $header-height: calc(var(--header-height) * -1px);
 
+/* 移动端全局去除点击高亮 */
+*, *::before, *::after {
+  -webkit-tap-highlight-color: transparent !important;
+}
+
 @keyframes beforeCenterAppear {
   from {
-    //transform: translateY(-40px);
     transform: translateY($header-height);
   }
 
