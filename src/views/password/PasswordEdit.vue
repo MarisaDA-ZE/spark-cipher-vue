@@ -134,13 +134,6 @@
           </el-form-item>
         </el-form>
       </template>
-
-      <!--      &lt;!&ndash; 抽屉底部按钮 &ndash;&gt;-->
-      <!--      <template #footer>-->
-      <!--        <div style="flex: auto">-->
-      <!--          -->
-      <!--        </div>-->
-      <!--      </template>-->
     </el-drawer>
   </div>
 </template>
