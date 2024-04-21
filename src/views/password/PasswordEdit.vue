@@ -141,7 +141,7 @@
 <script lang="ts" setup>
 import {reactive, ref, Ref} from 'vue';
 import MrsHeader from "@/components/common/MrsHeader.vue";
-import {getCurrentContentHeight, isBlank} from "@/utils/util/util";
+import {getCurrentContentHeight, isBlank, isEmpty} from "@/utils/util/util";
 import type {FormInstance, FormRules} from 'element-plus';
 import {FormItemRule} from "element-plus/es/components/form/src/types";
 
@@ -209,6 +209,32 @@ const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.resetFields()
 }
+
+/**
+ * TODO: 数据回填
+ */
+const dataBackfill = (data: any) => {
+  if (isEmpty(data)) return;
+
+  const sortKeys = Object.keys(data).sort((a, b) => {
+    const aSort = data[a].sort;
+    const bSort = data[b].sort;
+    return aSort - bSort;
+  });
+  console.log(sortKeys);
+  for (let key of sortKeys) {
+    const value = data[key];
+    console.log(value);
+    labelMap[key] = {key: key, label: value.label};
+    recordForm[key] = value.value;
+  }
+}
+
+// dataBackfill({
+//   account: {label: "账号", value: "测试账号", sort: 1},
+//   password: {label: "密码", value: "测试密码", sort: 2},
+//   title: {label: "标题", value: "测试标题", sort: 0}
+// });
 
 // TODO: 抽屉区域
 enum ITEM_TYPE {
