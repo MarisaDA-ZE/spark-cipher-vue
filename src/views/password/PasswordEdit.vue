@@ -172,20 +172,43 @@ const recordRules = reactive<FormRules<any>>({
   ],
 });
 
+const labelMap = reactive<any>({
+  title: {key: 'title', label: '标题'}
+});
+
 /**
  * 提交表单
  * @param formEl
  */
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
-  await formEl.validate((valid, fields) => {
+  await formEl.validate((valid) => {
     if (valid) {
-      console.log('submit!');
-      console.log(JSON.parse(JSON.stringify(recordForm)));
-    } else {
-      console.log('error submit!', fields)
+      console.log('提交...');
+      const params: any = {};
+
+      const keys = Object.keys(recordForm);
+      const keyMap = new Map<string, number>();
+      let index = 0;
+      for (let key of keys) {
+        const original = key;
+        const label = labelMap[original];
+        key = key.split('-')[0];
+        let count = keyMap.get(key);
+        count = (typeof count !== 'undefined') ? ++count : 0;
+        keyMap.set(key, count);
+        key = count > 0 ? `${key}_${count}` : key;
+        params[key] = {
+          label: label.label,
+          value: recordForm[original],
+          sort: index
+        };
+        index++;
+      }
+
+      console.log("新对象: ", params);
     }
-  })
+  });
 };
 
 // 重置表单
@@ -409,7 +432,7 @@ async function confirmClick(formEl: FormInstance | undefined) {
 
           // 其它用户自定义
         case ITEM_TYPE.CUSTOM:
-          valName = ITEM_TYPE.CUSTOM + '-item-';
+          valName = ITEM_TYPE.CUSTOM + '-';
           currentRole = [
             {required: true, message: `请输入${currentItemType.customItemTypeName}`, trigger: 'blur'},
           ];
@@ -427,6 +450,7 @@ async function confirmClick(formEl: FormInstance | undefined) {
       dynamicFormItemList.push(dynamicFormItem);
       recordForm[valName] = '';
       recordRules[valName] = currentRole;
+      labelMap[valName] = {key: valName, label: currentItemType.customItemTypeName};
       // console.log(JSON.parse(JSON.stringify(recordRules)));
 
       // 清除抽屉表单的内容
@@ -467,6 +491,7 @@ const removeRecordItem = (item: DynamicFormItem) => {
     dynamicFormItemList.splice(index, 1);
     delete recordForm[item.name];
     delete recordRules[item.name];
+    delete labelMap[item.name];
   }
 }
 </script>
