@@ -19,6 +19,22 @@ declare global {
     };
 
     /**
+     * HTML表单项的类型
+     */
+    type FormType = "text" | "textarea" | "password" | "button" | "checkbox" | "file" | "number" | "radio";
+
+    /**
+     * 单个内容记录项的类型
+     */
+    type RecordItem = {
+        label: string,
+        key: string,
+        value: string,
+        type: FormType,
+        sort: number
+    }
+
+    /**
      * 密码记录
      */
     type PasswordRecord = {

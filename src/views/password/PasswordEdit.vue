@@ -173,7 +173,6 @@ const contentViewHeight: Ref<number> = ref(getCurrentContentHeight());  // 内�
 const dialogVisible = ref(false);
 
 
-
 enum ITEM_TYPE {
   ACCOUNT = 'account',
   PASSWORD = 'password',
@@ -185,12 +184,6 @@ enum ITEM_TYPE {
   CUSTOM = 'custom',
 }
 
-// 表单输入框类型
-enum FORM_TYPE {
-  TEXT = 'text',
-  PASSWORD = 'password',
-  TEXTAREA = 'textarea'
-}
 
 // TODO: 主表单区域
 
@@ -211,7 +204,7 @@ const recordRules = reactive<FormRules<any>>({
 });
 
 const labelMap = reactive<any>({
-  title: {key: 'title', label: '标题', type: FORM_TYPE.TEXT}
+  title: {key: 'title', label: '标题', type: 'text'}
 });
 
 /**
@@ -285,7 +278,6 @@ const dataBackfill = (data: any) => {
       dynamicFormItemList.push(dynamicFormItem);
     }
   }
-
 }
 
 // TODO: 抽屉区域
@@ -335,28 +327,37 @@ const itemOptions = [
   },
 ];
 
+type inputType = {
+  label: string,
+  value: FormType,
+}
+
 // 表单组件类型
-const formInputTypes = [
+const formInputTypes: inputType[] = [
   {
-    value: FORM_TYPE.TEXT,
+    value: 'text',
     label: '文本输入框',
   },
   {
-    value: FORM_TYPE.PASSWORD,
+    value: 'password',
     label: '密码输入框',
   },
   {
-    value: FORM_TYPE.TEXTAREA,
+    value: 'textarea',
     label: '多行文本输入框',
   },
 ];
 
 const addItemDrawer = ref(false);
 const ruleDrawerRef = ref<FormInstance>();
-const currentItemType = reactive({
+const currentItemType = reactive<{
+  drawerType: string,
+  customItemTypeName: string,
+  formInputType: FormType,
+}>({
   drawerType: '',
   customItemTypeName: '',
-  formInputType: FORM_TYPE.TEXT,
+  formInputType: 'text',
 });
 const validateTypeTitle = (rule: any, value: any, callback: any) => {
   if (currentItemType.drawerType === ITEM_TYPE.CUSTOM) {
@@ -457,7 +458,7 @@ async function confirmClick(formEl: FormInstance | undefined) {
         case ITEM_TYPE.ACCOUNT:
           valName = ITEM_TYPE.ACCOUNT + '-';
           currentItemType.customItemTypeName = '账号';
-          currentItemType.formInputType = FORM_TYPE.TEXT;
+          currentItemType.formInputType = 'text';
           currentRole = rolesMap.account;
           break;
 
@@ -466,22 +467,22 @@ async function confirmClick(formEl: FormInstance | undefined) {
           valName = ITEM_TYPE.PASSWORD + '-';
           currentItemType.customItemTypeName = '密码';
           // currentItemType.formInputType = FORM_TYPE.PASSWORD;
-          currentItemType.formInputType = FORM_TYPE.TEXT;
+          currentItemType.formInputType = 'text';
           currentRole = rolesMap.password;
           break;
 
-          // 密码
+          // 昵称
         case ITEM_TYPE.NICK_NAME:
           valName = ITEM_TYPE.NICK_NAME + '-';
           currentItemType.customItemTypeName = '昵称';
-          currentItemType.formInputType = FORM_TYPE.TEXT;
+          currentItemType.formInputType = 'text';
           currentRole = rolesMap.nickName;
           break;
           // 手机号
         case ITEM_TYPE.PHONE:
           valName = ITEM_TYPE.PHONE + '-';
           currentItemType.customItemTypeName = '手机号';
-          currentItemType.formInputType = FORM_TYPE.TEXT;
+          currentItemType.formInputType = 'text';
           currentRole = rolesMap.phone;
           break;
 
@@ -489,7 +490,7 @@ async function confirmClick(formEl: FormInstance | undefined) {
         case ITEM_TYPE.EMAIL:
           valName = ITEM_TYPE.EMAIL + '-';
           currentItemType.customItemTypeName = '邮箱';
-          currentItemType.formInputType = FORM_TYPE.TEXT;
+          currentItemType.formInputType = 'text';
           currentRole = rolesMap.email;
           break;
 
@@ -497,7 +498,7 @@ async function confirmClick(formEl: FormInstance | undefined) {
         case ITEM_TYPE.URL:
           valName = ITEM_TYPE.URL + '-';
           currentItemType.customItemTypeName = '网址';
-          currentItemType.formInputType = FORM_TYPE.TEXTAREA;
+          currentItemType.formInputType = 'textarea';
           currentRole = rolesMap.url;
           break;
 
@@ -505,7 +506,7 @@ async function confirmClick(formEl: FormInstance | undefined) {
         case ITEM_TYPE.REMARK:
           valName = ITEM_TYPE.REMARK + '-';
           currentItemType.customItemTypeName = '备注';
-          currentItemType.formInputType = FORM_TYPE.TEXTAREA;
+          currentItemType.formInputType = 'textarea';
           currentRole = rolesMap.remark
           break;
 
@@ -548,14 +549,14 @@ const drawerClose = () => {
 
 const clearDrawerFields = (): void => {
   currentItemType.customItemTypeName = '';
-  currentItemType.formInputType = FORM_TYPE.TEXT;
+  currentItemType.formInputType = 'text';
   if (!ruleDrawerRef.value) return
   ruleDrawerRef.value.resetFields();
 }
 
 // TODO: 动态表单
 interface DynamicFormItem {
-  type: FORM_TYPE,      // 类型
+  type: FormType,      // 类型
   name: string,         // 名称
   label: string,        // 提示文字
   placeholder: string,  // 提示
