@@ -5,6 +5,12 @@
       <template #center>
         新增密码
       </template>
+
+      <template #right v-if="true">
+        <span style="padding: 0 10px;" @click="dialogVisible = true">
+          <i class="iconfont" style="font-size: 20px">&#xe605;</i>
+        </span>
+      </template>
     </mrs-header>
 
     <!-- 内容区域 -->
@@ -135,6 +141,22 @@
         </el-form>
       </template>
     </el-drawer>
+
+    <!-- 删除提示 -->
+    <el-dialog
+        v-model="dialogVisible"
+        width="calc(100% - 100px)"
+        title="删除确认">
+      <span>真的要删除这条记录吗？</span>
+      <template #footer>
+        <div style="width: 100%;display: flex;justify-content: flex-start">
+          <el-button type="primary" @click="removeRecordById">
+            确定
+          </el-button>
+          <el-button @click="dialogVisible = false">取消</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -145,7 +167,12 @@ import {getCurrentContentHeight, isBlank, isEmpty} from "@/utils/util/util";
 import type {FormInstance, FormRules} from 'element-plus';
 import {FormItemRule} from "element-plus/es/components/form/src/types";
 
+
 const contentViewHeight: Ref<number> = ref(getCurrentContentHeight());  // 内容区高度
+
+const dialogVisible = ref(false);
+
+
 
 enum ITEM_TYPE {
   ACCOUNT = 'account',
@@ -545,6 +572,11 @@ const removeRecordItem = (item: DynamicFormItem) => {
     delete recordRules[item.name];
     delete labelMap[item.name];
   }
+}
+
+const removeRecordById = () => {
+  console.log("删除...")
+  dialogVisible.value = false;
 }
 
 onMounted(() => {
