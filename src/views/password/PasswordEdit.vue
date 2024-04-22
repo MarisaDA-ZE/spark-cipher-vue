@@ -20,7 +20,7 @@
 
           <!-- 标题 -->
           <el-form-item label="标题" prop="title" :rules="recordRules.title" style="width: calc(100% - 10px);">
-            <el-input v-model="recordForm.title" placeholder="请输入标题" clepxable/>
+            <el-input v-model="recordForm.title" placeholder="请输入标题" clearable/>
           </el-form-item>
 
           <!-- 动态表单项 -->
@@ -139,13 +139,31 @@
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref, Ref} from 'vue';
+import {onMounted, reactive, ref, Ref} from 'vue';
 import MrsHeader from "@/components/common/MrsHeader.vue";
 import {getCurrentContentHeight, isBlank, isEmpty} from "@/utils/util/util";
 import type {FormInstance, FormRules} from 'element-plus';
 import {FormItemRule} from "element-plus/es/components/form/src/types";
 
 const contentViewHeight: Ref<number> = ref(getCurrentContentHeight());  // 内容区高度
+
+enum ITEM_TYPE {
+  ACCOUNT = 'account',
+  PASSWORD = 'password',
+  NICK_NAME = 'nickName',
+  PHONE = 'phone',
+  EMAIL = 'email',
+  URL = 'url',
+  REMARK = 'remark',
+  CUSTOM = 'custom',
+}
+
+// 表单输入框类型
+enum FORM_TYPE {
+  TEXT = 'text',
+  PASSWORD = 'password',
+  TEXTAREA = 'textarea'
+}
 
 // TODO: 主表单区域
 
@@ -161,12 +179,12 @@ const recordRules = reactive<FormRules<any>>({
       message: '请输入标题',
       trigger: 'blur'
     },
-    {min: 2, max: 10, message: '标题长度为2~10字符', trigger: 'blur'},
+    {min: 2, max: 16, message: '标题长度为2~16字符', trigger: 'blur'},
   ],
 });
 
 const labelMap = reactive<any>({
-  title: {key: 'title', label: '标题'}
+  title: {key: 'title', label: '标题', type: FORM_TYPE.TEXT}
 });
 
 /**
@@ -179,7 +197,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (valid) {
       console.log('提交...');
       const params: any = {};
-
       const keys = Object.keys(recordForm);
       const keyMap = new Map<string, number>();
       let index = 0;
@@ -194,6 +211,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         params[key] = {
           label: label.label,
           value: recordForm[original],
+          type: label.type,
           sort: index
         };
         index++;
@@ -221,39 +239,30 @@ const dataBackfill = (data: any) => {
     const bSort = data[b].sort;
     return aSort - bSort;
   });
-  console.log(sortKeys);
+
   for (let key of sortKeys) {
     const value = data[key];
-    console.log(value);
-    labelMap[key] = {key: key, label: value.label};
+    labelMap[key] = {key: key, label: value.label, type: value.type};
     recordForm[key] = value.value;
-  }
-}
 
-// dataBackfill({
-//   account: {label: "账号", value: "测试账号", sort: 1},
-//   password: {label: "密码", value: "测试密码", sort: 2},
-//   title: {label: "标题", value: "测试标题", sort: 0}
-// });
+    const roleKey = key.split('_')[0];
+    recordRules[key] = rolesMap[roleKey];
+    if (key !== 'title') {
+      // 创建对象和添加规则
+      const dynamicFormItem: DynamicFormItem = {
+        type: value.type,
+        name: key,
+        label: value.label,
+        placeholder: `请输入${value.label}`,
+      };
+      dynamicFormItemList.push(dynamicFormItem);
+    }
+  }
+
+}
 
 // TODO: 抽屉区域
-enum ITEM_TYPE {
-  ACCOUNT = 'account',
-  PASSWORD = 'password',
-  NICK_NAME = 'nickName',
-  PHONE = 'phone',
-  EMAIL = 'email',
-  URL = 'url',
-  REMARK = 'remark',
-  CUSTOM = 'custom',
-}
 
-// 表单输入框类型
-enum FORM_TYPE {
-  TEXT = 'text',
-  PASSWORD = 'password',
-  TEXTAREA = 'textarea'
-}
 
 // 选择器的类型列表
 const itemOptions = [
@@ -356,6 +365,59 @@ const drawerRules = reactive({
   customValue: [{validator: validateTypeValue, trigger: 'change'}],
 });
 
+/**
+ * 校验规则映射
+ */
+const rolesMap = reactive<any>({
+  title: [
+    {required: true, message: '请输入标题', trigger: 'blur'},
+    {min: 2, max: 16, message: '标题长度为2~16字符', trigger: 'blur'},
+  ],
+  account: [
+    {required: true, message: '请输入账号', trigger: 'blur'},
+  ],
+  password: [
+    {required: true, message: '请输入密码', trigger: 'blur'},
+  ],
+  nickName: [
+    {required: true, message: '请输入昵称', trigger: 'blur'},
+  ],
+  phone: [
+    {required: true, message: '请输入手机号', trigger: 'blur'},
+    {
+      pattern: /^(?:\+?86)?1(?:3\d{3}|5[^4\D]\d{2}|8\d{3}|7(?:[0-35-9]\d{2}|4(?:0\d|1[0-2]|9\d))|9[0-35-9]\d{2}|6[2567]\d{2}|4(?:(?:10|4[01])\d{3}|[68]\d{4}|[579]\d{2}))\d{6}$/,
+      message: '手机号不符合规范',
+      trigger: 'blur'
+    },
+  ],
+  email: [
+    {required: true, message: '请输入邮箱', trigger: 'blur'},
+    {
+      pattern: /[\w'.%+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,4}/,
+      message: '邮箱号不符合规范',
+      trigger: 'blur'
+    },
+  ],
+  url: [
+    {required: true, message: '请输入网址', trigger: 'blur'},
+    {
+      pattern: /^(([^:/?#]+):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/,
+      message: '网址不符合规范',
+      trigger: 'blur'
+    },
+  ],
+  remark: [
+    {required: true, message: `请输入备注`, trigger: 'blur'},
+  ],
+  custom: [
+    {required: true, message: `请输入自定义属性值`, trigger: 'blur'},
+  ]
+});
+
+/**
+ * 添加表单项
+ * @param formEl
+ */
 async function confirmClick(formEl: FormInstance | undefined) {
   if (!formEl) return
   await formEl.validate((valid) => {
@@ -369,9 +431,7 @@ async function confirmClick(formEl: FormInstance | undefined) {
           valName = ITEM_TYPE.ACCOUNT + '-';
           currentItemType.customItemTypeName = '账号';
           currentItemType.formInputType = FORM_TYPE.TEXT;
-          currentRole = [
-            {required: true, message: `请输入${currentItemType.customItemTypeName}`, trigger: 'blur'},
-          ];
+          currentRole = rolesMap.account;
           break;
 
           // 密码
@@ -380,9 +440,7 @@ async function confirmClick(formEl: FormInstance | undefined) {
           currentItemType.customItemTypeName = '密码';
           // currentItemType.formInputType = FORM_TYPE.PASSWORD;
           currentItemType.formInputType = FORM_TYPE.TEXT;
-          currentRole = [
-            {required: true, message: `请输入${currentItemType.customItemTypeName}`, trigger: 'blur'},
-          ];
+          currentRole = rolesMap.password;
           break;
 
           // 密码
@@ -390,23 +448,14 @@ async function confirmClick(formEl: FormInstance | undefined) {
           valName = ITEM_TYPE.NICK_NAME + '-';
           currentItemType.customItemTypeName = '昵称';
           currentItemType.formInputType = FORM_TYPE.TEXT;
-          currentRole = [
-            {required: true, message: `请输入${currentItemType.customItemTypeName}`, trigger: 'blur'},
-          ];
+          currentRole = rolesMap.nickName;
           break;
           // 手机号
         case ITEM_TYPE.PHONE:
           valName = ITEM_TYPE.PHONE + '-';
           currentItemType.customItemTypeName = '手机号';
           currentItemType.formInputType = FORM_TYPE.TEXT;
-          currentRole = [
-            {required: true, message: `请输入${currentItemType.customItemTypeName}`, trigger: 'blur'},
-            {
-              pattern: /^(?:\+?86)?1(?:3\d{3}|5[^4\D]\d{2}|8\d{3}|7(?:[0-35-9]\d{2}|4(?:0\d|1[0-2]|9\d))|9[0-35-9]\d{2}|6[2567]\d{2}|4(?:(?:10|4[01])\d{3}|[68]\d{4}|[579]\d{2}))\d{6}$/,
-              message: `${currentItemType.customItemTypeName}不符合规范`,
-              trigger: 'blur'
-            },
-          ];
+          currentRole = rolesMap.phone;
           break;
 
           // 邮箱
@@ -414,14 +463,7 @@ async function confirmClick(formEl: FormInstance | undefined) {
           valName = ITEM_TYPE.EMAIL + '-';
           currentItemType.customItemTypeName = '邮箱';
           currentItemType.formInputType = FORM_TYPE.TEXT;
-          currentRole = [
-            {required: true, message: `请输入${currentItemType.customItemTypeName}`, trigger: 'blur'},
-            {
-              pattern: /[\w'.%+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,4}/,
-              message: `${currentItemType.customItemTypeName}不符合规范`,
-              trigger: 'blur'
-            },
-          ];
+          currentRole = rolesMap.email;
           break;
 
           // 网址
@@ -429,14 +471,7 @@ async function confirmClick(formEl: FormInstance | undefined) {
           valName = ITEM_TYPE.URL + '-';
           currentItemType.customItemTypeName = '网址';
           currentItemType.formInputType = FORM_TYPE.TEXTAREA;
-          currentRole = [
-            {required: true, message: `请输入${currentItemType.customItemTypeName}`, trigger: 'blur'},
-            {
-              pattern: /^(([^:/?#]+):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/,
-              message: `${currentItemType.customItemTypeName}不符合规范`,
-              trigger: 'blur'
-            },
-          ];
+          currentRole = rolesMap.url;
           break;
 
           // 备注
@@ -444,17 +479,13 @@ async function confirmClick(formEl: FormInstance | undefined) {
           valName = ITEM_TYPE.REMARK + '-';
           currentItemType.customItemTypeName = '备注';
           currentItemType.formInputType = FORM_TYPE.TEXTAREA;
-          currentRole = [
-            {required: true, message: `请输入${currentItemType.customItemTypeName}`, trigger: 'blur'},
-          ];
+          currentRole = rolesMap.remark
           break;
 
           // 其它用户自定义
         case ITEM_TYPE.CUSTOM:
           valName = ITEM_TYPE.CUSTOM + '-';
-          currentRole = [
-            {required: true, message: `请输入${currentItemType.customItemTypeName}`, trigger: 'blur'},
-          ];
+          currentRole = rolesMap.custom;
           break;
       }
 
@@ -469,9 +500,11 @@ async function confirmClick(formEl: FormInstance | undefined) {
       dynamicFormItemList.push(dynamicFormItem);
       recordForm[valName] = '';
       recordRules[valName] = currentRole;
-      labelMap[valName] = {key: valName, label: currentItemType.customItemTypeName};
-      // console.log(JSON.parse(JSON.stringify(recordRules)));
-
+      labelMap[valName] = {
+        key: valName,
+        label: currentItemType.customItemTypeName,
+        type: currentItemType.formInputType
+      };
       // 清除抽屉表单的内容
       clearDrawerFields();
     }
@@ -495,7 +528,7 @@ const clearDrawerFields = (): void => {
 
 // TODO: 动态表单
 interface DynamicFormItem {
-  type: FORM_TYPE,  // 类型
+  type: FORM_TYPE,      // 类型
   name: string,         // 名称
   label: string,        // 提示文字
   placeholder: string,  // 提示
@@ -513,6 +546,17 @@ const removeRecordItem = (item: DynamicFormItem) => {
     delete labelMap[item.name];
   }
 }
+
+onMounted(() => {
+  console.log("mounted...");
+//   dataBackfill({
+//     account: {label: "账号", value: "测试账号", type: 'textarea', sort: 1},
+//     password: {label: "密码", value: "测试密码", type: 'text', sort: 2},
+//     custom: {label: "测试", value: "测试值", type: 'text', sort: 3},
+//     custom_1: {label: "测试2", value: "测试值2", type: 'text', sort: 4},
+//     title: {label: "标题", value: "测试标题", type: 'text', sort: 0}
+//   });
+});
 </script>
 
 <style lang="scss" scoped>
