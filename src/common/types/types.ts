@@ -54,6 +54,26 @@ declare global {
         updateBy: string | null;    // 更新者
     }
 
+    type RecordNames = 'title'|'account'|'userName'|'password'|'phone'|'email'|'url'|'remark'|'customs';
+
+    type DemoRecord = {
+        id: string;                 // ID
+        userId: string;             // 用户ID
+        title?: RecordItem;         // 记录标题
+        account?: RecordItem;       // 账户名
+        userName?: RecordItem;      // 用户名
+        password?: RecordItem;      // 密码
+        phone?: RecordItem;         // 手机号
+        email?: RecordItem;         // 邮箱号
+        url?: RecordItem;           // 访问网址
+        remark?: RecordItem;        // 备注信息
+        customs?: RecordItem[];     // 自定义数据
+        createTime: number;         // 创建时间
+        createBy: string;           // 创建者
+        updateTime: number | null;  // 更新时间
+        updateBy: string | null;    // 更新者
+    }
+
     /**
      * 分页数据对象
      */
