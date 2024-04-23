@@ -43,8 +43,8 @@
       </div>
     </div>
     <div class="btn-box">
-      <input class="mrs-edit-btn" @click="editRecord(item.id)" type="button" value="编 辑">
-      <input class="mrs-delete-btn" @click="deleteRecord(item.id)" type="button" value="删 除">
+      <input class="mrs-edit-btn" @click.stop="editRecord(item.id)" type="button" value="编 辑">
+      <input class="mrs-delete-btn" @click.stop="deleteRecord(item.id)" type="button" value="删 除">
     </div>
   </div>
 </template>

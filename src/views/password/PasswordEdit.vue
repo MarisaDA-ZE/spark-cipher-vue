@@ -167,17 +167,18 @@
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref, Ref} from 'vue';
+import {onMounted, reactive, ref, Ref} from 'vue';
+import {useRoute} from 'vue-router';
 import MrsHeader from "@/components/common/MrsHeader.vue";
 import {getCurrentContentHeight, isBlank} from "@/utils/util/util";
 import type {FormInstance, FormRules} from 'element-plus';
 import {FormItemRule} from "element-plus/es/components/form/src/types";
+import mockApi from "@/mocks/passwordMocks";
 
 
 const contentViewHeight: Ref<number> = ref(getCurrentContentHeight());  // 内容区高度
 
 const dialogVisible = ref(false);
-
 const recordId: Ref<string | undefined> = ref(undefined);
 
 enum ITEM_TYPE {
@@ -647,26 +648,23 @@ const removeRecordById = () => {
 
 }
 
-// setTimeout(() => {
-//   dataBackfill({
-//     id: "170001",
-//     userId: "123456",
-//     account: {label: "账号", key: "account", value: "测试账号", type: 'textarea', sort: 1},
-//     password: {label: "密码", key: "password", value: "测试密码", type: 'text', sort: 2},
-//     customs: [
-//       {label: "测试", key: "custom_1", value: "测试值", type: 'text', sort: 3},
-//       {label: "密码2", key: "password_2", value: "marisa@123", type: 'text', sort: 6},
-//       {label: "测试2", key: "custom_2", value: "测试值2", type: 'text', sort: 4}
-//     ],
-//     phone: {label: "手机号", key: "phone", value: "18384669885", type: 'text', sort: 5},
-//     title: {label: "标题", key: "title", value: "测试标题", type: 'text', sort: 0},
-//     createTime: 0,
-//     createBy: "MarisaDAZE",
-//     updateTime: null,
-//     updateBy: null
-//   });
-// }, 1500);
 
+onMounted(() => {
+  console.log("onMounted...");
+  const route = useRoute();
+  const id = route.query.id as string | undefined;
+  if (id) {
+    recordId.value = id;
+    console.log("1")
+    mockApi.getRecordById({id: recordId.value}).then(res => {
+      console.log("2")
+      if (res.status) {
+        console.log("3")
+        dataBackfill(res.data);
+      }
+    });
+  }
+});
 
 defineExpose({dataBackfill});
 </script>

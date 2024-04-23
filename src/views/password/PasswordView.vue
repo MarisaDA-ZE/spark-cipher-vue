@@ -14,7 +14,9 @@
             <!-- 滚动组件 -->
             <my-scroll :container-height="contentViewHeight - tableHeadHeight" @scroll="loadRecordsPage">
               <!-- item -->
-              <MrsTableItem :class="{'record-slided': slidedId === e.id}" v-for="(e, i) in passwordList" :item="e" :key="i" :m-index="e.id"
+              <MrsTableItem :class="{'record-slided': slidedId === e.id}" v-for="(e, i) in passwordList" :item="e"
+                            :key="i" :m-index="e.id"
+                            @edit-record="updateRecord"
                             @show-toast="myShowToast"
                             @click="itemClick"
                             @item-slided="itemSlided"
@@ -160,8 +162,8 @@ const saveRecord = () => {
  * @param id
  */
 const updateRecord = (id: string): void => {
-  saveOrUpdateFlag.value = 1;
-  setActiveRecordById(id);
+  console.log(">>>>");
+  router.push({path: '/password-view/edit', query: {id}});
 }
 
 /**
@@ -248,7 +250,7 @@ onMounted(() => {
   });
 });
 
-const itemClick = ():void => {
+const itemClick = (): void => {
   console.log('itemClick');
   slidedId.value = null;
 }
@@ -257,7 +259,7 @@ const itemClick = ():void => {
  * 元素滑动
  * @param id
  */
-const itemSlided = (id: string | null):void => {
+const itemSlided = (id: string | null): void => {
   console.log('ID: ', id);
   slidedId.value = id;
 }
@@ -266,7 +268,7 @@ const itemSlided = (id: string | null):void => {
  * 提示消息
  */
 const myShowToast = (msg: string, type: TOAST_TYPE) => {
-  console.log( msg, type);
+  console.log(msg, type);
   showToast(type, msg, 1.5);
 }
 
@@ -320,6 +322,7 @@ defineExpose({
     }
   }
 }
+
 .record-slided {
   transform: translateX(-120px);
 }

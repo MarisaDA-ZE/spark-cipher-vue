@@ -49,7 +49,42 @@ const apiService = {
                 resolve(result);
             }, 300);
         });
+    },
 
+    /**
+     * 根据ID查询记录
+     * @param params {id: string} 记录ID
+     */
+    getRecordById(params: any): Promise<MrsResult<PasswordRecord>> {
+        return new Promise<MrsResult<PasswordRecord>>((resolve) => {
+            const record: PasswordRecord = {
+                id: params.id,    // ID
+                userId: "12313212313",        // 用户ID
+                title: {label: '标题', key: 'title', value: '这是一段标题', type: 'text', sort: 1},              // 记录标题
+                account: {label: '账号', key: 'account', value: 'MarisaDAZE', type: 'text', sort: 2},          // 账户名
+                userName: {label: '昵称', key: 'userName', value: 'MarisaDA★ZE', type: 'text', sort: 3},       // 昵称
+                password: {label: '密码', key: 'password', value: 'marisa@123', type: 'text', sort: 4},        // 密码
+                phone: {label: '手机号', key: 'phone', value: '18384669885', type: 'text', sort: 5},           // 手机号
+                email: {label: '邮箱', key: 'email', value: '3038488053@qq.com', type: 'text', sort: 6},       // 邮箱号
+                url: {label: '网址', key: 'url', value: 'https://kmarisa.icu/', type: 'textarea', sort: 7},    // 访问网址
+                remark: {label: '网址', key: 'remark', value: '这是一段备注信息>_<', type: 'textarea', sort: 8}, // 备注信息
+                createTime: (new Date()).getTime(), // 创建时间
+                createBy: "Marisa",           // 创建者
+                updateTime: 1710510180932,    // 更新时间
+                updateBy: null,               // 更新者
+            }
+
+            const result: MrsResult<PasswordRecord> = {
+                code: HTTP_STATUS.SUCCESS,
+                msg: "查询成功",
+                status: true,
+                data: record,
+                time: (new Date()).getTime()
+            };
+            setTimeout(() => {
+                resolve(result);
+            }, 300);
+        });
     },
 
     /**
