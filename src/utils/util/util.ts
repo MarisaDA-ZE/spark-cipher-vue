@@ -120,8 +120,8 @@ export const getCurrentContentHeight = (): number => {
  * @param overflow {string}  溢出部分显示为
  * @return {string}  处理后的结果
  */
-export const stringReplace = (text: string, size: number = 8, defaultVal: string = '暂无数据', overflow: string = "..."): string => {
-    if (isEmpty(text)) return defaultVal;
+export const stringReplace = (text: string | undefined, size: number = 8, defaultVal: string = '暂无数据', overflow: string = "..."): string => {
+    if (isEmpty(text) || !text) return defaultVal;
     if (text.length > size) {
         return text.substring(0, size) + overflow;
     }

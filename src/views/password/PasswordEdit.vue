@@ -3,10 +3,10 @@
     <!-- 头部 -->
     <mrs-header :show-back="true" class="my-header">
       <template #center>
-        新增密码
+        {{ !!recordId ? '修改' : '新增' }}密码
       </template>
 
-      <template #right v-if="true">
+      <template #right v-if="!!recordId">
         <span style="padding: 0 10px;" @click="dialogVisible = true">
           <i class="iconfont" style="font-size: 20px">&#xe605;</i>
         </span>
@@ -50,10 +50,10 @@
 
           <!-- 表单提交 -->
           <el-form-item>
-            <el-button type="primary" @click="submitForm(ruleFormRef)">
-              保存
+            <el-button type="primary" style="width: 100%;" size="large"
+                       @click="submitForm(ruleFormRef)">
+              保 存
             </el-button>
-            <el-button @click="resetForm(ruleFormRef)">重置</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -149,11 +149,17 @@
         title="删除确认">
       <span>真的要删除这条记录吗？</span>
       <template #footer>
-        <div style="width: 100%;display: flex;justify-content: flex-start">
-          <el-button type="primary" @click="removeRecordById">
+        <div style="width: 100%;display: flex; justify-content: flex-start;">
+          <!-- 取消 plain -->
+          <el-button text bg size="large" style="flex: 1;" @click="dialogVisible = false">
+            取消
+          </el-button>
+
+          <!-- 确定 plain -->
+          <el-button text bg type="primary" size="large" style="flex: 1;" @click="removeRecordById">
             确定
           </el-button>
-          <el-button @click="dialogVisible = false">取消</el-button>
+
         </div>
       </template>
     </el-dialog>
@@ -161,9 +167,9 @@
 </template>
 
 <script lang="ts" setup>
-import {onMounted, reactive, ref, Ref} from 'vue';
+import {reactive, ref, Ref} from 'vue';
 import MrsHeader from "@/components/common/MrsHeader.vue";
-import {getCurrentContentHeight, isBlank, isEmpty} from "@/utils/util/util";
+import {getCurrentContentHeight, isBlank} from "@/utils/util/util";
 import type {FormInstance, FormRules} from 'element-plus';
 import {FormItemRule} from "element-plus/es/components/form/src/types";
 
@@ -172,6 +178,7 @@ const contentViewHeight: Ref<number> = ref(getCurrentContentHeight());  // 内�
 
 const dialogVisible = ref(false);
 
+const recordId: Ref<string | undefined> = ref(undefined);
 
 enum ITEM_TYPE {
   ACCOUNT = 'account',
@@ -186,7 +193,6 @@ enum ITEM_TYPE {
 
 
 // TODO: 主表单区域
-
 const ruleFormRef = ref<FormInstance>()
 const recordForm = reactive<any>({
   title: '',
@@ -212,77 +218,117 @@ const labelMap = reactive<any>({
  * @param formEl
  */
 const submitForm = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return
+  if (!formEl) return;
   await formEl.validate((valid) => {
     if (valid) {
       console.log('提交...');
       const params: any = {};
       const keys = Object.keys(recordForm);
-      const keyMap = new Map<string, number>();
-      let index = 0;
+      const keyMap = new Map<string, number | undefined>();
+      let sort = 0;
       for (let key of keys) {
         const original = key;
         const label = labelMap[original];
         key = key.split('-')[0];
         let count = keyMap.get(key);
-        count = (typeof count !== 'undefined') ? ++count : 0;
+        count = (count !== undefined) ? ++count : 0;
         keyMap.set(key, count);
         key = count > 0 ? `${key}_${count}` : key;
-        params[key] = {
+
+        const param: PasswordRecordItem = {
           label: label.label,
+          key: key,
           value: recordForm[original],
           type: label.type,
-          sort: index
+          sort: sort
         };
-        index++;
+
+        const keyEnd: string | undefined = key.split('_')?.[1];
+        if (key.startsWith(ITEM_TYPE.CUSTOM) || keyEnd) {
+          const customs = params['customs'];
+          console.log(customs);
+          params['customs'] = [...(customs || []), param];
+        } else {
+          params[key] = param;
+        }
+        sort++;
       }
 
+      // 调用接口添加数据到后台
       console.log("新对象: ", params);
     }
   });
 };
 
-// 重置表单
-const resetForm = (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  formEl.resetFields()
-}
 
 /**
  * TODO: 数据回填
  */
-const dataBackfill = (data: any) => {
-  if (isEmpty(data)) return;
 
-  const sortKeys = Object.keys(data).sort((a, b) => {
-    const aSort = data[a].sort;
-    const bSort = data[b].sort;
-    return aSort - bSort;
+
+/**
+ * 将对象中的键按sort值进行排序
+ * @param record{PasswordRecord}    记录
+ */
+const keySortDeep = (record: PasswordRecord): (string | null) [] => {
+  const keys = Object.keys(record);
+  const recordItems: (PasswordRecordItem | string | number | null) [] = [];
+  for (let key of keys) {
+    const value = (record as any)[key];
+    (key !== 'customs') ? recordItems.push(value) : recordItems.push(...value);
+  }
+  let sorted = recordItems.sort((a, b) => {
+    if (a == null || typeof a === 'string' || typeof a === 'number') return 1;
+    if (b == null || typeof b === 'string' || typeof b === 'number') return -1;
+    return a.sort - b.sort;
   });
+  return sorted.map((e: PasswordRecordItem | string | number | null) => {
+    if (e == null || typeof e === 'string' || typeof e === 'number') return null;
+    return e.key;
+  });
+}
 
+const dataBackfill = (data: PasswordRecord) => {
+  recordId.value = data.id;
+  const sortKeys = keySortDeep(data);
   for (let key of sortKeys) {
-    const value = data[key];
-    labelMap[key] = {key: key, label: value.label, type: value.type};
-    recordForm[key] = value.value;
+    // 遇到一个null后面的就都是null了，排序时已经处理了
+    if (key == null) return;
 
-    const roleKey = key.split('_')[0];
-    recordRules[key] = rolesMap[roleKey];
-    if (key !== 'title') {
-      // 创建对象和添加规则
-      const dynamicFormItem: DynamicFormItem = {
-        type: value.type,
-        name: key,
-        label: value.label,
-        placeholder: `请输入${value.label}`,
-      };
-      dynamicFormItemList.push(dynamicFormItem);
+    let value: PasswordRecordItem | undefined = (data as any)[key];
+    const customs: PasswordRecordItem[] | undefined = data.customs;
+    if (typeof value === 'undefined' && customs !== undefined) {
+      value = customs.find((e: PasswordRecordItem) => (e.key === key));
     }
+    dynamicFill(value);
+  }
+}
+
+/**
+ * 动态填充
+ * @param item  一个记录项
+ */
+const dynamicFill = (item: PasswordRecordItem | undefined) => {
+  if (item === undefined) return;
+  const key: string = item.key;
+  labelMap[key] = {key: key, label: item.label, type: item.type};
+  recordForm[key] = item.value;
+
+  const roleKey = key.split('_')[0];
+  recordRules[key] = rolesMap[roleKey];
+  if (key !== 'title') {
+    // 创建对象和添加规则
+    const dynamicFormItem: DynamicFormItem = {
+      type: item.type,
+      name: key,
+      label: item.label,
+      placeholder: `请输入${item.label}`,
+    };
+    dynamicFormItemList.push(dynamicFormItem);
   }
 }
 
 // TODO: 抽屉区域
-
-
 // 选择器的类型列表
 const itemOptions = [
   {
@@ -359,10 +405,22 @@ const currentItemType = reactive<{
   customItemTypeName: '',
   formInputType: 'text',
 });
+
+/**
+ * 校验自定义Item的标题
+ * @param rule    role(未使用)
+ * @param value   value(未使用)
+ * @param callback  回调（包含Error就错误）
+ */
 const validateTypeTitle = (rule: any, value: any, callback: any) => {
-  if (currentItemType.drawerType === ITEM_TYPE.CUSTOM) {
-    if (isBlank(currentItemType.customItemTypeName)) {
+  const type = currentItemType.drawerType;
+  const name = currentItemType.customItemTypeName;
+  console.log(name, name.length, (name.length > 2 && name.length < 8));
+  if (type === ITEM_TYPE.CUSTOM) {
+    if (isBlank(name)) {
       callback(new Error("请输入标题"));
+    } else if (!(name.length >= 2 && name.length < 8)) {
+      callback(new Error("长度为2~8字符"));
     } else {
       callback();
     }
@@ -371,6 +429,12 @@ const validateTypeTitle = (rule: any, value: any, callback: any) => {
   }
 }
 
+/**
+ * 校验自定义Item的值
+ * @param rule    role(未使用)
+ * @param value   value(未使用)
+ * @param callback  回调（包含Error就错误）
+ */
 const validateTypeValue = (rule: any, value: any, callback: any) => {
   if (currentItemType.drawerType === ITEM_TYPE.CUSTOM) {
     if (isBlank(currentItemType.formInputType)) {
@@ -389,7 +453,9 @@ const drawerRules = reactive({
     message: '请选择表单项类型',
     trigger: 'change',
   }],
-  customTitle: [{validator: validateTypeTitle, trigger: 'blur'}],
+  customTitle: [
+    {validator: validateTypeTitle, trigger: 'blur'},
+  ],
   customValue: [{validator: validateTypeValue, trigger: 'change'}],
 });
 
@@ -576,20 +642,33 @@ const removeRecordItem = (item: DynamicFormItem) => {
 }
 
 const removeRecordById = () => {
-  console.log("删除...")
+  console.log("删除...", recordId.value);
   dialogVisible.value = false;
+
 }
 
-onMounted(() => {
-  console.log("mounted...");
+// setTimeout(() => {
 //   dataBackfill({
-//     account: {label: "账号", value: "测试账号", type: 'textarea', sort: 1},
-//     password: {label: "密码", value: "测试密码", type: 'text', sort: 2},
-//     custom: {label: "测试", value: "测试值", type: 'text', sort: 3},
-//     custom_1: {label: "测试2", value: "测试值2", type: 'text', sort: 4},
-//     title: {label: "标题", value: "测试标题", type: 'text', sort: 0}
+//     id: "170001",
+//     userId: "123456",
+//     account: {label: "账号", key: "account", value: "测试账号", type: 'textarea', sort: 1},
+//     password: {label: "密码", key: "password", value: "测试密码", type: 'text', sort: 2},
+//     customs: [
+//       {label: "测试", key: "custom_1", value: "测试值", type: 'text', sort: 3},
+//       {label: "密码2", key: "password_2", value: "marisa@123", type: 'text', sort: 6},
+//       {label: "测试2", key: "custom_2", value: "测试值2", type: 'text', sort: 4}
+//     ],
+//     phone: {label: "手机号", key: "phone", value: "18384669885", type: 'text', sort: 5},
+//     title: {label: "标题", key: "title", value: "测试标题", type: 'text', sort: 0},
+//     createTime: 0,
+//     createBy: "MarisaDAZE",
+//     updateTime: null,
+//     updateBy: null
 //   });
-});
+// }, 1500);
+
+
+defineExpose({dataBackfill});
 </script>
 
 <style lang="scss" scoped>

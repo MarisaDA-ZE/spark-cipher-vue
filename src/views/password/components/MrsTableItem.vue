@@ -11,7 +11,7 @@
         <!-- 账号 -->
         <p>
           <span>账号</span>
-          <span class="allow-copy" @click.stop="myCopy(currentRecord?.account)">
+          <span class="allow-copy" @click.stop="myCopy(currentRecord?.account.value)">
             {{ currentRecord?.viewAccount }}
           </span>
         </p>
@@ -19,7 +19,7 @@
         <!-- 密码 -->
         <p class="pwd-item">
           <span>密码</span>
-          <span class="allow-copy" @click.stop="myCopy(currentRecord?.password)">
+          <span class="allow-copy" @click.stop="myCopy(currentRecord?.password.value)">
             {{ currentRecord?.viewPassword }}
           </span>
           <span class="is-display iconfont" @click.stop="displayEye" v-if="isDisplayEye">&#xe660;</span>
@@ -36,8 +36,8 @@
         <!-- 网址 -->
         <p>
           <span>网址</span>
-          <a :href="currentRecord?.url" target="_blank"
-             v-if="computedIsURL(currentRecord?.url)">{{ currentRecord?.viewURL }}</a>
+          <a :href="currentRecord?.url.value" target="_blank"
+             v-if="computedIsURL(currentRecord?.url.value)">{{ currentRecord?.viewURL }}</a>
           <span v-else>{{ currentRecord?.viewURL }}</span>
         </p>
       </div>
@@ -122,12 +122,12 @@ const beforeRender = (): void => {
     viewTime: "",
   }
 
-  extend.viewTitle = stringReplace(item.title, 12, "无标题");       // 标题
-  extend.viewUserName = stringReplace(item.userName, 16, "暂无用户");// 用户名
-  extend.viewAccount = stringReplace(item.account, 16, "暂无账号"); // 账号
-  extend.viewPassword = item.password ? "********" : "无密码";                 // 密码
-  extend.viewRemark = stringReplace(item?.remark, 16, "暂无备注"); // 备注
-  extend.viewURL = stringReplace(item?.url, 24, "无官网");        // 网址
+  extend.viewTitle = stringReplace(item.title?.value, 12, "无标题");       // 标题
+  extend.viewUserName = stringReplace(item.userName?.value, 16, "暂无用户");// 用户名
+  extend.viewAccount = stringReplace(item.account?.value, 16, "暂无账号"); // 账号
+  extend.viewPassword = item.password?.value ? "********" : "无密码";                 // 密码
+  extend.viewRemark = stringReplace(item?.remark?.value, 16, "暂无备注"); // 备注
+  extend.viewURL = stringReplace(item?.url?.value, 24, "无官网");        // 网址
 
   // 更新时间或者创建时间
   const time = item?.updateTime || item?.createTime;
@@ -251,7 +251,7 @@ const displayEye = (): void => {
   isDisplayEye.value = !isDisplayEye.value;
   const record: RenderPasswordRecord | null = currentRecord.value;
   if (record) {
-    let pwd = record.password;
+    let pwd = record.password?.value;
     pwd = stringReplace(pwd, 12, "无密码");
     pwd = isDisplayEye.value ? pwd : '********';
     record.viewPassword = pwd;
