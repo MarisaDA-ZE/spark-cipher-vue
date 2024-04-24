@@ -7,7 +7,7 @@
       </template>
 
       <template #right v-if="!!recordId">
-        <span style="padding: 0 10px;" @click="dialogVisible = true">
+        <span style="padding: 0 10px;color: #409EFF;" @click="dialogVisible = true">
           <i class="iconfont" style="font-size: 20px">&#xe605;</i>
         </span>
       </template>
@@ -170,13 +170,13 @@
 import {onMounted, reactive, ref, Ref} from 'vue';
 import {useRoute} from 'vue-router';
 import MrsHeader from "@/components/common/MrsHeader.vue";
-import {getCurrentContentHeight, isBlank} from "@/utils/util/util";
+import {getCurrentContentHeight, isBlank, recordKeySortDeep} from "@/utils/util/util";
 import type {FormInstance, FormRules} from 'element-plus';
 import {FormItemRule} from "element-plus/es/components/form/src/types";
 import mockApi from "@/mocks/passwordMocks";
 
 
-const contentViewHeight: Ref<number> = ref(getCurrentContentHeight());  // 内容区高度
+const contentViewHeight: Ref<number> = ref(0);  // 内容区高度
 
 const dialogVisible = ref(false);
 const recordId: Ref<string | undefined> = ref(undefined);
@@ -263,35 +263,12 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 
 
 /**
- * TODO: 数据回填
+ * 数据回填
+ * @param data  密码记录
  */
-
-
-/**
- * 将对象中的键按sort值进行排序
- * @param record{PasswordRecord}    记录
- */
-const keySortDeep = (record: PasswordRecord): (string | null) [] => {
-  const keys = Object.keys(record);
-  const recordItems: (PasswordRecordItem | string | number | null) [] = [];
-  for (let key of keys) {
-    const value = (record as any)[key];
-    (key !== 'customs') ? recordItems.push(value) : recordItems.push(...value);
-  }
-  let sorted = recordItems.sort((a, b) => {
-    if (a == null || typeof a === 'string' || typeof a === 'number') return 1;
-    if (b == null || typeof b === 'string' || typeof b === 'number') return -1;
-    return a.sort - b.sort;
-  });
-  return sorted.map((e: PasswordRecordItem | string | number | null) => {
-    if (e == null || typeof e === 'string' || typeof e === 'number') return null;
-    return e.key;
-  });
-}
-
 const dataBackfill = (data: PasswordRecord) => {
   recordId.value = data.id;
-  const sortKeys = keySortDeep(data);
+  const sortKeys = recordKeySortDeep(data);
   for (let key of sortKeys) {
     // 遇到一个null后面的就都是null了，排序时已经处理了
     if (key == null) return;
@@ -653,13 +630,12 @@ onMounted(() => {
   console.log("onMounted...");
   const route = useRoute();
   const id = route.query.id as string | undefined;
+
+  contentViewHeight.value = getCurrentContentHeight();
   if (id) {
     recordId.value = id;
-    console.log("1")
     mockApi.getRecordById({id: recordId.value}).then(res => {
-      console.log("2")
       if (res.status) {
-        console.log("3")
         dataBackfill(res.data);
       }
     });
@@ -669,6 +645,7 @@ onMounted(() => {
 defineExpose({dataBackfill});
 </script>
 
+<!-- 样式 -->
 <style lang="scss" scoped>
 @import "@/assets/style/common.scss";
 
@@ -752,6 +729,7 @@ defineExpose({dataBackfill});
 }
 </style>
 
+<!-- UI组件样式 -->
 <style lang="scss">
 .my-drawer {
   $current-height: calc(var(--content-height) * 1px);

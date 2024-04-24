@@ -20,7 +20,13 @@ const apiService = {
                 const record: PasswordRecord = {
                     id: "1771434139937464320",    // ID
                     userId: "12313212313",        // 用户ID
-                    title: {label: '标题', key: 'title', value: '这是一段标题', type: 'text', sort: 1},              // 记录标题
+                    title: {
+                        label: '标题',
+                        key: 'title',
+                        value: '这是一段标题，这是一段十六字的标题',
+                        type: 'text',
+                        sort: 1
+                    },              // 记录标题
                     account: {label: '账号', key: 'account', value: 'MarisaDAZE', type: 'text', sort: 2},          // 账户名
                     userName: {label: '昵称', key: 'userName', value: 'MarisaDA★ZE', type: 'text', sort: 3},       // 昵称
                     password: {label: '密码', key: 'password', value: 'marisa@123', type: 'text', sort: 4},        // 密码
@@ -66,8 +72,21 @@ const apiService = {
                 password: {label: '密码', key: 'password', value: 'marisa@123', type: 'text', sort: 4},        // 密码
                 phone: {label: '手机号', key: 'phone', value: '18384669885', type: 'text', sort: 5},           // 手机号
                 email: {label: '邮箱', key: 'email', value: '3038488053@qq.com', type: 'text', sort: 6},       // 邮箱号
-                url: {label: '网址', key: 'url', value: 'https://kmarisa.icu/', type: 'textarea', sort: 7},    // 访问网址
-                remark: {label: '网址', key: 'remark', value: '这是一段备注信息>_<', type: 'textarea', sort: 8}, // 备注信息
+                url: {
+                    label: '网址',
+                    key: 'url',
+                    value: `https://kmarisa.icu/jdhfuiewhfwiuhwdkhajkdahjkhwduiadhakjdksacsbajkbcajkdashdjksjkabaks/hkjsachaiuhqqihdqdjkashkjahdjkahwiu`,
+                    type: 'textarea',
+                    sort: 7
+                },    // 访问网址
+                remark: {
+                    label: '备注',
+                    key: 'remark',
+                    value: `这是一段备注信息>_<。CSS属性word-break: break-word;用于强制在单词内部进行换行，以避免因长单词或无空格字符串而导致的内容溢出。然而，word-break: break-word;并不是一个标准的CSS3规范中的值，而是早先Webkit浏览器（如Safari和Chrome）引入的一个扩展值。尽管许多现代浏览器仍然支持它，但为了确保最佳的跨浏览器兼容性，建议使用标准的CSS属性来达到类似的效果。\n' +
+                        '标准的替代方案是使用overflow-wrap（或其别名word-wrap）属性，并设置其值为break-word。这个属性同样允许在必要时在单词内部换行，以防止内容超出容器边界。`,
+                    type: 'textarea',
+                    sort: 8
+                }, // 备注信息
                 createTime: (new Date()).getTime(), // 创建时间
                 createBy: "Marisa",           // 创建者
                 updateTime: 1710510180932,    // 更新时间

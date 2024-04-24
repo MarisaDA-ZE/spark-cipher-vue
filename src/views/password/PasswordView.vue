@@ -3,7 +3,7 @@
     <div class="layout">
       <!-- 顶部 -->
       <div class="table-header" :style="{'--header-height': tableHeadHeight}">
-        <div @click="showRouter" class="m-button iconfont">&#xe665;</div>
+        <div @click="toEditView" class="m-button iconfont">&#xe665;</div>
       </div>
 
       <!-- 数据列表 -->
@@ -18,7 +18,7 @@
                             :key="i" :m-index="e.id"
                             @edit-record="updateRecord"
                             @show-toast="myShowToast"
-                            @click="itemClick"
+                            @click="showDetail(e.id)"
                             @item-slided="itemSlided"
                             @delete-by-id="deletePwdRecord"
                             @deleteBatch="deleteBatch"/>
@@ -229,7 +229,7 @@ const searchByKeyword = (word: string) => {
 }
 
 const router = useRouter();
-const showRouter = () => {
+const toEditView = () => {
   router.push("/password-view/edit");
 }
 
@@ -250,9 +250,9 @@ onMounted(() => {
   });
 });
 
-const itemClick = (): void => {
-  console.log('itemClick');
-  slidedId.value = null;
+const showDetail = (id: string): void => {
+  console.log('showDetail...', id);
+  router.push({path: '/password-view/detail', query: {id}});
 }
 
 /**
@@ -273,8 +273,8 @@ const myShowToast = (msg: string, type: TOAST_TYPE) => {
 }
 
 defineExpose({
-  myShowToast, itemSlided, itemClick,
-  showRouter, loadRecordsPage
+  myShowToast, itemSlided, showDetail,
+  toEditView, loadRecordsPage
 });
 </script>
 

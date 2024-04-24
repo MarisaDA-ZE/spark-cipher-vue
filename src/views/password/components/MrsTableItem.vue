@@ -238,8 +238,6 @@ const myCopy = (text: string) => {
       copyThrottle.value = true;
     }, 300);
   }
-
-
 }
 
 /**

@@ -149,3 +149,26 @@ export const writeClipboard = async (str: string) => {
         console.error('Failed to copy text:', err);
     }
 }
+
+/**
+ * 将对象中的键按sort值进行排序
+ * @param record{PasswordRecord}    记录
+ * @param sort  {string}    排序字段
+ */
+export const recordKeySortDeep = (record: PasswordRecord, sort: string = 'sort'): (string | null) [] => {
+    const keys = Object.keys(record);
+    const recordItems: (PasswordRecordItem | string | number | null) [] = [];
+    for (let key of keys) {
+        const value = (record as any)[key];
+        (key !== 'customs') ? recordItems.push(value) : recordItems.push(...value);
+    }
+    let sorted = recordItems.sort((a, b) => {
+        if (a == null || typeof a === 'string' || typeof a === 'number') return 1;
+        if (b == null || typeof b === 'string' || typeof b === 'number') return -1;
+        return (a as any)[sort] - (b as any)[sort];
+    });
+    return sorted.map((e: PasswordRecordItem | string | number | null) => {
+        if (e == null || typeof e === 'string' || typeof e === 'number') return null;
+        return e.key;
+    });
+}

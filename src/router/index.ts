@@ -41,6 +41,18 @@ const routesMap: Array<RouteRecordRaw> = [
             showDocker: false,
         }
     },
+    {// 密码详情页面
+        path: "/password-view/detail",
+        name: "password-detail",
+        component: () => import("@/views/password/PasswordDetail.vue"),
+        meta: {
+            title: "密码详情",
+            loginRequired: true,
+            showHeader: false,
+            showDocker: false,
+        }
+    },
+
     {// 图片详情页
         path: "/images-view",
         name: "images",

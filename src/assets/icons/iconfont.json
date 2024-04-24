@@ -6,6 +6,76 @@
   "description": "火花管理器",
   "glyphs": [
     {
+      "icon_id": "563558",
+      "name": "edit",
+      "font_class": "edit",
+      "unicode": "e66c",
+      "unicode_decimal": 58988
+    },
+    {
+      "icon_id": "1133229",
+      "name": "edit",
+      "font_class": "edit1",
+      "unicode": "e66d",
+      "unicode_decimal": 58989
+    },
+    {
+      "icon_id": "1138729",
+      "name": "edit",
+      "font_class": "edit2",
+      "unicode": "e66e",
+      "unicode_decimal": 58990
+    },
+    {
+      "icon_id": "1207861",
+      "name": "edit",
+      "font_class": "edit3",
+      "unicode": "e66f",
+      "unicode_decimal": 58991
+    },
+    {
+      "icon_id": "1327475",
+      "name": "edit",
+      "font_class": "edit4",
+      "unicode": "e670",
+      "unicode_decimal": 58992
+    },
+    {
+      "icon_id": "1446453",
+      "name": "edit",
+      "font_class": "edit5",
+      "unicode": "e671",
+      "unicode_decimal": 58993
+    },
+    {
+      "icon_id": "4472481",
+      "name": "edit",
+      "font_class": "edit6",
+      "unicode": "e715",
+      "unicode_decimal": 59157
+    },
+    {
+      "icon_id": "8106219",
+      "name": "edit",
+      "font_class": "edit7",
+      "unicode": "e69a",
+      "unicode_decimal": 59034
+    },
+    {
+      "icon_id": "9928499",
+      "name": "edit",
+      "font_class": "edit8",
+      "unicode": "e672",
+      "unicode_decimal": 58994
+    },
+    {
+      "icon_id": "16618154",
+      "name": "edit",
+      "font_class": "edit9",
+      "unicode": "e6aa",
+      "unicode_decimal": 59050
+    },
+    {
       "icon_id": "373290",
       "name": "cc-delete",
       "font_class": "cc-delete",

@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3849543 */
-  src: url('iconfont.woff2?t=1713769473994') format('woff2'),
-       url('iconfont.woff?t=1713769473994') format('woff'),
-       url('iconfont.ttf?t=1713769473994') format('truetype');
+  src: url('iconfont.woff2?t=1713927610598') format('woff2'),
+       url('iconfont.woff?t=1713927610598') format('woff'),
+       url('iconfont.ttf?t=1713927610598') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,46 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-edit:before {
+  content: "\e66c";
+}
+
+.icon-edit1:before {
+  content: "\e66d";
+}
+
+.icon-edit2:before {
+  content: "\e66e";
+}
+
+.icon-edit3:before {
+  content: "\e66f";
+}
+
+.icon-edit4:before {
+  content: "\e670";
+}
+
+.icon-edit5:before {
+  content: "\e671";
+}
+
+.icon-edit6:before {
+  content: "\e715";
+}
+
+.icon-edit7:before {
+  content: "\e69a";
+}
+
+.icon-edit8:before {
+  content: "\e672";
+}
+
+.icon-edit9:before {
+  content: "\e6aa";
 }
 
 .icon-cc-delete:before {
