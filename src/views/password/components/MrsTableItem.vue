@@ -358,6 +358,8 @@ $btn-box-width: 120px;
           cursor: default;
           color: $brand-blue;
           text-decoration: underline;
+          text-decoration-thickness: 1px;
+          text-underline-offset: 2.9px;
         }
       }
 
