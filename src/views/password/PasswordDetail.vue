@@ -18,7 +18,7 @@
       <div class="record-title">
         <!-- 更新时间 -->
         <div class="create-time">
-          <span class="label">最近更新</span>
+          <span class="label">上次更新</span>
           <span class="value">{{ lastUpdateTime }}</span>
         </div>
       </div>
