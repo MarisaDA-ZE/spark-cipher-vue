@@ -712,7 +712,7 @@ defineExpose({dataBackfill});
 
   // 内容区域
   .content {
-    padding-top: calc($header-height + 10px);
+    padding: calc($header-height + 10px) 0 10px 0;
     width: 100%;
     height: $view-height;
     overflow-y: scroll;
