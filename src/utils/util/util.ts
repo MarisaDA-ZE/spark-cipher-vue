@@ -183,17 +183,17 @@ function computeTimeDifference(lastTime: number): TimeDifference {
     const now = Date.now();
     const differenceMs = now - lastTime;
 
-    if (differenceMs <= 60_000) {
+    if (differenceMs < 60_000) {
         return {value: 0, unit: '分钟'};
     }
 
     const differenceMinutes = Math.floor(differenceMs / 60_000);
-    if (differenceMinutes <= 60) {
+    if (differenceMinutes < 60) {
         return {value: differenceMinutes, unit: '分钟'};
     }
 
     const differenceHours = Math.floor(differenceMinutes / 60);
-    if (differenceHours <= 24) {
+    if (differenceHours < 24) {
         return {value: differenceHours, unit: '小时'};
     }
 
