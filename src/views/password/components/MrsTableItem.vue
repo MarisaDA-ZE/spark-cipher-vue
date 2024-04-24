@@ -286,7 +286,7 @@ $btn-box-width: 120px;
   //background: #409EFF;
 
   .mrs-table-item-mask {
-    // background: rgba(0, 0, 0, 0.5);
+    //background: rgba(0, 0, 0, 0.5);
     height: 100%;
     width: 100%;
     position: absolute;

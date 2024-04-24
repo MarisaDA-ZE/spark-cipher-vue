@@ -18,7 +18,7 @@
                             v-for="(e, i) in passwordList"
                             :item="e"
                             :key="i" :m-index="e.id"
-                            :show-mask="slidedId === e.id"
+                            :show-mask="slidedId != null"
                             @edit-record="updateRecord"
                             @show-toast="myShowToast"
                             @click="showDetail(e.id)"
