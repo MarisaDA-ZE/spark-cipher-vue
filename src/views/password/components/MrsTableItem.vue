@@ -305,6 +305,7 @@ $btn-box-width: 120px;
     font-family: $font-content-family;
     color: #333;
     padding: 10px;
+    margin-right: 10px;
     border-radius: 5px;
 
     .mrs-header {
