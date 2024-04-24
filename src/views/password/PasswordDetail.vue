@@ -14,6 +14,16 @@
 
     <!-- 内容区域 -->
     <div class="content">
+
+      <div class="record-title">
+        <!-- 更新时间 -->
+        <div class="create-time">
+          <span class="label">最近更新</span>
+          <span class="value">{{ lastUpdateTime }}</span>
+        </div>
+      </div>
+
+      <!-- item元素 -->
       <div class="record-item" v-for="(e, i) in someRenderRecordItem" :key="i">
         <div class="item-label">{{ e.label + ': ' }}</div>
         <!-- 文本 -->
@@ -33,7 +43,7 @@ import {Ref, ref, onMounted, computed, getCurrentInstance} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
 import MrsHeader from "@/components/common/MrsHeader.vue";
-import {getCurrentContentHeight, isURL, recordKeySortDeep, stringReplace} from "@/utils/util/util";
+import {getCurrentContentHeight, isURL, recordKeySortDeep, stringReplace, computedDiffTime} from "@/utils/util/util";
 import mockApi from "@/mocks/passwordMocks";
 import Toast, {showToast} from "@/components/common/Toast.vue";
 import {TOAST_TYPE} from "@/common/constant";
@@ -49,6 +59,7 @@ const currentRecord: Ref<PasswordRecord | null> = ref(null);
 const instance = getCurrentInstance();
 const someRenderRecordItem: Ref<PasswordRecordItem[]> = ref([]);
 const copyThrottle: Ref<boolean> = ref(true); // 复制的节流
+const lastUpdateTime: Ref<string> = ref('');
 
 /**
  * 处理字符串
@@ -60,6 +71,8 @@ const replaceText = (text: string, size: number = 12, defaultVal: string = "暂�
   return stringReplace(text, size, defaultVal);
 }
 
+
+
 /**
  * 渲染数据前
  */
@@ -67,6 +80,7 @@ const beforeRender = () => {
   mockApi.getRecordById({id: recordId.value}).then(res => {
     if (res.status) {
       currentRecord.value = res.data;
+      lastUpdateTime.value = computedDiffTime(res.data.updateTime || res.data.createTime);
       const sorted = recordKeySortDeep(currentRecord.value, 'sort');
       for (let key of sorted) {
         // 遇到一个null后面的就都是null了，排序时已经处理了
@@ -136,11 +150,31 @@ defineExpose({editRecord});
   background: $color-gray-light-9;
 
   .content {
+    position: relative;
     padding-top: calc($header-height + 10px);
     width: 100%;
     height: $view-height;
     overflow-y: scroll;
     background: #FFF;
+
+    .record-title {
+      position: absolute;
+      right: 0;
+      top: calc($header-height + 8px);
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      font-size: 12px;
+      line-height: 100%;
+      padding-right: 10px;
+      color: $info-gray;
+
+      .create-time {
+        .label {
+          margin-right: 5px;
+        }
+      }
+    }
 
     .record-item {
       margin: 10px 0;
@@ -189,7 +223,8 @@ defineExpose({editRecord});
       }
     }
 
-    .record-item:first-child {
+    // first-child是更新时间，所以这里取第二个元素
+    .record-item:nth-child(2) {
       margin-top: 0;
     }
 

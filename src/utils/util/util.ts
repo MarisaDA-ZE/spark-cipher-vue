@@ -1,6 +1,7 @@
 import Fingerprint2 from 'fingerprintjs2';
 import {RouteMeta, useRouter} from "vue-router";
 import {C_CONTENT_HEIGHT} from "@/common/constant";
+import {formatDistanceToNow} from 'date-fns';
 
 /**
  * 判断空
@@ -172,3 +173,43 @@ export const recordKeySortDeep = (record: PasswordRecord, sort: string = 'sort')
         return e.key;
     });
 }
+
+interface TimeDifference {
+    value: number;
+    unit: string;
+}
+
+function computeTimeDifference(lastTime: number): TimeDifference {
+    const now = Date.now();
+    const differenceMs = now - lastTime;
+
+    if (differenceMs <= 60_000) {
+        return {value: 0, unit: '分钟'};
+    }
+
+    const differenceMinutes = Math.floor(differenceMs / 60_000);
+    if (differenceMinutes <= 60) {
+        return {value: differenceMinutes, unit: '分钟'};
+    }
+
+    const differenceHours = Math.floor(differenceMinutes / 60);
+    if (differenceHours <= 24) {
+        return {value: differenceHours, unit: '小时'};
+    }
+
+    const differenceDays = Math.floor(differenceHours / 24);
+    return {value: differenceDays, unit: '天'};
+}
+
+function formatTimeDifference(diff: TimeDifference): string {
+    const {value, unit} = diff;
+    if (value === 0) return '刚刚';
+    return `${value}${unit}前`;
+}
+
+export const computedDiffTime = (lastTime: number): string => {
+    console.log(lastTime, new Date().getTime());
+    const timeDifference = computeTimeDifference(lastTime);
+    return formatTimeDifference(timeDifference);
+};
+
