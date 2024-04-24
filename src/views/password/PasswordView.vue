@@ -14,8 +14,11 @@
             <!-- 滚动组件 -->
             <my-scroll :container-height="contentViewHeight - tableHeadHeight" @scroll="loadRecordsPage">
               <!-- item -->
-              <MrsTableItem :class="{'record-slided': slidedId === e.id}" v-for="(e, i) in passwordList" :item="e"
+              <MrsTableItem :class="{'m-table-item': true,'record-slided': slidedId === e.id}"
+                            v-for="(e, i) in passwordList"
+                            :item="e"
                             :key="i" :m-index="e.id"
+                            :show-mask="slidedId === e.id"
                             @edit-record="updateRecord"
                             @show-toast="myShowToast"
                             @click="showDetail(e.id)"
@@ -38,16 +41,11 @@ import MrsTableItem from "@/views/password/components/MrsTableItem.vue";
 
 import {onMounted, reactive, ref, Ref} from "vue";
 import {useRouter} from "vue-router";
-
-import {HTTP_STATUS, TOAST_TYPE, CLIENT_ENCRYPT_PREFIX, ENABLE_ENCRYPT_LINK} from "@/common/constant";
 import api from "@/api/api";
 import mockApi from "@/mocks/passwordMocks";
-import {useCryptoStore} from "@/store/cryptoStore";
+import {HTTP_STATUS, TOAST_TYPE} from "@/common/constant";
 import {getCurrentContentHeight} from "@/utils/util/util";
-import {SM2Util} from "@/utils/sm2/sm2-util";
 
-// 仓库
-const cryptoStore = useCryptoStore();
 
 // 成员变量
 const passwordList: Ref<PasswordRecord []> = ref([]);     // 密码列表
@@ -57,11 +55,6 @@ const page = reactive({
   current: 1,
   size: 10
 });
-
-const currentRecord: Ref<PasswordRecord | null> = ref(null);  // 当前正在操作的密码对象
-const detailVisible: Ref<boolean> = ref(false); // 查看弹框
-const editedVisible: Ref<boolean> = ref(false); // 编辑弹窗
-const saveOrUpdateFlag: Ref<number> = ref(0);   // 操作是新建还是编辑
 const slidedId: Ref<string | null> = ref(null); // 当前滑动ID
 const contentViewHeight: Ref<number> = ref(getCurrentContentHeight());  // 内容区高度
 
@@ -87,35 +80,11 @@ const getPasswordsByPage = (): Promise<boolean> => {
         return;
       }
       let recordList: PasswordRecord[] = [];
-      if (ENABLE_ENCRYPT_LINK) {
-        let encrypt: string | null = res.data;
-        if (!encrypt) {
-          showToast(TOAST_TYPE.ERROR, res.msg, 1.5);
-          reject(false);
-          return;
-        }
-        encrypt = encrypt.substring(2);
-        let keyPair: SM2KeyPair | null = cryptoStore.getClientKeyPair();
-        console.log("客户端密钥: ", keyPair);
-        if (!keyPair || !keyPair.privateKey) {
-          showToast(TOAST_TYPE.ERROR, "客户端密钥获取失败", 1.5);
-          reject(false);
-          return;
-        }
-        const privateKey = keyPair.privateKey;
-        const decrypt: string = SM2Util.decrypt(encrypt, privateKey);
-        console.log("解码后: ", decrypt);
-        if (decrypt) {
-          const dec: any = JSON.parse(decrypt);
-          recordList = [...dec?.records];
-        }
-      } else {
-        try {
-          const data = res.data as MrsPageRecord<PasswordRecord> | null;
-          if (data) recordList = [...data.records];
-        } catch (ex) {
-          showToast(TOAST_TYPE.ERROR, "数据解析失败", 1.5);
-        }
+      try {
+        const data = res.data as MrsPageRecord<PasswordRecord> | null;
+        if (data) recordList = [...data.records];
+      } catch (ex) {
+        showToast(TOAST_TYPE.ERROR, "数据解析失败", 1.5);
       }
       console.log("原始list: ", recordList);
       // 数据去重
@@ -128,51 +97,16 @@ const getPasswordsByPage = (): Promise<boolean> => {
   });
 }
 
-/**
- * 设置活动的记录
- */
-const setActiveRecordById = (id: string) => {
-  const idList = new Array(passwordList.value.map(p => p.id));
-  const index = idList.indexOf([id]);
-  if (index === -1) {
-    showToast(TOAST_TYPE.ERROR, "未找到该记录", 1.5);
-    return;
-  }
-  currentRecord.value = passwordList.value[index];
-}
-
-/**
- * 查看详情
- * @param id
- */
-const showPwdDetails = (id: string): void => {
-  setActiveRecordById(id);
-  detailVisible.value = !detailVisible.value;
-}
-
-/**
- * 保存一条密码记录
- */
-const saveRecord = () => {
-  saveOrUpdateFlag.value = 0;
-}
 
 /**
  * 编辑记录详情
  * @param id
  */
 const updateRecord = (id: string): void => {
-  console.log(">>>>");
+  console.log("编辑详情.。。");
   router.push({path: '/password-view/edit', query: {id}});
 }
 
-/**
- * 新建或修改一条密码记录
- */
-const saveOrUpdateRecord = (id: string) => {
-  editedVisible.value = !editedVisible.value;
-  id ? updateRecord(id) : saveRecord();
-}
 
 /**
  * 删除记录
@@ -198,27 +132,6 @@ const deleteBatch = (id: number) => {
   console.log("批量删除", id);
 }
 
-/**
- * 提交更新
- */
-const onSubmit = () => {
-  const current: PasswordRecord | null = currentRecord.value;
-  if (!current) {
-    showToast(TOAST_TYPE.ERROR, "未找到该记录", 1.5);
-    return;
-  }
-
-  editedVisible.value = !editedVisible.value;
-
-  const serviceKeyPair = cryptoStore.getServiceKeyPair();
-  if (!serviceKeyPair || !serviceKeyPair.publicKey) {
-    showToast(TOAST_TYPE.ERROR, "服务端公钥不存在", 1.5);
-    return;
-  }
-  let spk: string = serviceKeyPair.publicKey;
-  const encrypt = CLIENT_ENCRYPT_PREFIX + SM2Util.encrypt(JSON.stringify(current), spk);
-  current.id ? api.editRecordById(encrypt) : api.addRecordsOne(encrypt);
-}
 
 /**
  * 搜索
@@ -252,6 +165,11 @@ onMounted(() => {
 
 const showDetail = (id: string): void => {
   console.log('showDetail...', id);
+  if(slidedId.value) {
+    slidedId.value = null;
+    return;
+  }
+
   router.push({path: '/password-view/detail', query: {id}});
 }
 
@@ -317,7 +235,11 @@ defineExpose({
       overflow-x: hidden;
       overflow-y: scroll;
 
-      .mrs-items-list {
+      .mrs-item-list {
+
+        .m-table-item{
+          margin: 10px 0 10px 10px;
+        }
       }
     }
   }

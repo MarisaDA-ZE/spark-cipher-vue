@@ -1,5 +1,7 @@
 <template>
   <div class="mrs-item" ref="mrsTableItemRef" data-flag="0">
+    <div class="mrs-table-item-mask" v-if="showMask"></div>
+
     <div class="mrs-table-item">
       <div class="mrs-header">
         <p class="name">{{ currentRecord?.viewTitle }}</p>
@@ -55,6 +57,10 @@ import {formatTime, isURL, stringReplace} from "@/utils/util/util";
 import {TOAST_TYPE} from "@/common/constant";
 
 const props = defineProps({
+  showMask: {
+    type: Boolean,
+    default: false
+  },
   item: {
     type: Object,
     default: null
@@ -91,6 +97,7 @@ interface RenderPasswordRecord extends PasswordRecord {
   viewURL: string;      // 官网链接（超出部分会截断）
   viewTime: string;     // 创建时间
 }
+
 /**
  * 滑动方向枚举
  */
@@ -220,21 +227,20 @@ const computedIsURL = computed(() => {
 });
 
 
-
 /**
  * 复制操作
  * @param text
  */
 const myCopy = (text: string) => {
   console.log("复制...", text);
-  if(copyThrottle.value){
+  if (copyThrottle.value) {
     copyThrottle.value = false;
     if (instance) {
       const {appContext} = instance;
       appContext.config.globalProperties.$copyText(text)
     }
     showToast("复制成功", TOAST_TYPE.SUCCESS);
-    setTimeout(() =>{
+    setTimeout(() => {
       copyThrottle.value = true;
     }, 300);
   }
@@ -277,7 +283,17 @@ $btn-box-width: 120px;
   position: relative;
   transition: all 100ms;
   height: 150px;
-  padding: 5px;
+  //background: #409EFF;
+
+  .mrs-table-item-mask {
+    // background: rgba(0, 0, 0, 0.5);
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 99;
+  }
 
   .mrs-table-item {
     height: 100%;
