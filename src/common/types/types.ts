@@ -1,6 +1,23 @@
 export {};
 
 declare global {
+
+
+    /**
+     * 账号密码登录参数对象
+     */
+    type AccountLoginParams = {
+        account: string;   // 账号
+        password: string;   // 密码
+    }
+
+    /**
+     * 手机号验证码登录参数对象
+     */
+    type PhoneLoginParams = {
+        phoneNo: string; // 手机号
+        code: string;    // 验证码
+    }
     /**
      * 用户对象
      */
@@ -17,28 +34,6 @@ declare global {
         updateTime: string; // 更新时间
         updateBy: string;   // 更新者
     };
-
-    /**
-     * 密码记录
-     */
-    // type PasswordRecord = {
-    //     id: string;                 // ID
-    //     userId: string;             // 用户ID
-    //     title: string;              // 记录标题
-    //     account: string;            // 账户名
-    //     userName: string;           // 用户名
-    //     password: string;           // 密码
-    //     phone: string;              // 手机号
-    //     email: string;              // 邮箱号
-    //     url: string;                // 访问网址
-    //     remark: string;             // 备注信息
-    //     createTime: number;         // 创建时间
-    //     createBy: string;           // 创建者
-    //     updateTime: number | null;  // 更新时间
-    //     updateBy: string | null;    // 更新者
-    // }
-
-    type RecordNames = 'title'|'account'|'userName'|'password'|'phone'|'email'|'url'|'remark'|'customs';
 
     /**
      * HTML表单项的类型

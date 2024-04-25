@@ -29,7 +29,7 @@
                             @item-slided="itemSlided"
                             @delete-by-id="deletePwdRecord"
                             @deleteBatch="deleteBatch"/>
-              <div class="list-overed">
+              <div class="list-overed" v-if="isListOver">
                 已经到底了
               </div>
             </my-scroll>
@@ -173,6 +173,7 @@ const loadRecordsPage = () => {
   console.log("到底了...");
   if (isListOver.value) {
     // 到底了
+
   } else {
     page.current++;
     getPasswordsByPage();
