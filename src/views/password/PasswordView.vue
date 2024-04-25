@@ -4,6 +4,10 @@
       <!-- 顶部 -->
       <div class="table-header" :style="{'--header-height': tableHeadHeight}">
         <div @click="toEditView" class="m-button iconfont">&#xe665;</div>
+        <form class="m-search-form" @submit="onSearch">
+          <input type="text" v-model="keyWords" placeholder="搜索关键词">
+          <input type="submit" value="搜索"/>
+        </form>
       </div>
 
       <!-- 数据列表 -->
@@ -25,6 +29,9 @@
                             @item-slided="itemSlided"
                             @delete-by-id="deletePwdRecord"
                             @deleteBatch="deleteBatch"/>
+              <div class="list-overed">
+                已经到底了
+              </div>
             </my-scroll>
           </div>
         </div>
@@ -49,7 +56,7 @@ import {getCurrentContentHeight} from "@/utils/util/util";
 
 // 成员变量
 const passwordList: Ref<PasswordRecord []> = ref([]);     // 密码列表
-const keyWords: Ref<string> = ref("");    // 搜索关键词
+const keyWords: Ref<string | null> = ref(null);    // 搜索关键词
 // 分页对象
 const page = reactive({
   current: 1,
@@ -57,6 +64,7 @@ const page = reactive({
 });
 const slidedId: Ref<string | null> = ref(null); // 当前滑动ID
 const contentViewHeight: Ref<number> = ref(getCurrentContentHeight());  // 内容区高度
+const isListOver: Ref<boolean> = ref(false);
 
 // 表头上面搜索框的高度
 const tableHeadHeight: Ref<number> = ref(45);
@@ -66,13 +74,19 @@ const tableHeadHeight: Ref<number> = ref(45);
  */
 const getPasswordsByPage = (): Promise<boolean> => {
   return new Promise((resolve, reject) => {
-    const params = {
-      keyWords: keyWords.value,
+    type SearchParams = {
+      current: number,
+      size: number,
+      keyWords?: string
+    }
+
+    const params: SearchParams = {
       current: page.current,
       size: page.size,
     };
+    if (keyWords.value) params.keyWords = keyWords.value;
 
-    api.getRecordsList(params).then((res: MrsResult<string | null>) => {
+    mockApi.getRecordsList(params).then((res: MrsResult<PasswordRecord[] | null>) => {
       console.log("返回值: ", res);
       if (res.code !== HTTP_STATUS.SUCCESS) {
         showToast(TOAST_TYPE.ERROR, res.msg, 2);
@@ -81,8 +95,9 @@ const getPasswordsByPage = (): Promise<boolean> => {
       }
       let recordList: PasswordRecord[] = [];
       try {
-        const data = res.data as MrsPageRecord<PasswordRecord> | null;
-        if (data) recordList = [...data.records];
+        const data = res.data;
+        if (data?.length === 0) isListOver.value = true;
+        if (data) recordList = [...data];
       } catch (ex) {
         showToast(TOAST_TYPE.ERROR, "数据解析失败", 1.5);
       }
@@ -135,10 +150,15 @@ const deleteBatch = (id: number) => {
 
 /**
  * 搜索
+ * @param event:Event 事件
  */
-const searchByKeyword = (word: string) => {
-  console.log(word);
-  alert(word);
+const onSearch = (event: Event) => {
+  event.preventDefault();
+  keyWords.value = keyWords.value || null;
+  page.current = 1;
+  page.size = 10;
+  passwordList.value = [];
+  getPasswordsByPage();
 }
 
 const router = useRouter();
@@ -150,22 +170,23 @@ const toEditView = () => {
  *
  */
 const loadRecordsPage = () => {
-  console.log("到底了...")
+  console.log("到底了...");
+  if (isListOver.value) {
+    // 到底了
+  } else {
+    page.current++;
+    getPasswordsByPage();
+  }
+
 }
 
 onMounted(() => {
-  mockApi.getRecordsList({}).then(res => {
-    if (res.code === HTTP_STATUS.SUCCESS) {
-      passwordList.value = [...res.data];
-    } else {
-      showToast(TOAST_TYPE.ERROR, res.msg, 1.5);
-    }
-  });
+  getPasswordsByPage();
 });
 
 const showDetail = (id: string): void => {
   console.log('showDetail...', id);
-  if(slidedId.value) {
+  if (slidedId.value) {
     slidedId.value = null;
     return;
   }
@@ -191,7 +212,7 @@ const myShowToast = (msg: string, type: TOAST_TYPE) => {
 }
 
 defineExpose({
-  myShowToast, itemSlided, showDetail,
+  myShowToast, itemSlided, showDetail, onSearch,
   toEditView, loadRecordsPage
 });
 </script>
@@ -225,6 +246,43 @@ defineExpose({
       color: $brand-blue;
     }
 
+    .m-search-form {
+      margin-left: 10px;
+      background: $brand-blue;
+      position: relative;
+      width: calc(100% - 100px);
+      height: calc(100% - 10px);
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      font-size: 16px;
+      $btn-width: 60px;
+
+
+
+      input[type="text"] {
+        border: 0;
+        display: flex;
+        width: calc(100% - $btn-width);
+        height: 100%;
+        padding: 0 10px;
+        outline: none;
+        font-family: "方正黑体", serif;
+      }
+
+      input[type="submit"] {
+        display: flex;
+        border: 0;
+        width: $btn-width;
+        height: 100%;
+        justify-content: center;
+        align-items: center;
+        background: $brand-blue;
+        color: #FFF;
+        font-family: "方正黑体", serif;
+      }
+    }
+
   }
 
   // 列表区域
@@ -237,8 +295,15 @@ defineExpose({
 
       .mrs-item-list {
 
-        .m-table-item{
+        .m-table-item {
           margin: 10px 0 10px 10px;
+        }
+
+        .list-overed {
+          color: $color-gray-light-3;
+          font-family: "鸿雷行书",sans-serif;
+          text-align: center;
+          padding: 5px;
         }
       }
     }

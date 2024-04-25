@@ -8,7 +8,7 @@ const apiService = {
      * <p>默认规则是根据登录用户的ID进行查询</p>
      * @param params
      */
-    getRecordsList(params: any): Promise<MrsResult<PasswordRecord[]>> {
+    getRecordsList(params: any): Promise<MrsResult<PasswordRecord[] | null>> {
         if (params) console.log("参数列表: ", params);
         return new Promise<MrsResult<PasswordRecord[]>>((resolve) => {
             const recordList: PasswordRecord[] = [];

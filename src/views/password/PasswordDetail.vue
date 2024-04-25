@@ -184,7 +184,7 @@ defineExpose({editRecord});
         color: #999;
         font-size: 16px;
         letter-spacing: 2px;
-        font-family: "楷体", serif;
+        font-family: "思源柔黑", serif;
       }
 
       .item-value {
@@ -195,6 +195,7 @@ defineExpose({editRecord});
         border-radius: 5px;
         word-break: break-word;
         overflow-wrap: break-word;
+        font-family: "方正黑体", serif;
       }
 
       .item-text-value {
@@ -207,7 +208,7 @@ defineExpose({editRecord});
         position: absolute;
         top: 5px;
         right: 4px;
-        font-family: "Microsoft YaHei", serif;
+        font-family: "方正黑体", serif;
         color: $color-primary-light-3;
         font-size: 12px;
         user-select: none;

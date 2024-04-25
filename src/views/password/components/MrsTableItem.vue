@@ -302,7 +302,7 @@ $btn-box-width: 120px;
     align-items: center;
     flex-wrap: wrap;
     background: $color-primary-light-9;
-    font-family: $font-content-family;
+    font-family: "方正黑体", serif;
     color: #333;
     padding: 10px;
     margin-right: 10px;
@@ -315,13 +315,13 @@ $btn-box-width: 120px;
       align-items: center;
 
       .name {
-        font-family: "Microsoft YaHei", serif;
+        font-family: "方正黑体", serif;
         font-weight: bold;
       }
 
       .time {
         font-size: 14px;
-        font-family: "Microsoft YaHei", serif;
+        font-family: "鸿雷行书", serif;
         color: $color-gray-light-2;
       }
     }
@@ -351,7 +351,7 @@ $btn-box-width: 120px;
           text-align: justify;
           text-align-last: justify;
           color: $info-gray;
-          font-family: "Microsoft YaHei", serif;
+          font-family: "思源柔黑", serif;
           font-size: 14px;
         }
 
@@ -366,7 +366,7 @@ $btn-box-width: 120px;
           content: "点击复制";
           margin: 0 10px;
           color: $brand-blue;
-          font: 11px/100% "Microsoft YaHei";
+          font: 11px/100% "方正黑体";
           height: $span-width;
           line-height: $span-width;
         }

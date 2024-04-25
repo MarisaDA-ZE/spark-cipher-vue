@@ -1,4 +1,31 @@
-// 颜色
+// ==============字体==============
+// 鸿雷行书简体
+@font-face {
+  font-family: '鸿雷行书'; /* 这里填写实际的字体名称 */
+  src: url('@/assets/fonts/HongLeiXingShuJianTi-2.otf') format('woff2');
+  /* 如果有其他格式的字体文件，也在这里添加相应的 src 属性 */
+  font-weight: normal; /* 根据字体实际情况设置 */
+  font-style: normal; /* 根据字体实际情况设置 */
+}
+
+// 方正黑体简体
+@font-face {
+  font-family: '方正黑体';
+  src: url('@/assets/fonts/FangZhengHeiTiJianTi-1.ttf') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+// 思源柔黑简体
+@font-face {
+  font-family: '思源柔黑';
+  src: url('@/assets/fonts/GenJyuuGothic-Normal-2.ttf') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+// ==============字体==============
+
+// ==============颜色==============
 $classic-white: #FFF;
 
 $brand-blue: #409EFF;
@@ -39,8 +66,8 @@ $search-content-color: #ede;
 $search-font-color: #ede;
 $color-search-white-9: #eee;
 
-// 字体
-$font-content-family: "新宋体";
+// ==============颜色==============
+
 $font-icons-size: 28px;
 $font-content-size-21: 21px;
 $font-content-size-16: 16px;
