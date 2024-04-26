@@ -1,13 +1,17 @@
 import axios, {AxiosResponse, InternalAxiosRequestConfig} from "axios";
+import {CLIENT_ENCRYPT_PREFIX, ENABLE_ENCRYPT_LINK} from "@/common/constant";
 import {useAuthorizationStore} from "@/store/authorizationStore";
+import {useCryptoStore} from "@/store/cryptoStore";
+import {SM2Util} from "@/utils/sm2/sm2-util"
 
-const store = useAuthorizationStore();
+const {getToken} = useAuthorizationStore();
+const {getServicePublicKey, getClientKeyPair} = useCryptoStore();
 
 /**
  * 创建 instance
  */
 const instance = axios.create({
-    baseURL: "http://kmarisa.icu:8001",
+    baseURL: "https://kmarisa.icu:8001",
     timeout: 60000,
     headers: {
         "Accept": "application/json",
@@ -19,9 +23,23 @@ const instance = axios.create({
  * 请求拦截器
  */
 instance.interceptors.request.use((config: InternalAxiosRequestConfig<any>) => {
-        const token: string | null = store.getToken();
+        const token: string | null = getToken();
+        // token
         if (token) {
             config.headers["Authorization"] = "Bearer " + token;
+        }
+
+        // 是否开启端到端加密
+        if (ENABLE_ENCRYPT_LINK && config.method?.toLowerCase() !== 'get' && config.data) {
+            const servicePublicKey = getServicePublicKey();
+            try {
+                const jsonData = JSON.stringify(config.data)
+                let encrypted = SM2Util.encrypt(jsonData, servicePublicKey || "");
+                encrypted = CLIENT_ENCRYPT_PREFIX + encrypted;
+                config.data = encrypted;
+            } catch (ex) {
+                console.log("出错了...", ex);
+            }
         }
         return config;
     }, (error) => {
@@ -33,6 +51,19 @@ instance.interceptors.request.use((config: InternalAxiosRequestConfig<any>) => {
  * 响应拦截器
  */
 instance.interceptors.response.use((config: AxiosResponse) => {
+        // 是否开启了端到端加密
+        if (ENABLE_ENCRYPT_LINK) {
+            if (config.data) {
+                const clientKeyPair = getClientKeyPair();
+                const clientPrivateKey = clientKeyPair?.privateKey;
+                try {
+                    const jsonData = SM2Util.decrypt(config.data, clientPrivateKey || "");
+                    config.data = JSON.parse(jsonData);
+                } catch (ex) {
+                    console.log("出错了...", ex);
+                }
+            }
+        }
         return config;
     }, (error) => {
         return Promise.reject(error);

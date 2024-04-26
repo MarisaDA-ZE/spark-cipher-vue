@@ -15,7 +15,7 @@ export enum PINIA_NAMES_ENUM {
     USER_STORE = "user",
 }
 
-// 是否开启自定义加密传输（此操作需要服务器端同步开启）
+// 是否开启端到端加密传输（此操作需要服务器端同步开启，否则会出错）
 export const ENABLE_ENCRYPT_LINK: boolean = true;
 
 // 客户端加密算法计算完成后，需要在密文开头拼接上一个04后端才能正常解析
