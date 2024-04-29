@@ -12,8 +12,8 @@ import {watch, reactive} from "vue";
 import {RouteMeta, useRouter} from "vue-router";
 import MrsHeader from "@/components/common/MrsHeader.vue";
 import MrsDocker from "@/components/common/MrsDocker.vue";
-import {computedHeightByRoute} from "@/utils/util/util";
-import {C_CONTENT_HEIGHT, DOCKER_HEIGHT, HEADER_HEIGHT} from "@/common/constant";
+import {computedHeightByRoute, getDeviceFingerprint} from "@/utils/util/util";
+import {C_CONTENT_HEIGHT, DOCKER_HEIGHT, HEADER_HEIGHT, WEB_FINGER_NAME} from "@/common/constant";
 
 const router = useRouter();
 const routeMap = router.options.routes;
@@ -21,9 +21,6 @@ const keyMap = new Array<string>();
 routeMap.forEach((e) => {
   keyMap.push(e.path);
 });
-
-// 内容区高度
-
 
 // Docker栏信息
 const dockers = [

@@ -1,9 +1,11 @@
 import {
     createRouter,
-    createWebHashHistory,
+    createWebHashHistory, NavigationFailure,
     RouteLocationNormalized,
     RouteRecordRaw
 } from "vue-router";
+import {useAuthorizationStore} from "@/store/authorizationStore";
+import {isBlank} from "@/utils/util/util";
 
 const routesMap: Array<RouteRecordRaw> = [
     {// 主页，默认重定向到密码详情页
@@ -106,22 +108,21 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     next();
-
-    // const store = useAuthorizationStore();
-    // const token = store.getToken();
-    // if (to.meta?.loginRequired) {
-    //     console.log("需要登录");
-    //     if (!isBank(token)) {
-    //         next();
-    //     } else {
-    //         console.log("没有token, 跳转到登录页");
-    //         router.push("/login")
-    //             .then((r: void | NavigationFailure | undefined) => console.log("拦截至: ", r?.to));
-    //     }
-    // } else {
-    //     console.log("不需要登录");
-    //     next();
-    // }
+    const {getToken} = useAuthorizationStore();
+    const token = getToken();
+    if (to.meta?.loginRequired) {
+        console.log("需要登录");
+        if (!isBlank(token)) {
+            next();
+        } else {
+            console.log("没有token, 跳转到登录页");
+            router.push("/login")
+                .then((r: void | NavigationFailure | undefined) => console.log("拦截至: ", r?.to));
+        }
+    } else {
+        console.log("不需要登录");
+        next();
+    }
 });
 
 router.afterEach((to: RouteLocationNormalized) => {

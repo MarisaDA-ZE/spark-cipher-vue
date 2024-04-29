@@ -20,6 +20,8 @@ export const ENABLE_ENCRYPT_LINK: boolean = true;
 
 // 客户端加密算法计算完成后，需要在密文开头拼接上一个04后端才能正常解析
 export const CLIENT_ENCRYPT_PREFIX: string = "04";
+// 浏览器指纹名字
+export const WEB_FINGER_NAME: string = "f";
 
 
 export const HEADER_HEIGHT: number = 40;    // 顶部导航栏的高度, 默认40px

@@ -7,6 +7,7 @@ type StoreData = {
     clientKeyPair: SM2KeyPair    // 客户端密钥对
     serviceKeyPair: SM2KeyPair   // 服务端密钥
 }
+
 /**
  * 密钥信息
  */
@@ -82,7 +83,7 @@ export const useCryptoStore = defineStore(PINIA_NAMES_ENUM.CRYPTO_STORE, {
             return null;
         },
     },
-    persist: {// 开启持久化,并进行加密
-        storage: encryptStore
-    }
+    // persist: {// 开启持久化,并进行加密
+    //     storage: encryptStore
+    // }
 });
