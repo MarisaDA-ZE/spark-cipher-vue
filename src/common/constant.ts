@@ -16,7 +16,7 @@ export enum PINIA_NAMES_ENUM {
 }
 
 // 是否开启端到端加密传输（此操作需要服务器端同步开启，否则会出错）
-export const ENABLE_ENCRYPT_LINK: boolean = true;
+export const ENABLE_ENCRYPT_LINK: boolean = false;  // true
 
 // 客户端加密算法计算完成后，需要在密文开头拼接上一个04后端才能正常解析
 export const CLIENT_ENCRYPT_PREFIX: string = "04";
@@ -36,12 +36,13 @@ export const C_CONTENT_HEIGHT: string = "CURRENT_CONTENT_HEIGHT";
 export enum HTTP_STATUS {
     SUCCESS = 200,          // 成功
     ERROR = 500,            // 错误
-    UNAUTHORIZED = 501,     // 未授权
+    UNAUTHORIZED = 401,     // 未授权
     FORBIDDEN = 403,        // 禁止访问
     NOT_FOUND = 404,        // 未找到
     METHOD_NOT_ALLOWED = 405,// 方法不允许
     UNKNOWN = 0,             // 未知
 }
+
 /**
  * 提示框的提示类型枚举
  */
@@ -52,3 +53,6 @@ export enum TOAST_TYPE {
     ERROR = "error",        // 错误消息
     UNKNOWN = "unknown",    // 未知消息
 }
+
+// 预埋公钥
+export const DEFAULT_SM2_PUBLIC_KEY = `048EA5A585A953117D9854B819E59B75442445C9E84FDB5293F1CC6A9937A20100A08749D1A27A8B8113D2092E56F968D049981999EC44C6C70E1CFB0A5490D143`;

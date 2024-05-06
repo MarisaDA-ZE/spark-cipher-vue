@@ -12,7 +12,7 @@ import {watch, reactive} from "vue";
 import {RouteMeta, useRouter} from "vue-router";
 import MrsHeader from "@/components/common/MrsHeader.vue";
 import MrsDocker from "@/components/common/MrsDocker.vue";
-import {computedHeightByRoute, getDeviceFingerprint} from "@/utils/util/util";
+import {computedHeightByRoute} from "@/utils/util/util";
 import {C_CONTENT_HEIGHT, DOCKER_HEIGHT, HEADER_HEIGHT, WEB_FINGER_NAME} from "@/common/constant";
 
 const router = useRouter();
@@ -105,6 +105,14 @@ const computedHeights = () => {
   sessionStorage.setItem(C_CONTENT_HEIGHT, String(viewsInfo.height));
 };
 
+console.log(sessionStorage.getItem(WEB_FINGER_NAME))
+
+
+/**
+ * 路由监听
+ * @param _new  .
+ * @param _old  .
+ */
 const watchRouteHandler = (_new: any, _old: any) => {
   // console.log("fullPath: ", _new.fullPath);
   computedHeightByRoute(_new);
@@ -128,7 +136,6 @@ const watchRouteHandler = (_new: any, _old: any) => {
   }
   computedHeights();
 };
-
 
 watch(
     () => router.currentRoute.value,

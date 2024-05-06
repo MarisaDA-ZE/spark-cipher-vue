@@ -1,8 +1,10 @@
 import axios, {AxiosResponse, InternalAxiosRequestConfig} from "axios";
-import {CLIENT_ENCRYPT_PREFIX, ENABLE_ENCRYPT_LINK} from "@/common/constant";
+import {CLIENT_ENCRYPT_PREFIX, ENABLE_ENCRYPT_LINK, HTTP_STATUS} from "@/common/constant";
 import {useAuthorizationStore} from "@/store/authorizationStore";
 import {useCryptoStore} from "@/store/cryptoStore";
 import {SM2Util} from "@/utils/sm2/sm2-util"
+import UnauthorizedException from "@/exception/exceptions/UnauthorizedException";
+import globalExceptionHandler from "@/exception/globalExceptionHandler";
 
 const {getToken} = useAuthorizationStore();
 const {getServicePublicKey, getClientKeyPair} = useCryptoStore();
@@ -11,7 +13,8 @@ const {getServicePublicKey, getClientKeyPair} = useCryptoStore();
  * 创建 instance
  */
 const instance = axios.create({
-    baseURL: "https://kmarisa.icu:8001",
+    // baseURL: "https://kmarisa.icu:8001",
+    baseURL: "http://127.0.0.1:8001",
     timeout: 60000,
     headers: {
         "Accept": "application/json",
@@ -24,9 +27,11 @@ const instance = axios.create({
  */
 instance.interceptors.request.use((config: InternalAxiosRequestConfig<any>) => {
         const token: string | null = getToken();
+        console.log("interceptors: ", token);
         // token
         if (token) {
             config.headers["Authorization"] = "Bearer " + token;
+            console.log("token: ", token)
         }
 
         // 是否开启端到端加密
@@ -66,6 +71,13 @@ instance.interceptors.response.use((config: AxiosResponse) => {
         }
         return config;
     }, (error) => {
+        if (error.response) {
+            const {response} = error;
+            if (response && response.status === HTTP_STATUS.UNAUTHORIZED) {
+                globalExceptionHandler(new UnauthorizedException('用户未授权'));
+                return Promise.reject(error);
+            }
+        }
         return Promise.reject(error);
     }
 );

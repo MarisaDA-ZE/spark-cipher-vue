@@ -93,6 +93,19 @@ declare global {
         data: T;            // 响应内容
     }
 
+    type MrsPage<T> = {
+        countId: string | null;
+        current: number;
+        maxLimit: number | null;
+        optimizeCountSql: boolean;
+        orders: any[];
+        pages: number;
+        records: T[];
+        searchCount: boolean;
+        size: number;
+        total: number
+    }
+
     /**
      * 分片文件的信息
      */
@@ -128,6 +141,14 @@ declare global {
     type SM2KeyPair = {
         publicKey: string | null,   // 公钥
         privateKey: string | null   // 私钥
+    }
+
+    /**
+     * 登录响应对象
+     */
+    type MrsLResp = {
+        userVo: MrsUser,
+        token: string;
     }
 
 }

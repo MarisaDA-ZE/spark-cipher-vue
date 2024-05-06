@@ -98,6 +98,18 @@ const routesMap: Array<RouteRecordRaw> = [
             showHeader: false,
             showDocker: false,
         }
+    },
+
+    {
+        path: "/signal-demo",
+        name: "signalDemo",
+        component: () => import("@/demos/signal-protocol/SignalProtocolDemo.vue"),
+        meta: {
+            title: "signal样例",
+            loginRequired: false,
+            showHeader: false,
+            showDocker: false,
+        }
     }
 ];
 

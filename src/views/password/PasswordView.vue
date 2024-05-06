@@ -49,7 +49,6 @@ import MrsTableItem from "@/views/password/components/MrsTableItem.vue";
 import {onMounted, reactive, ref, Ref} from "vue";
 import {useRouter} from "vue-router";
 import api from "@/api/api";
-import mockApi from "@/mocks/passwordMocks";
 import {HTTP_STATUS, TOAST_TYPE} from "@/common/constant";
 import {getCurrentContentHeight} from "@/utils/util/util";
 
@@ -86,7 +85,7 @@ const getPasswordsByPage = (): Promise<boolean> => {
     };
     if (keyWords.value) params.keyWords = keyWords.value;
 
-    mockApi.getRecordsList(params).then((res: MrsResult<PasswordRecord[] | null>) => {
+    api.getRecordsList(params).then((res: MrsResult<MrsPage<PasswordRecord> | null>) => {
       console.log("返回值: ", res);
       if (res.code !== HTTP_STATUS.SUCCESS) {
         showToast(TOAST_TYPE.ERROR, res.msg, 2);
@@ -95,7 +94,7 @@ const getPasswordsByPage = (): Promise<boolean> => {
       }
       let recordList: PasswordRecord[] = [];
       try {
-        const data = res.data;
+        const data = res.data?.records;
         if (data?.length === 0) isListOver.value = true;
         if (data) recordList = [...data];
       } catch (ex) {

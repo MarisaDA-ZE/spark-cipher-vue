@@ -15,7 +15,7 @@ const authorizationStore = useAuthorizationStore();
 
 /*登出*/
 const logout = (): void => {
-  get("/auth/logout").then(res => {
+  get("/login/logout").then(res => {
     if (res.code === 200) {
       router.push("/login");
       authorizationStore.removeToken();

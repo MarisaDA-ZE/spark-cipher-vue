@@ -74,8 +74,8 @@ export const isURL = (url: string | null | undefined): boolean => {
  * 获取当前设备指纹
  * Tips: 设备指纹每次刷新时都会变化
  */
-export const getDeviceFingerprint = (): Promise<string | undefined> => {
-    return new Promise<string | undefined>(resolve => {
+export const getDeviceFingerprint = (): Promise<string | null> => {
+    return new Promise<string | null>(resolve => {
         let excludes = {};
         let options = {
             excludes: excludes

@@ -18,8 +18,8 @@
           <p>
             <input class="mrs_password" :type="passwordDisplay ? 'text': 'password'"
                    v-model="accountParams.password" placeholder="请输入密码"/>
-            <i class="iconfont show_password" @click="passwordDisplay = false" v-if="passwordDisplay">&#xe660;</i>
-            <i class="iconfont show_password" @click="passwordDisplay = true" v-else>&#xe65c;</i>
+            <i class="iconfont show_password" @click="changePwdDisplay(false)" v-if="passwordDisplay">&#xe660;</i>
+            <i class="iconfont show_password" @click="changePwdDisplay(true)" v-else>&#xe65c;</i>
           </p>
         </div>
 
@@ -67,9 +67,10 @@ import Toast, {showToast} from "@/components/common/Toast.vue";
 import {LOGIN_TYPE, TOAST_TYPE} from '@/common/constant';
 import {isEmpty} from "@/utils/util/util";
 import {useAuthorizationStore} from "@/store/authorizationStore";
+import {debounce} from "lodash-es";
 
 const router = useRouter();
-const {setToken} = useAuthorizationStore();
+const {setToken, setUser} = useAuthorizationStore();
 const currentLoginType: Ref<LOGIN_TYPE> = ref(LOGIN_TYPE.ACCOUNT);  // 当前登录方式
 const passwordDisplay: Ref<boolean> = ref(false);             // 显示或隐藏密码
 let countdownTimer: NodeJS.Timeout | null = null;  // 倒计时对象
@@ -88,12 +89,11 @@ const phoneParams: PhoneLoginParams = {
   code: ""
 };
 
-
 /**
  * 切换登录方式
  * @param type  登录方式
  */
-const changeLoginType = (type: LOGIN_TYPE) => {
+const changeLoginType = debounce((type: LOGIN_TYPE) => {
   currentLoginType.value = type;
   // 清空数据
   accountParams.account = "";
@@ -101,7 +101,14 @@ const changeLoginType = (type: LOGIN_TYPE) => {
 
   phoneParams.phoneNo = "";
   phoneParams.code = "";
-};
+}, 100);
+
+/**
+ * 是否显示密码
+ */
+const changePwdDisplay = debounce((value: boolean) => {
+  passwordDisplay.value = value;
+}, 100);
 
 const login = () => {
   console.log("登录...");
@@ -147,10 +154,13 @@ const login = () => {
  * 登录后跳转
  * @param result  是否登录成功
  */
-const afterLogin = (result: MrsResult<any>): void => {
+const afterLogin = (result: MrsResult<MrsLResp>): void => {
+  console.log("result: ", result);
   if (result.status) {
-    console.log("登录成功...");
-    setToken(result.data);
+    const resp: MrsLResp = result.data;
+    console.log("登录成功...", resp);
+    setUser(resp.userVo);
+    setToken(resp.token);
     router.push("/password-view");
   } else {
     showToast(TOAST_TYPE.ERROR, result.msg);
