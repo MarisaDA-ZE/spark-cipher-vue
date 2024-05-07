@@ -8,9 +8,9 @@ const apiService = {
      * <p>默认规则是根据登录用户的ID进行查询</p>
      * @param params
      */
-    getRecordsList(params: any): Promise<MrsResult<PasswordRecord[] | null>> {
+    getRecordsList(params: any): Promise<MrsResult<MrsPage<PasswordRecord> | null>> {
         if (params) console.log("参数列表: ", params);
-        return new Promise<MrsResult<PasswordRecord[]>>((resolve) => {
+        return new Promise<MrsResult<MrsPage<PasswordRecord>>>((resolve) => {
             const recordList: PasswordRecord[] = [];
 
             let s = '13714341399374643';
@@ -44,11 +44,16 @@ const apiService = {
                 recordList.push(record);
             }
 
-            const result: MrsResult<PasswordRecord[]> = {
+            const result: MrsResult<MrsPage<PasswordRecord>> = {
                 code: HTTP_STATUS.SUCCESS,
                 msg: "查询成功",
                 status: true,
-                data: recordList,
+                data: {
+                    current: 1,
+                    size: 10,
+                    total: 10,
+                    records: recordList,
+                },
                 time: (new Date()).getTime()
             };
             setTimeout(() => {
@@ -132,3 +137,5 @@ const apiService = {
 
 };
 export default apiService;
+
+

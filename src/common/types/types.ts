@@ -73,16 +73,6 @@ declare global {
     }
 
     /**
-     * 分页数据对象
-     */
-    type MrsPageRecord<T> = {
-        current: number;    // 当前页码
-        size: number;       // 每页显示条数
-        total?: number;     // 总条数
-        records: Array<T>;  // 数据集合
-    };
-
-    /**
      * 数据返回类
      */
     type MrsResult<T> = {
@@ -94,14 +84,14 @@ declare global {
     }
 
     type MrsPage<T> = {
-        countId: string | null;
+        countId?: string | null;
         current: number;
-        maxLimit: number | null;
-        optimizeCountSql: boolean;
-        orders: any[];
-        pages: number;
+        maxLimit?: number | null;
+        optimizeCountSql?: boolean;
+        orders?: any[];
+        pages?: number;
         records: T[];
-        searchCount: boolean;
+        searchCount?: boolean;
         size: number;
         total: number
     }

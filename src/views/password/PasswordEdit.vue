@@ -173,7 +173,7 @@ import MrsHeader from "@/components/common/MrsHeader.vue";
 import {getCurrentContentHeight, isBlank, recordKeySortDeep} from "@/utils/util/util";
 import type {FormInstance, FormRules} from 'element-plus';
 import {FormItemRule} from "element-plus/es/components/form/src/types";
-import mockApi from "@/mocks/passwordMocks";
+import api from "@/api/api";
 
 
 const contentViewHeight: Ref<number> = ref(0);  // 内容区高度
@@ -257,6 +257,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 
       // 调用接口添加数据到后台
       console.log("新对象: ", params);
+      api.addRecordsOne(params).then(res => {
+        console.log(res);
+      })
     }
   });
 };
@@ -634,7 +637,7 @@ onMounted(() => {
   contentViewHeight.value = getCurrentContentHeight();
   if (id) {
     recordId.value = id;
-    mockApi.getRecordById({id: recordId.value}).then(res => {
+    api.getRecordById({id: recordId.value}).then(res => {
       if (res.status) {
         dataBackfill(res.data);
       }

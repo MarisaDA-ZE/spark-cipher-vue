@@ -44,7 +44,7 @@ import {useRoute, useRouter} from "vue-router";
 
 import MrsHeader from "@/components/common/MrsHeader.vue";
 import {getCurrentContentHeight, isURL, recordKeySortDeep, stringReplace, computedDiffTime} from "@/utils/util/util";
-import mockApi from "@/mocks/passwordMocks";
+import api from "@/api/api";
 import Toast, {showToast} from "@/components/common/Toast.vue";
 import {TOAST_TYPE} from "@/common/constant";
 
@@ -72,12 +72,12 @@ const replaceText = (text: string, size: number = 12, defaultVal: string = "暂�
 }
 
 
-
 /**
  * 渲染数据前
  */
 const beforeRender = () => {
-  mockApi.getRecordById({id: recordId.value}).then(res => {
+  api.getRecordById({id: recordId.value}).then((res: MrsResult<PasswordRecord>) => {
+    console.log("res: ", res);
     if (res.status) {
       currentRecord.value = res.data;
       lastUpdateTime.value = computedDiffTime(res.data.updateTime || res.data.createTime);
@@ -86,7 +86,7 @@ const beforeRender = () => {
         // 遇到一个null后面的就都是null了，排序时已经处理了
         if (key == null) return;
         let value: PasswordRecordItem | undefined = (currentRecord.value as any)[key];
-        const customs: PasswordRecordItem[] | undefined = currentRecord.value.customs;
+        const customs: PasswordRecordItem[] | undefined = currentRecord.value?.customs;
         if (typeof value === 'undefined' && customs !== undefined) {
           value = customs.find((e: PasswordRecordItem) => (e.key === key));
         }

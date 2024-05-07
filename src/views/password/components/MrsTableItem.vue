@@ -13,7 +13,7 @@
         <!-- 账号 -->
         <p>
           <span>账号</span>
-          <span class="allow-copy" @click.stop="myCopy(currentRecord?.account.value)">
+          <span class="allow-copy" @click.stop="myCopy(currentRecord?.account?.value)">
             {{ currentRecord?.viewAccount }}
           </span>
         </p>
@@ -21,11 +21,15 @@
         <!-- 密码 -->
         <p class="pwd-item">
           <span>密码</span>
-          <span class="allow-copy" @click.stop="myCopy(currentRecord?.password.value)">
+          <span class="allow-copy" @click.stop="myCopy(currentRecord?.password?.value)">
             {{ currentRecord?.viewPassword }}
           </span>
-          <span class="is-display iconfont" @click.stop="displayEye" v-if="isDisplayEye">&#xe660;</span>
-          <span class="is-display iconfont" @click.stop="displayEye" v-else>&#xe65a;</span>
+
+          <text v-if="currentRecord?.password?.value">
+            <span class="is-display iconfont" @click.stop="displayEye" v-if="isDisplayEye">&#xe660;</span>
+            <span class="is-display iconfont" @click.stop="displayEye" v-else>&#xe65a;</span>
+          </text>
+
         </p>
 
         <!-- 备注 -->
@@ -38,8 +42,8 @@
         <!-- 网址 -->
         <p>
           <span>网址</span>
-          <a :href="currentRecord?.url.value" target="_blank"
-             v-if="computedIsURL(currentRecord?.url.value)">{{ currentRecord?.viewURL }}</a>
+          <a :href="currentRecord?.url?.value" target="_blank"
+             v-if="computedIsURL(currentRecord?.url?.value)">{{ currentRecord?.viewURL }}</a>
           <span v-else>{{ currentRecord?.viewURL }}</span>
         </p>
       </div>
@@ -231,8 +235,13 @@ const computedIsURL = computed(() => {
  * 复制操作
  * @param text
  */
-const myCopy = (text: string) => {
+const myCopy = (text: string | undefined) => {
   console.log("复制...", text);
+  if(!text){
+    showToast("无内容可复制", TOAST_TYPE.ERROR);
+    return;
+  }
+
   if (copyThrottle.value) {
     copyThrottle.value = false;
     if (instance) {

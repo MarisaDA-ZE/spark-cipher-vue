@@ -5,7 +5,7 @@ const apiService = {
      * 账号密码登录
      * @param params
      */
-    accountLogin(params: AccountLoginParams) {
+    accountLogin(params: AccountLoginParams): Promise<MrsResult<MrsLResp>> {
         return post("/login/accountLogin", params);
     },
 
@@ -29,10 +29,18 @@ const apiService = {
      * <p>默认规则是根据登录用户的ID进行查询</p>
      * @param params
      */
-    getRecordsList(params: any) {
+    getRecordsList(params: any): Promise<MrsResult<MrsPage<PasswordRecord> | null>> {
         return get("/record/getRecordsList", params);
     },
 
+    /**
+     * 查询记录列表
+     * <p>默认规则是根据登录用户的ID进行查询</p>
+     * @param params
+     */
+    getRecordById(params: any): Promise<MrsResult<PasswordRecord>> {
+        return get("/record/getRecordById", params);
+    },
     /**
      * 保存一条密码记录到服务器
      * @param params

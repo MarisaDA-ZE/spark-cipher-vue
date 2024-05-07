@@ -156,12 +156,17 @@ export const writeClipboard = async (str: string) => {
  * @param record{PasswordRecord}    记录
  * @param sort  {string}    排序字段
  */
-export const recordKeySortDeep = (record: PasswordRecord, sort: string = 'sort'): (string | null) [] => {
+export const recordKeySortDeep = (record: PasswordRecord | null, sort: string = 'sort'): (string | null) [] => {
+    if (record === null) return [];
     const keys = Object.keys(record);
     const recordItems: (PasswordRecordItem | string | number | null) [] = [];
     for (let key of keys) {
         const value = (record as any)[key];
-        (key !== 'customs') ? recordItems.push(value) : recordItems.push(...value);
+        if (key !== 'customs') {
+            recordItems.push(value)
+        } else {
+            if (value !== null) recordItems.push(...value);
+        }
     }
     let sorted = recordItems.sort((a, b) => {
         if (a == null || typeof a === 'string' || typeof a === 'number') return 1;
