@@ -62,7 +62,7 @@ const apiService = {
      * @param params
      */
     deletePasswordById(params: any) {
-        return deleted("/password/deleteById/" + params);
+        return deleted("/record/deleteById/" + params);
     },
 
 };

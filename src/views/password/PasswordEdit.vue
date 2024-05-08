@@ -163,23 +163,28 @@
         </div>
       </template>
     </el-dialog>
+    <toast/>
   </div>
 </template>
 
 <script lang="ts" setup>
 import {onMounted, reactive, ref, Ref} from 'vue';
-import {useRoute} from 'vue-router';
+import {useRoute, useRouter} from 'vue-router';
 import MrsHeader from "@/components/common/MrsHeader.vue";
+import Toast, {showToast} from "@/components/common/Toast.vue"
 import {getCurrentContentHeight, isBlank, recordKeySortDeep} from "@/utils/util/util";
 import type {FormInstance, FormRules} from 'element-plus';
 import {FormItemRule} from "element-plus/es/components/form/src/types";
 import api from "@/api/api";
+import {TOAST_TYPE} from "@/common/constant";
 
 
 const contentViewHeight: Ref<number> = ref(0);  // 内容区高度
-
+const router = useRouter();
 const dialogVisible = ref(false);
 const recordId: Ref<string | undefined> = ref(undefined);
+const originalRecord: Ref<PasswordRecord | null> = ref(null);
+const tipsDisplayTime = 1.25; // 提示框显示时间
 
 enum ITEM_TYPE {
   ACCOUNT = 'account',
@@ -223,7 +228,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   await formEl.validate((valid) => {
     if (valid) {
       console.log('提交...');
-      const params: any = {};
+      const params: PasswordRecord = {};
       const keys = Object.keys(recordForm);
       const keyMap = new Map<string, number | undefined>();
       let sort = 0;
@@ -250,16 +255,55 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           console.log(customs);
           params['customs'] = [...(customs || []), param];
         } else {
-          params[key] = param;
+          params[key as RecordOptionalName] = param;
         }
         sort++;
       }
 
       // 调用接口添加数据到后台
       console.log("新对象: ", params);
-      api.addRecordsOne(params).then(res => {
-        console.log(res);
-      })
+
+      if (recordId.value) {
+        console.log("修改...");
+
+        const merged: PasswordRecord = {
+          id: originalRecord.value?.id,
+          userId: originalRecord.value?.userId,
+          ...params
+        };
+        console.log("修改就要合并: ", merged);
+
+        api.editRecordById(merged).then(res => {
+          console.log(res);
+          if (res.status) {
+            showToast(TOAST_TYPE.SUCCESS, '修改成功', tipsDisplayTime).then(() => {
+              console.log("修改成功...");
+              router.back();
+            });
+          } else {
+            showToast(TOAST_TYPE.ERROR, '修改失败', tipsDisplayTime).then(() => {
+              console.log("修改失败...");
+              router.back();
+            });
+          }
+        });
+      } else {
+        console.log("新增...");
+        api.addRecordsOne(params).then(res => {
+          console.log(res);
+          if (res.status) {
+            showToast(TOAST_TYPE.SUCCESS, '添加成功', tipsDisplayTime).then(() => {
+              console.log("添加成功...");
+              router.back();
+            });
+          } else {
+            showToast(TOAST_TYPE.ERROR, '添加失败', tipsDisplayTime).then(() => {
+              console.log("添加失败...");
+              router.back();
+            });
+          }
+        });
+      }
     }
   });
 };
@@ -270,7 +314,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
  * @param data  密码记录
  */
 const dataBackfill = (data: PasswordRecord) => {
-  recordId.value = data.id;
+  recordId.value = data.id as string;
   const sortKeys = recordKeySortDeep(data);
   for (let key of sortKeys) {
     // 遇到一个null后面的就都是null了，排序时已经处理了
@@ -625,7 +669,14 @@ const removeRecordItem = (item: DynamicFormItem) => {
 const removeRecordById = () => {
   console.log("删除...", recordId.value);
   dialogVisible.value = false;
-
+  api.deletePasswordById(recordId.value).then((res: MrsResult<any>) => {
+    console.log("删除记录: ", res);
+    if (res.status) {
+      showToast(TOAST_TYPE.SUCCESS, '删除成功', tipsDisplayTime).then(() => {
+        router.push({path: '/'});
+      });
+    }
+  });
 }
 
 
@@ -639,7 +690,9 @@ onMounted(() => {
     recordId.value = id;
     api.getRecordById({id: recordId.value}).then(res => {
       if (res.status) {
-        dataBackfill(res.data);
+        const data = res.data;
+        dataBackfill(data);
+        originalRecord.value = data;
       }
     });
   }

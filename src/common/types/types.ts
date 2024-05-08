@@ -51,12 +51,13 @@ declare global {
         sort: number
     }
 
+    type RecordOptionalName = 'title' | 'account' | 'userName' | 'password' | 'phone' | 'email' | 'url' | 'remark';
     /**
      * 密码记录
      */
     type PasswordRecord = {
-        id: string;                 // ID
-        userId: string;             // 用户ID
+        id?: string | null;             // ID
+        userId?: string | null;         // 用户ID
         title?: PasswordRecordItem;     // 记录标题
         account?: PasswordRecordItem;   // 账户名
         userName?: PasswordRecordItem;  // 用户名
@@ -66,10 +67,10 @@ declare global {
         url?: PasswordRecordItem;       // 访问网址
         remark?: PasswordRecordItem;    // 备注信息
         customs?: PasswordRecordItem[]; // 自定义数据
-        createTime: number;         // 创建时间
-        createBy: string;           // 创建者
-        updateTime: number | null;  // 更新时间
-        updateBy: string | null;    // 更新者
+        createTime?: number | null;  // 创建时间
+        createBy?: string | null;    // 创建者
+        updateTime?: number | null;  // 更新时间
+        updateBy?: string | null;    // 更新者
     }
 
     /**

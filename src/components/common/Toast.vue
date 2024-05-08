@@ -26,10 +26,16 @@ const useToastEffect = () => {
    * @param msg 提示框信息
    * @param time 提示框显示时间
    */
-  const showToast = (type: TOAST_TYPE, msg: string, time: number): void => {
-    massage.value = msg;
-    toastStyle.value = handlerToastType(type);
-    handlerShowToast(time);
+  const showToast = (type: TOAST_TYPE, msg: string, time: number): Promise<void> => {
+    return new Promise<void>((resolve, reject) => {
+      massage.value = msg;
+      toastStyle.value = handlerToastType(type);
+      handlerShowToast(time).then(() => {
+        resolve();
+      }).catch(() => {
+        reject();
+      });
+    });
   }
 
   /**
@@ -71,20 +77,39 @@ const useToastEffect = () => {
    * 处理显示提示框的逻辑
    * @param time 提示框时间
    */
-  const handlerShowToast = (time: number): void => {
-    if (visible.value) return;
-    visible.value = true;
-    setTimeout(() => {
-      visible.value = false;
-    }, time);
+  const handlerShowToast = (time: number): Promise<void> => {
+    return new Promise<void>((resolve, reject) => {
+      if (visible.value) {
+        reject();
+        return;
+      }
+      visible.value = true;
+      setTimeout(() => {
+        visible.value = false;
+        resolve();
+      }, time);
+    });
+
   }
   return {visible, massage, toastStyle, showToast};
 };
 
-export const showToast = (type = TOAST_TYPE.INFO, msg = '通知', time = 1): void => {
+/**
+ * 显示提示框
+ * @param type  提示类型（枚举）
+ * @param msg   提示信息
+ * @param time  显示时间（秒）
+ */
+export const showToast = (type = TOAST_TYPE.INFO, msg = '通知', time = 1): Promise<void> => {
   const {showToast} = useToastEffect();
-  time *= 1000;
-  showToast(type, msg, time);
+  return new Promise<void>((resolve, reject) => {
+    time *= 1000;
+    showToast(type, msg, time).then(() => {
+      resolve();
+    }).catch(() => {
+      reject();
+    });
+  });
 }
 
 export default {
