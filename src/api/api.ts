@@ -10,6 +10,14 @@ const apiService = {
     },
 
     /**
+     * 使用账户名密码的方式创建账号
+     * @param params
+     */
+    accountCreate(params: CreateAccountVo): Promise<MrsResult<string>> {
+        return post("/login/accountCreate", params);
+    },
+
+    /**
      * 根据手机号发送验证码
      * @param params    手机号
      */

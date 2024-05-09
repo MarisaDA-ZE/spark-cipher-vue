@@ -18,6 +18,18 @@ declare global {
         phoneNo: string; // 手机号
         code: string;    // 验证码
     }
+
+    /**
+     * 账号创建Vo对象
+     */
+    type CreateAccountVo = {
+        account?: string;     // 账户
+        password?: string;    // 密码
+        phoneNo?: string;     // 手机号
+        email?: string;       // 邮箱
+        verifyCode?: string;  // 验证码
+    }
+
     /**
      * 用户对象
      */
