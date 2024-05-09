@@ -3,7 +3,7 @@
     <!-- 头部 -->
     <mrs-header :show-back="true" class="my-header">
       <template #center>
-        <span style="font-size: 16px;">{{ replaceText(currentRecord?.title.value) }}</span>
+        <span style="font-size: 16px;">{{ replaceText(currentRecord?.title?.value) }}</span>
       </template>
       <template #right>
         <span @click.stop="editRecord" style="padding: 0 10px; color: #409EFF">
@@ -67,7 +67,7 @@ const lastUpdateTime: Ref<string> = ref('');
  * @param size  保留长度
  * @param defaultVal  默认显示
  */
-const replaceText = (text: string, size: number = 12, defaultVal: string = "暂无数据"): string => {
+const replaceText = (text: string | undefined, size: number = 12, defaultVal: string = "暂无数据"): string => {
   return stringReplace(text, size, defaultVal);
 }
 
@@ -80,7 +80,9 @@ const beforeRender = () => {
     console.log("res: ", res);
     if (res.status) {
       currentRecord.value = res.data;
-      lastUpdateTime.value = computedDiffTime(res.data.updateTime || res.data.createTime);
+      const lastTime = res.data?.updateTime || res.data?.createTime;
+
+      lastUpdateTime.value = computedDiffTime(lastTime || (new Date()).getTime());
       const sorted = recordKeySortDeep(currentRecord.value, 'sort');
       for (let key of sorted) {
         // 遇到一个null后面的就都是null了，排序时已经处理了

@@ -126,7 +126,7 @@ const updateRecord = (id: string): void => {
  * 删除记录
  * @param id
  */
-const deletePwdRecord = (id: number) => {
+const deletePwdRecord = (id: string) => {
   console.log("删除记录", id)
   api.deletePasswordById(id).then((res: MrsResult<any>) => {
     console.log("删除记录: ", res);
@@ -142,7 +142,7 @@ const deletePwdRecord = (id: number) => {
  * 批量选中
  * @param id
  */
-const deleteBatch = (id: number) => {
+const deleteBatch = (id: string) => {
   console.log("批量删除", id);
 }
 
@@ -184,7 +184,7 @@ onMounted(() => {
   getPasswordsByPage();
 });
 
-const showDetail = (id: string): void => {
+const showDetail = (id: string | null | undefined): void => {
   console.log('showDetail...', id);
   if (slidedId.value) {
     slidedId.value = null;

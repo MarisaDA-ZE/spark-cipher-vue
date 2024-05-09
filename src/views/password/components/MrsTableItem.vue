@@ -142,7 +142,8 @@ const beforeRender = (): void => {
 
   // 更新时间或者创建时间
   const time = item?.updateTime || item?.createTime;
-  extend.viewTime = formatTime(new Date(time), 'yyyy/MM/dd');
+  const date = time ? new Date(time) : new Date();
+  extend.viewTime = formatTime(date, 'yyyy/MM/dd');
   currentRecord.value = {...item, ...extend};
 }
 beforeRender();

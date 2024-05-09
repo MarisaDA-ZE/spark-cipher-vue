@@ -4,7 +4,7 @@
     <div class="layout">
       <!-- 图标LOGO -->
       <div class="logo">
-        <img src="@/assets/vite.svg" alt="图片加载失败"/>
+        <img src="@/assets/images/main-logo.png" alt="图片加载失败"/>
       </div>
 
       <!-- 内容输入区 -->
