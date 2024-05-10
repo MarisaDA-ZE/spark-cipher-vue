@@ -217,7 +217,8 @@ const verifyPhoneNo = (phoneNo: string): string | boolean => {
 }
 
 const toRegister = () => {
-  console.log("注册...")
+  console.log("注册...");
+  router.push("/register-view");
 }
 
 /**

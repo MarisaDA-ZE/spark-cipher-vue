@@ -99,7 +99,17 @@ const routesMap: Array<RouteRecordRaw> = [
             showDocker: false,
         }
     },
-
+    {
+        path: "/register-view",
+        name: "register",
+        component: () => import("../views/login/RegisterView.vue"),
+        meta: {
+            title: "注册页",
+            loginRequired: false,
+            showHeader: false,
+            showDocker: false,
+        }
+    },
     {
         path: "/signal-demo",
         name: "signalDemo",
