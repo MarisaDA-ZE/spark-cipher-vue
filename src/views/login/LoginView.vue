@@ -29,7 +29,7 @@
             <input type="text" v-model="phoneParams.phoneNo" placeholder="请输入手机号"/>
           </p>
           <p class="append_button">
-            <input type="text" name="phone_code" v-model="phoneParams.code" placeholder="请输入验证码"/>
+            <input type="text" name="phone_code" v-model="phoneParams.verifyCode" placeholder="请输入验证码"/>
             <input type="button"
                    :value="getCodeCooling === ONE_MINUTE ? '获取验证码' : getCodeCooling + '秒后重发'"
                    @click="getCodeByPhone()"/>
@@ -48,6 +48,8 @@
           <span @click="changeLoginType(LOGIN_TYPE.PHONE)"
                 v-if="currentLoginType === LOGIN_TYPE.ACCOUNT">短信登录</span>
           <span @click="changeLoginType(LOGIN_TYPE.ACCOUNT)" v-else>账号登录</span>
+
+          <span @click="toRegister">立即注册</span>
         </p>
         <p>
           <span @click="forgotPassword">忘记密码</span>
@@ -86,7 +88,7 @@ const accountParams: AccountLoginParams = {
 // 手机号登录对象
 const phoneParams: PhoneLoginParams = {
   phoneNo: "",
-  code: ""
+  verifyCode: ""
 };
 
 /**
@@ -100,7 +102,7 @@ const changeLoginType = debounce((type: LOGIN_TYPE) => {
   accountParams.password = "";
 
   phoneParams.phoneNo = "";
-  phoneParams.code = "";
+  phoneParams.verifyCode = "";
 }, 100);
 
 /**
@@ -123,6 +125,8 @@ const login = () => {
       api.accountLogin(accountParams).then(res => {
         console.log("账号密码登录...", res);
         afterLogin(res);
+      }).catch((err: MrsResult<any>) => {
+        showToast(TOAST_TYPE.ERROR, err.msg);
       });
       break;
 
@@ -133,11 +137,11 @@ const login = () => {
         showToast(TOAST_TYPE.ERROR, valid as string);
         return;
       }
-      if (isEmpty(phoneParams.code)) {
+      if (isEmpty(phoneParams.verifyCode)) {
         showToast(TOAST_TYPE.ERROR, "请输入验证码");
         return;
       }
-      if (phoneParams.code.length !== 6) {
+      if (phoneParams.verifyCode.length !== 6) {
         showToast(TOAST_TYPE.ERROR, "验证码长度错误");
         return;
       }
@@ -145,6 +149,8 @@ const login = () => {
       api.phoneLogin(phoneParams).then(res => {
         console.log("手机号登录...", res);
         afterLogin(res);
+      }).catch((err: MrsResult<any>) => {
+        showToast(TOAST_TYPE.ERROR, err.msg);
       });
       break;
   }
@@ -179,9 +185,13 @@ const getCodeByPhone = () => {
   }
 
   console.log("发送验证码...", phoneParams.phoneNo);
-  api.sendCodeByPhoneNo(phoneParams.phoneNo).then(res => {
+  api.sendCodeByPhoneNo({phoneNo: phoneParams.phoneNo}).then(res => {
     if (res.status) {
       showToast(TOAST_TYPE.SUCCESS, res.msg);
+    } else {
+      if (countdownTimer) clearInterval(countdownTimer);
+      getCodeCooling.value = ONE_MINUTE;
+      showToast(TOAST_TYPE.ERROR, res.msg);
     }
   });
 
@@ -204,6 +214,10 @@ const verifyPhoneNo = (phoneNo: string): string | boolean => {
   if (isEmpty(phoneNo)) return "请输入手机号";
   const regExp = /^(?:\+?86)?1(?:3\d{3}|5[^4\D]\d{2}|8\d{3}|7(?:[0-35-9]\d{2}|4(?:0\d|1[0-2]|9\d))|9[0-35-9]\d{2}|6[2567]\d{2}|4(?:(?:10|4[01])\d{3}|[68]\d{4}|[579]\d{2}))\d{6}$/;
   return regExp.test(phoneNo) ? true : "手机号格式错误";
+}
+
+const toRegister = () => {
+  console.log("注册...")
 }
 
 /**

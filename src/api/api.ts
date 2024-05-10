@@ -8,6 +8,13 @@ const apiService = {
     accountLogin(params: AccountLoginParams): Promise<MrsResult<MrsLResp>> {
         return post("/login/accountLogin", params);
     },
+    /**
+     * 手机号登录
+     * @param params
+     */
+    phoneLogin(params: PhoneLoginParams): Promise<MrsResult<MrsLResp>> {
+        return post("/login/phoneLogin", params);
+    },
 
     /**
      * 使用账户名密码的方式创建账号
@@ -21,17 +28,10 @@ const apiService = {
      * 根据手机号发送验证码
      * @param params    手机号
      */
-    sendCodeByPhoneNo(params: string) {
-        return post("/login/sendCodeByPhoneNo", params);
+    sendCodeByPhoneNo(params: { phoneNo: string }): Promise<MrsResult<null>> {
+        return get("/login/getCodePhone", params);
     },
 
-    /**
-     * 手机号登录
-     * @param params
-     */
-    phoneLogin(params: PhoneLoginParams) {
-        return post("/login/phoneLogin", params);
-    },
     /**
      * 查询记录列表
      * <p>默认规则是根据登录用户的ID进行查询</p>

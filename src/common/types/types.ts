@@ -16,7 +16,7 @@ declare global {
      */
     type PhoneLoginParams = {
         phoneNo: string; // 手机号
-        code: string;    // 验证码
+        verifyCode: string;    // 验证码
     }
 
     /**
@@ -92,7 +92,7 @@ declare global {
         code: number;       // 状态码
         msg: string;        // 提示信息
         status: boolean;    // 响应状态
-        time: number;       // 响应时间(时间戳)
+        timestamp: number;       // 响应时间(时间戳)
         data: T;            // 响应内容
     }
 

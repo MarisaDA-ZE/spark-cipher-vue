@@ -13,8 +13,8 @@ const {getServicePublicKey, getClientKeyPair} = useCryptoStore();
  * 创建 instance
  */
 const instance = axios.create({
-    baseURL: "https://api.kmarisa.icu/v1/",
-    // baseURL: "https://192.168.2.135:8001/v1/",
+    // baseURL: "https://api.kmarisa.icu/v1/",
+    baseURL: "https://192.168.2.135:8001/v1/",
     timeout: 60000,
     headers: {
         "Accept": "application/json",
@@ -99,9 +99,11 @@ export function get(url: string, data: any = {}, headers: any = null): Promise<M
             .then((response) => {
                 resolve(response.data);
             })
-            .catch((err) => {
-                reject(err);
-            });
+            .catch(
+                (err) => {
+                    reject(err.response.data as MrsResult<any>);
+                }
+            );
     });
 }
 
@@ -120,7 +122,7 @@ export const post = (url: string, data: any = {}, headers: any = null): Promise<
                 resolve(response.data);
             },
             (err) => {
-                reject(err);
+                reject(err.response.data as MrsResult<any>);
             }
         );
     });
@@ -141,7 +143,7 @@ export const put = (url: string, data: any = {}, headers: any = null): Promise<M
                 resolve(response.data);
             },
             (err) => {
-                reject(err);
+                reject(err.response.data as MrsResult<any>);
             }
         );
     });
@@ -161,9 +163,11 @@ export function deleted(url: string, data: any = {}, headers: any = null): Promi
         instance.delete(url, data).then(
             response => {
                 resolve(response.data);
-            }, (err) => {
-                reject(err);
-            });
+            },
+            (err) => {
+                reject(err.response.data as MrsResult<any>);
+            }
+        );
     });
 }
 
