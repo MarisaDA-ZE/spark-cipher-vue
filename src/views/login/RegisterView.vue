@@ -20,7 +20,7 @@
         >
           <!-- 用户昵称 -->
           <el-form-item label="昵称" prop="nickName">
-            <el-input v-model="registerForm.nickName" placeholder="请输入用户名"/>
+            <el-input v-model="registerForm.nickName" placeholder="请输入昵称"/>
           </el-form-item>
 
           <!-- 账户名 -->
