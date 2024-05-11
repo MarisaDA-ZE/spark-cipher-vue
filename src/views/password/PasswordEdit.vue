@@ -176,7 +176,7 @@ import {getCurrentContentHeight, isBlank, recordKeySortDeep} from "@/utils/util/
 import type {FormInstance, FormRules} from 'element-plus';
 import {FormItemRule} from "element-plus/es/components/form/src/types";
 import api from "@/api/api";
-import {TOAST_TYPE} from "@/common/constant";
+import {MRS_REGEXPS, TOAST_TYPE} from "@/common/constant";
 
 
 const contentViewHeight: Ref<number> = ref(0);  // 内容区高度
@@ -504,7 +504,7 @@ const rolesMap = reactive<any>({
   phone: [
     {required: true, message: '请输入手机号', trigger: 'blur'},
     {
-      pattern: /^(?:\+?86)?1(?:3\d{3}|5[^4\D]\d{2}|8\d{3}|7(?:[0-35-9]\d{2}|4(?:0\d|1[0-2]|9\d))|9[0-35-9]\d{2}|6[2567]\d{2}|4(?:(?:10|4[01])\d{3}|[68]\d{4}|[579]\d{2}))\d{6}$/,
+      pattern: MRS_REGEXPS.PHONE,
       message: '手机号不符合规范',
       trigger: 'blur'
     },
@@ -512,7 +512,7 @@ const rolesMap = reactive<any>({
   email: [
     {required: true, message: '请输入邮箱', trigger: 'blur'},
     {
-      pattern: /[\w'.%+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,4}/,
+      pattern: MRS_REGEXPS.EMAIL,
       message: '邮箱号不符合规范',
       trigger: 'blur'
     },
@@ -520,7 +520,7 @@ const rolesMap = reactive<any>({
   url: [
     {required: true, message: '请输入网址', trigger: 'blur'},
     {
-      pattern: /^(([^:/?#]+):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/,
+      pattern: MRS_REGEXPS.URL,
       message: '网址不符合规范',
       trigger: 'blur'
     },

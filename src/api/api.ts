@@ -25,6 +25,14 @@ const apiService = {
     },
 
     /**
+     * 检查用户名等是否被占用
+     * @param params
+     */
+    getCountByUserKey(params: any): Promise<MrsResult<number>> {
+        return post("/login/getCountByUserKey", params);
+    },
+
+    /**
      * 根据手机号发送验证码
      * @param params    手机号
      */

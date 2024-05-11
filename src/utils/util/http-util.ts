@@ -97,11 +97,11 @@ export function get(url: string, data: any = {}, headers: any = null): Promise<M
                 params: data
             })
             .then((response) => {
-                resolve(response.data);
+                resolve(response?.data);
             })
             .catch(
                 (err) => {
-                    reject(err.response.data as MrsResult<any>);
+                    reject(err?.response?.data);
                 }
             );
     });
@@ -119,10 +119,10 @@ export const post = (url: string, data: any = {}, headers: any = null): Promise<
     return new Promise((resolve, reject) => {
         instance.post(url, data).then(
             (response) => {
-                resolve(response.data);
+                resolve(response?.data);
             },
             (err) => {
-                reject(err.response.data as MrsResult<any>);
+                reject(err?.response?.data);
             }
         );
     });
@@ -140,10 +140,10 @@ export const put = (url: string, data: any = {}, headers: any = null): Promise<M
     return new Promise<MrsResult<any>>((resolve, reject) => {
         instance.put(url, data).then(
             (response) => {
-                resolve(response.data);
+                resolve(response?.data);
             },
             (err) => {
-                reject(err.response.data as MrsResult<any>);
+                reject(err?.response?.data);
             }
         );
     });
@@ -162,10 +162,10 @@ export function deleted(url: string, data: any = {}, headers: any = null): Promi
     return new Promise((resolve, reject) => {
         instance.delete(url, data).then(
             response => {
-                resolve(response.data);
+                resolve(response?.data);
             },
             (err) => {
-                reject(err.response.data as MrsResult<any>);
+                reject(err?.response?.data);
             }
         );
     });
