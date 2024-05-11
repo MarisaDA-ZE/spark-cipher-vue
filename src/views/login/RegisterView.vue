@@ -77,6 +77,7 @@ import api from "@/api/api";
 const contentViewHeight: Ref<number> = ref(0);
 
 const ruleFormRef: Ref<any> = ref(null);
+
 const registerForm = reactive({
   account: '',
   nickName: '',
@@ -229,6 +230,17 @@ const toRegister = (formEl: FormInstance | undefined) => {
   formEl.validate((valid) => {
     if (valid) {
       console.log('提交表单...');
+      const params: CreateAccountVo = {
+        account: registerForm.account,
+        nickName: registerForm.nickName,
+        password: registerForm.password,
+        phoneNo: registerForm.phoneNo,
+        email: registerForm.email
+      };
+      console.log("注册参数: ", params);
+      api.accountCreate(params).then(res => {
+        console.log(res);
+      })
     } else {
       console.log('表单有误...');
       return false;

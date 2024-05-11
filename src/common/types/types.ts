@@ -24,6 +24,7 @@ declare global {
      */
     type CreateAccountVo = {
         account?: string;     // 账户
+        nickName?: string;    // 昵称
         password?: string;    // 密码
         phoneNo?: string;     // 手机号
         email?: string;       // 邮箱
