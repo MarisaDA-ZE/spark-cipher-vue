@@ -54,7 +54,7 @@ const apiService = {
                     total: 10,
                     records: recordList,
                 },
-                time: (new Date()).getTime()
+                timestamp: (new Date()).getTime()
             };
             setTimeout(() => {
                 resolve(result);
@@ -103,7 +103,7 @@ const apiService = {
                 msg: "查询成功",
                 status: true,
                 data: record,
-                time: (new Date()).getTime()
+                timestamp: (new Date()).getTime()
             };
             setTimeout(() => {
                 resolve(result);
