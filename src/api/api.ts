@@ -21,7 +21,7 @@ const apiService = {
      * @param params
      */
     accountCreate(params: CreateAccountVo): Promise<MrsResult<string>> {
-        return post("/login/accountCreate", params);
+        return put("/login/accountCreate", params);
     },
 
     /**
