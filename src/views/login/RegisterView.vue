@@ -63,20 +63,25 @@
         </el-form-item>
       </div>
     </div>
+    <Toast/>
   </div>
 </template>
 
 <script lang="ts" setup>
 import {onMounted, reactive, ref, Ref} from 'vue';
+import {useRouter} from "vue-router";
 import {getCurrentContentHeight, isBlank} from "@/utils/util/util";
 import MrsHeader from "@/components/common/MrsHeader.vue";
+import Toast, {showToast} from "@/components/common/Toast.vue";
 import {FormInstance, FormRules} from "element-plus";
-import {MRS_REGEXPS} from "@/common/constant";
+import {MRS_REGEXPS, TOAST_TYPE} from "@/common/constant";
 import api from "@/api/api";
 
 const contentViewHeight: Ref<number> = ref(0);
 
 const ruleFormRef: Ref<any> = ref(null);
+
+const router = useRouter();
 
 const registerForm = reactive({
   account: '',
@@ -240,9 +245,17 @@ const toRegister = (formEl: FormInstance | undefined) => {
       console.log("注册参数: ", params);
       api.accountCreate(params).then(res => {
         console.log(res);
-      })
+        if (res.status) {
+          router.back();
+        } else {
+          showToast(TOAST_TYPE.ERROR, res.msg);
+        }
+      }).catch(err => {
+        showToast(TOAST_TYPE.ERROR, err?.msg || "网络错误，请稍后再试");
+      });
     } else {
       console.log('表单有误...');
+      showToast(TOAST_TYPE.ERROR, "请检查输入");
       return false;
     }
   });
