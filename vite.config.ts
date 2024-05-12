@@ -15,7 +15,7 @@ export default defineConfig({
                 target: 'https://api.kmarisa.icu/v1', // 后端API的实际地址
                 // TODO: 禁用SSL验证，因为服务器上的那本证书中的Subject Alternative Names (SANs) 没有包含你正在尝试连接的IP地址，
                 //  应该只有一个域名p.kmarisa.icu，打包时要将这个改成true或者注释掉
-                secure: false, // 禁用SSL验证
+                // secure: false, // 禁用SSL验证
                 changeOrigin: true, // 是否改变请求源头
                 rewrite: (path) => path.replace(/^\/v1/, ''), // 重写路径，去除前缀
             },
