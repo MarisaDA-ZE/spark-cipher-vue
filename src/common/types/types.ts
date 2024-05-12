@@ -36,7 +36,7 @@ declare global {
      */
     type MrsUser = {
         id: string;         // 用户ID
-        userName: string;   // 用户名
+        nickName: string;   // 用户名
         level: number;      // 用户等级
         phone: string;      // 手机号
         email: string;      // 邮箱

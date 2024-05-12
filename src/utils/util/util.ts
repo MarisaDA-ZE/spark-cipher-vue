@@ -223,3 +223,21 @@ export const computedDiffTime = (lastTime: number): string => {
     return formatTimeDifference(timeDifference);
 };
 
+/**
+ * 获取[x,y]范围的随机数
+ * @param max   最大值
+ * @param min   最小值（默认0）
+ * @return {number} 随机数
+ */
+export const getRandomInteger = (max: number, min: number = 0): number => {
+    const random: number = Math.random() * (max - min + 1) + min;
+    return parseInt(String(random));
+}
+
+/**
+ * 清除所有缓存
+ */
+export const clearStorage = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+}

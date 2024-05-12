@@ -41,6 +41,14 @@ const apiService = {
     },
 
     /**
+     * 退出登录
+     */
+    logout(): Promise<MrsResult<string>> {
+        return get("/login/logout");
+    },
+
+
+    /**
      * 查询记录列表
      * <p>默认规则是根据登录用户的ID进行查询</p>
      * @param params

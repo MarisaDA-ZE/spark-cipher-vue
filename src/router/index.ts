@@ -133,16 +133,16 @@ router.beforeEach((to, from, next) => {
     const {getToken} = useAuthorizationStore();
     const token = getToken();
     if (to.meta?.loginRequired) {
-        console.log("需要登录");
+        // console.log("需要登录");
         if (!isBlank(token)) {
             next();
         } else {
-            console.log("没有token, 跳转到登录页");
+            // console.log("没有token, 跳转到登录页");
             router.push("/login")
                 .then((r: void | NavigationFailure | undefined) => console.log("拦截至: ", r?.to));
         }
     } else {
-        console.log("不需要登录");
+        // console.log("不需要登录");
         next();
     }
 });
