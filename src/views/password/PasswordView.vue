@@ -86,7 +86,7 @@ const getPasswordsByPage = (): Promise<boolean> => {
     if (keyWords.value) params.keyWords = keyWords.value;
 
     api.getRecordsList(params).then((res: MrsResult<MrsPage<PasswordRecord> | null>) => {
-      console.log("返回值: ", res);
+      // console.log("返回值: ", res);
       if (res.code !== HTTP_STATUS.SUCCESS) {
         showToast(TOAST_TYPE.ERROR, res.msg, 2);
         reject(false);
@@ -100,11 +100,11 @@ const getPasswordsByPage = (): Promise<boolean> => {
       } catch (ex) {
         showToast(TOAST_TYPE.ERROR, "数据解析失败", 1.5);
       }
-      console.log("原始list: ", recordList);
+      // console.log("原始list: ", recordList);
       // 数据去重
       const idSet = new Set(passwordList.value.map(p => p.id));
       recordList = recordList.filter(p => !idSet.has(p.id));
-      console.log("去重后: ", recordList);
+      // console.log("去重后: ", recordList);
       passwordList.value.push(...recordList);
       resolve(true);
     });
@@ -117,7 +117,7 @@ const getPasswordsByPage = (): Promise<boolean> => {
  * @param id
  */
 const updateRecord = (id: string): void => {
-  console.log("编辑详情.。。");
+  // console.log("编辑详情.。。");
   router.push({path: '/password-view/edit', query: {id}});
 }
 
@@ -127,9 +127,9 @@ const updateRecord = (id: string): void => {
  * @param id
  */
 const deletePwdRecord = (id: string) => {
-  console.log("删除记录", id)
+  // console.log("删除记录", id)
   api.deletePasswordById(id).then((res: MrsResult<any>) => {
-    console.log("删除记录: ", res);
+    // console.log("删除记录: ", res);
     if (res.code === HTTP_STATUS.SUCCESS) {
       setTimeout(() => {
         location.reload();
@@ -169,10 +169,9 @@ const toEditView = () => {
  *
  */
 const loadRecordsPage = () => {
-  console.log("到底了...");
   if (isListOver.value) {
     // 到底了
-
+    console.log("到底了...");
   } else {
     page.current++;
     getPasswordsByPage();
@@ -185,7 +184,7 @@ onMounted(() => {
 });
 
 const showDetail = (id: string | null | undefined): void => {
-  console.log('showDetail...', id);
+  // console.log('showDetail...', id);
   if (slidedId.value) {
     slidedId.value = null;
     return;
@@ -199,7 +198,7 @@ const showDetail = (id: string | null | undefined): void => {
  * @param id
  */
 const itemSlided = (id: string | null): void => {
-  console.log('ID: ', id);
+  // console.log('ID: ', id);
   slidedId.value = id;
 }
 
@@ -207,7 +206,7 @@ const itemSlided = (id: string | null): void => {
  * 提示消息
  */
 const myShowToast = (msg: string, type: TOAST_TYPE) => {
-  console.log(msg, type);
+  // console.log(msg, type);
   showToast(type, msg, 1.5);
 }
 

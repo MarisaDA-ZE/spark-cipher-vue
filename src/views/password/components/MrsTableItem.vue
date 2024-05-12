@@ -43,6 +43,7 @@
         <p>
           <span>网址</span>
           <a :href="currentRecord?.url?.value" target="_blank"
+             @click.stop
              v-if="computedIsURL(currentRecord?.url?.value)">{{ currentRecord?.viewURL }}</a>
           <span v-else>{{ currentRecord?.viewURL }}</span>
         </p>
@@ -237,8 +238,7 @@ const computedIsURL = computed(() => {
  * @param text
  */
 const myCopy = (text: string | undefined) => {
-  console.log("复制...", text);
-  if(!text){
+  if (!text) {
     showToast("无内容可复制", TOAST_TYPE.ERROR);
     return;
   }
@@ -407,7 +407,7 @@ $btn-box-width: 120px;
       }
 
       .account-item, .pwd-item {
-        max-width: calc( 335px - 50px);
+        max-width: calc(335px - 50px);
       }
     }
   }
