@@ -155,4 +155,15 @@ declare global {
         token: string;
     }
 
+    /**
+     * docker栏的数据结构
+     */
+    type DockerType = {
+        icon: string,
+        failed: string,
+        text: string,
+        show_header: boolean,
+        show_docker: boolean,
+        to: string,
+    }
 }

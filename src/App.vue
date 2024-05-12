@@ -23,9 +23,8 @@ routeMap.forEach((e) => {
 });
 
 // Docker栏信息
-const dockers = [
+const dockers: DockerType[] = [
   {
-    id: 0,
     icon: "&#xe64c;",
     failed: "FILED",
     text: "密 码",
@@ -34,7 +33,6 @@ const dockers = [
     to: "/password-view",
   },
   {
-    id: 1,
     icon: "&#xe662;",
     failed: "FILED",
     text: "图 片",
@@ -43,7 +41,6 @@ const dockers = [
     to: "/images-view",
   },
   {
-    id: 2,
     icon: "&#xe619;",
     failed: "FILED",
     text: "视 频",
@@ -51,17 +48,15 @@ const dockers = [
     show_docker: false,
     to: "/videos-view",
   },
+  // {
+  //   icon: "&#xe656;",
+  //   failed: "FILED",
+  //   text: "文 件",
+  //   show_header: false,
+  //   show_docker: false,
+  //   to: "/files-view",
+  // },
   {
-    id: 3,
-    icon: "&#xe656;",
-    failed: "FILED",
-    text: "文 件",
-    show_header: false,
-    show_docker: false,
-    to: "/files-view",
-  },
-  {
-    id: 4,
     icon: "&#xe654;",
     failed: "FILED",
     text: "我 的",

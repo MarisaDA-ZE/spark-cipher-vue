@@ -11,7 +11,7 @@
       <!-- 内容区 -->
       <div class="content">
         <!-- 账号 -->
-        <p>
+        <p class="account-item">
           <span>账号</span>
           <span class="allow-copy" @click.stop="myCopy(currentRecord?.account?.value)">
             {{ currentRecord?.viewAccount }}
@@ -293,6 +293,8 @@ $btn-box-width: 120px;
   position: relative;
   transition: all 100ms;
   height: 150px;
+
+  $itemWidth: calc(100% * 1px);
   //background: #409EFF;
 
   .mrs-table-item-mask {
@@ -343,9 +345,11 @@ $btn-box-width: 120px;
 
       p {
         display: flex;
+        flex: 1;
         justify-content: flex-start;
         align-items: center;
         position: relative;
+        overflow: hidden;
 
         $span-width: 25px;
 
@@ -400,6 +404,10 @@ $btn-box-width: 120px;
           user-select: none;
           font-size: 18px;
         }
+      }
+
+      .account-item, .pwd-item {
+        max-width: calc( 335px - 50px);
       }
     }
   }

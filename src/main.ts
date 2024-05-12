@@ -15,8 +15,8 @@ import {WEB_FINGER_NAME} from "@/common/constant";
 import {getDeviceFingerprint} from "@/utils/util/util";
 
 // 移动端调试
-import Console from "vconsole";
-new Console();
+// import Console from "vconsole";
+// new Console();
 
 VueClipboard.config.autoSetContainer = true // 自动设置到容器
 const pinia = createPinia();
