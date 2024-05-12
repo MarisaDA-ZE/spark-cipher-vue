@@ -92,14 +92,6 @@ export const getDeviceFingerprint = (): Promise<string | null> => {
     });
 };
 
-/**
- * 计算当前的可用视口高度
- */
-export const computedHeightByRoute = (route: RouteMeta): number => {
-    const router = useRouter();
-    console.log(router);
-    return 0;
-}
 
 /**
  * 获取当前内容区域的高度
@@ -184,6 +176,10 @@ interface TimeDifference {
     unit: string;
 }
 
+/**
+ * 计算当前时间与传入时间之间的时间差
+ * @param lastTime  时间差（时间戳）
+ */
 function computeTimeDifference(lastTime: number): TimeDifference {
     const now = Date.now();
     const differenceMs = now - lastTime;
@@ -206,14 +202,23 @@ function computeTimeDifference(lastTime: number): TimeDifference {
     return {value: differenceDays, unit: '天'};
 }
 
+/**
+ * 将时间差格式化为可读字符串
+ * @param diff  时间差
+ */
 function formatTimeDifference(diff: TimeDifference): string {
     const {value, unit} = diff;
     if (value === 0) return '刚刚';
     return `${value}${unit}前`;
 }
 
+/**
+ * 计算时间差
+ * <p>计算当前时间和传入时间的时间差</p>
+ * @param lastTime  时间戳
+ */
 export const computedDiffTime = (lastTime: number): string => {
-    console.log(lastTime, new Date().getTime());
+    // console.log(lastTime, new Date().getTime());
     const timeDifference = computeTimeDifference(lastTime);
     return formatTimeDifference(timeDifference);
 };

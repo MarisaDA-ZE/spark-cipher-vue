@@ -26,11 +26,11 @@ const instance = axios.create({
  */
 instance.interceptors.request.use((config: InternalAxiosRequestConfig<any>) => {
         const token: string | null = getToken();
-        console.log("interceptors: ", token);
+        // console.log("interceptors: ", token);
         // token
         if (token) {
             config.headers["Authorization"] = "Bearer " + token;
-            console.log("token: ", token)
+            // console.log("token: ", token)
         }
 
         // 是否开启端到端加密

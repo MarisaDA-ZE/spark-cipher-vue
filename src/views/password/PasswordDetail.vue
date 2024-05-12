@@ -30,8 +30,9 @@
         <div @click.stop="copyText(e.value)" :class="{'item-value': true, 'item-text-value': !computedIsURL(e.value)}"
              v-if="!computedIsURL(e.value)">{{ e.value }}
         </div>
+
         <!-- 网址 -->
-        <a class="item-value item-url-value" :href="e.value" v-else>{{ e.value }}</a>
+        <a class="item-value item-url-value" :href="e.value" target="_blank" v-else>{{ e.value }}</a>
       </div>
     </div>
     <Toast/>
@@ -77,7 +78,7 @@ const replaceText = (text: string | undefined, size: number = 12, defaultVal: st
  */
 const beforeRender = () => {
   api.getRecordById({id: recordId.value}).then((res: MrsResult<PasswordRecord>) => {
-    console.log("res: ", res);
+    // console.log("res: ", res);
     if (res.status) {
       currentRecord.value = res.data;
       const lastTime = res.data?.updateTime || res.data?.createTime;
@@ -102,7 +103,7 @@ const beforeRender = () => {
  * 编辑记录
  */
 const editRecord = () => {
-  console.log('showDetail...');
+  // console.log('showDetail...');
   router.push({path: '/password-view/edit', query: {id: recordId.value}});
 }
 
@@ -120,7 +121,7 @@ const computedIsURL = computed(() => {
  * @param text
  */
 const copyText = (text: string) => {
-  console.log("复制...", text);
+  // console.log("复制...", text);
   if (copyThrottle.value) {
     copyThrottle.value = false;
     if (instance) {
@@ -135,7 +136,7 @@ const copyText = (text: string) => {
 }
 
 onMounted(() => {
-  console.log("onMounted...");
+  // console.log("onMounted...");
   contentViewHeight.value = getCurrentContentHeight();
   beforeRender();
 });
@@ -195,8 +196,7 @@ defineExpose({editRecord});
         color: #444;
         background: $color-gray-light-9;
         border-radius: 5px;
-        word-break: break-word;
-        overflow-wrap: break-word;
+        word-break: break-all;
         font-family: "方正黑体", serif;
       }
 
