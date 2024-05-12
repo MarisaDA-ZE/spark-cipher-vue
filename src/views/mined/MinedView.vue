@@ -46,7 +46,7 @@
 
 <script lang="ts" setup>
 import Toast, {showToast} from "@/components/common/Toast.vue";
-import {ElMessage, ElMessageBox} from 'element-plus'
+import {ElMessageBox} from 'element-plus'
 import {onMounted, reactive, ref, Ref} from "vue";
 import {useRouter} from "vue-router";
 import api from "@/api/api";
@@ -83,7 +83,7 @@ type OptionsType = {
  * 背景图片的配置对象
  */
 const bgOptions = reactive<OptionsType>({
-  baseURL: "/src/assets/images/marisa",
+  baseURL: "/images/marisa",
   bgImages: ["/marisa_1.jpg", "/marisa_2.jpg", "/marisa_3.jpg", "/marisa_4.jpg", "/marisa_5.jpg"],
   current: "",
   opacity: BG_OPACITY.DISPLAY,
@@ -91,7 +91,6 @@ const bgOptions = reactive<OptionsType>({
   changeTime: 5000,
   timer: null,
 });
-
 const router = useRouter();
 
 /**
@@ -103,6 +102,7 @@ const useGradualBg = (): void => {
   const randomIndex = getRandomInteger(bgOptions.bgImages.length - 1);
   prevIndex = randomIndex;
   let url = new URL(bgOptions.baseURL + `${bgOptions.bgImages[randomIndex]}`, import.meta.url);
+  // console.log('URL: ', url);
   bgOptions.current = url.pathname;
   bgOptions.timer = setInterval(() => {
     let randomIndex = 0;
@@ -152,14 +152,6 @@ const logout = (): void => {
 }
 
 onMounted(() => {
-  const value = userInfo.value;
-  if (value) {
-    value.avatar =
-        'https://img2.huashi6.com/images/resource/' +
-        'thumbnail/2022/03/30/25937_37754299214.jpg?' +
-        'imageMogr2/quality/100/interlace/1/thumbnail/2000x%3E'
-    value.level = 6;
-  }
   useGradualBg();
 });
 </script>
