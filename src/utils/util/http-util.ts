@@ -13,7 +13,8 @@ const {getServicePublicKey, getClientKeyPair} = useCryptoStore();
  * 创建 instance
  */
 const instance = axios.create({
-    baseURL: "/v1",
+    // baseURL: "/v1",
+    baseURL: "https://api.kmarisa.icu/v1",
     timeout: 60000,
     headers: {
         "Accept": "application/json",

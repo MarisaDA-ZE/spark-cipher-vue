@@ -232,7 +232,7 @@ const registerRules = reactive<FormRules<typeof registerForm>>({
 
 const toRegister = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
-  formEl.validate((valid) => {
+  formEl.validate((valid: boolean): void => {
     if (valid) {
       console.log('提交表单...');
       const params: CreateAccountVo = {
@@ -256,7 +256,7 @@ const toRegister = (formEl: FormInstance | undefined) => {
     } else {
       console.log('表单有误...');
       showToast(TOAST_TYPE.ERROR, "请检查输入");
-      return false;
+      return;
     }
   });
 }
