@@ -26,9 +26,10 @@ declare global {
         account?: string;     // 账户
         nickName?: string;    // 昵称
         password?: string;    // 密码
-        phoneNo?: string;     // 手机号
-        email?: string;       // 邮箱
-        verifyCode?: string;  // 验证码
+        phoneNo?: string | null;    // 手机号
+        email?: string | null;      // 邮箱
+        phoneCode?: string | null;  // 手机验证码
+        emailCode?: string | null;  // 邮箱验证码
     }
 
     /**

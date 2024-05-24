@@ -1,7 +1,5 @@
 import Fingerprint2 from 'fingerprintjs2';
-import {RouteMeta, useRouter} from "vue-router";
-import {C_CONTENT_HEIGHT} from "@/common/constant";
-import {formatDistanceToNow} from 'date-fns';
+import {C_CONTENT_HEIGHT, MRS_REGEXPS} from "@/common/constant";
 
 /**
  * 判断空
@@ -24,17 +22,6 @@ export const isEmpty = (val: any): boolean => {
 export const isNotEmpty = (val: any): boolean => {
     return !isEmpty(val);
 }
-
-/**
- * 正则校验
- * @param text 被校验的内容
- * @param regExp 正则表达式
- */
-export const regVerify = (text: string | undefined, regExp: RegExp): boolean => {
-    if (!text) return false;
-    const e = new RegExp(regExp);
-    return e.test(text);
-};
 
 /**
  * 格式化给定的日期对象为指定格式的字符串。
@@ -66,7 +53,7 @@ export const formatTime = (date = new Date(), format = "yyyy-MM-dd hh:mm:ss"): s
  */
 export const isURL = (url: string | null | undefined): boolean => {
     if (!url) return false;
-    const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+    const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].\S*$/i;
     return urlPattern.test(url);
 }
 
@@ -129,18 +116,6 @@ export const stringReplace = (text: string | undefined, size: number = 8, defaul
  */
 export const isBlank = (str: string | null | undefined): boolean => {
     return str === null || str === undefined || str.trim().length === 0;
-}
-
-/**
- * 剪切板操作
- * @param str
- */
-export const writeClipboard = async (str: string) => {
-    try {
-        await navigator.clipboard.writeText(str);
-    } catch (err) {
-        console.error('Failed to copy text:', err);
-    }
 }
 
 /**
@@ -232,6 +207,75 @@ export const computedDiffTime = (lastTime: number): string => {
 export const getRandomInteger = (max: number, min: number = 0): number => {
     const random: number = Math.random() * (max - min + 1) + min;
     return parseInt(String(random));
+}
+
+/**
+ * 函数防抖
+ * @param func  要实现防抖的函数
+ * @param wait  抖动的间隔
+ * @return {(function(): void)|*}   .
+ */
+let debounceTimer: NodeJS.Timeout | null = null;
+export const mrsDebounce = <T extends () => void>(func: T, wait: number):Function => {
+    return function thisContext(this: ThisType<T>) {
+        const context = this as ThisType<T>;
+        const args = arguments as unknown as Parameters<T>;
+        if (debounceTimer) {
+            clearTimeout(debounceTimer);
+        }
+        debounceTimer = setTimeout(() => {
+            func.apply(context, args);
+        }, wait);
+    }
+}
+
+/**
+ * 函数节流
+ * @param func  要实现节流的函数
+ * @param interval  节流间隔
+ * @return {function(*=, *=): *}  节流后的函数
+ */
+
+let throttleLastExec: number = 0;
+let throttleTimerId: NodeJS.Timeout | null = null;
+
+export const mrsThrottle = <T extends () => void>(func: T, interval: number): Function => {
+    return function (this: ThisType<T>) {
+        const args = arguments as unknown as Parameters<T>;
+        const now = Date.now();
+
+        if (now - throttleLastExec >= interval) {
+            func.apply(this, args);
+            throttleLastExec = now;
+        } else {
+            if (throttleTimerId) clearTimeout(throttleTimerId);
+            throttleTimerId = setTimeout(() => {
+                func.apply(this, args);
+                throttleLastExec = now;
+            }, interval - (now - throttleLastExec));
+        }
+    };
+};
+
+
+/**
+ * 判断一个字符串是否是电话号码
+ * @param phone
+ */
+export const isPhone = (phone: string | null | undefined):boolean => {
+    if(!phone || isBlank(phone)) return false;
+    if (phone.length != 11) return false;
+    return MRS_REGEXPS.PHONE.test(phone);
+}
+
+/**
+ * 判断一个字符串是否是邮箱
+ * @param mail
+ */
+export const isEmail = (mail: string | null | undefined):boolean => {
+    if (!mail || isBlank(mail)) return false;
+    if (mail.length > 64) return false;
+    return MRS_REGEXPS.EMAIL.test(mail);
 }
 
 /**

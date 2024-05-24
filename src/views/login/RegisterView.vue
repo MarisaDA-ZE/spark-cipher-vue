@@ -16,7 +16,7 @@
             :rules="registerRules"
             ref="ruleFormRef"
             size="large"
-            style="max-width: 600px"
+            style="max-width: 100%"
         >
           <!-- 用户昵称 -->
           <el-form-item label="昵称" prop="nickName">
@@ -40,13 +40,33 @@
 
           <!-- 手机号 -->
           <el-form-item label="手机号" prop="phoneNo">
-            <el-input v-model="registerForm.phoneNo" placeholder="请输入手机号"/>
+            <el-input v-model="registerForm.phoneNo" placeholder="请输入手机号">
+              <template #append>
+                <el-button class="input-line-btn" @click="getPhoneCode">{{ codeTimer.phoneCodeText }}</el-button>
+              </template>
+            </el-input>
+          </el-form-item>
+
+          <!-- 手机号验证码 -->
+          <el-form-item label="手机验证码" prop="phone-code" v-if="isPhone(registerForm.phoneNo)">
+            <el-input v-model="registerForm.phoneCode" placeholder="请输入6位手机号验证码"/>
           </el-form-item>
 
           <!-- 邮箱 -->
           <el-form-item label="邮箱" prop="email">
-            <el-input v-model="registerForm.email" placeholder="请输入邮箱"/>
+            <el-input v-model="registerForm.email" placeholder="请输入邮箱">
+              <template #append>
+                <el-button class="input-line-btn" @click="getEmailCode">{{ codeTimer.emailCodeText }}</el-button>
+              </template>
+            </el-input>
           </el-form-item>
+
+          <!-- 邮箱验证码 -->
+          <el-form-item label="邮箱验证码" prop="email-code" v-if="isEmail(registerForm.email)">
+            <el-input v-model="registerForm.emailCode" placeholder="请输入8位邮箱验证码"/>
+          </el-form-item>
+
+
         </el-form>
 
         <!-- 提示文字 -->
@@ -70,7 +90,7 @@
 <script lang="ts" setup>
 import {onMounted, reactive, ref, Ref} from 'vue';
 import {useRouter} from "vue-router";
-import {getCurrentContentHeight, isBlank} from "@/utils/util/util";
+import {getCurrentContentHeight, isBlank, isPhone, isEmail, mrsThrottle} from "@/utils/util/util";
 import MrsHeader from "@/components/common/MrsHeader.vue";
 import Toast, {showToast} from "@/components/common/Toast.vue";
 import {FormInstance, FormRules} from "element-plus";
@@ -83,13 +103,37 @@ const ruleFormRef: Ref<any> = ref(null);
 
 const router = useRouter();
 
-const registerForm = reactive({
+type VoExtends = {
+  confirmPassword: string
+}
+
+const registerForm = reactive<CreateAccountVo & VoExtends>({
   account: '',
   nickName: '',
   password: '',
   confirmPassword: '',
   phoneNo: '',
+  phoneCode: '',
   email: '',
+  emailCode: '',
+});
+
+type CodeTimer = {
+  phoneCodeText: string,
+  emailCodeText: string,
+  phoneNextSend: number,
+  emailNextSend: number,
+  phoneCodeTimer: null | NodeJS.Timeout,
+  emailCodeTimer: null | NodeJS.Timeout
+}
+
+const codeTimer = reactive<CodeTimer>({
+  phoneCodeText: "获取验证码",
+  emailCodeText: "获取验证码",
+  phoneNextSend: 0,
+  emailNextSend: 0,
+  phoneCodeTimer: null,
+  emailCodeTimer: null
 });
 
 /**
@@ -230,6 +274,10 @@ const registerRules = reactive<FormRules<typeof registerForm>>({
   ]
 });
 
+/**
+ * 提交注册
+ * @param formEl  表单对象
+ */
 const toRegister = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl.validate((valid: boolean): void => {
@@ -239,14 +287,29 @@ const toRegister = (formEl: FormInstance | undefined) => {
         account: registerForm.account,
         nickName: registerForm.nickName,
         password: registerForm.password,
-        phoneNo: registerForm.phoneNo,
-        email: registerForm.email
+        phoneNo: null,
+        email: null,
+        phoneCode: null,
+        emailCode: null,
       };
+
+      if(registerForm.phoneNo){
+        params.phoneNo = registerForm.phoneNo;
+        params.phoneCode = registerForm.phoneCode;
+      }
+
+      if(registerForm.email){
+        params.email = registerForm.email;
+        params.emailCode = registerForm.emailCode;
+      }
+
       console.log("注册参数: ", params);
       api.accountCreate(params).then(res => {
         console.log(res);
         if (res.status) {
-          router.back();
+          showToast(TOAST_TYPE.SUCCESS, res.msg).then(() => {
+            router.back();
+          });
         } else {
           showToast(TOAST_TYPE.ERROR, res.msg);
         }
@@ -259,6 +322,115 @@ const toRegister = (formEl: FormInstance | undefined) => {
       return;
     }
   });
+}
+
+/**
+ * 获取短信验证码
+ */
+const getPhoneCode = ():void => {
+  if(!isPhone(registerForm.phoneNo)){
+    showToast(TOAST_TYPE.ERROR, "请输入正确的手机号");
+    return;
+  }
+  const debounce = mrsThrottle(async() => {
+    if(codeTimer.phoneNextSend > 0){
+      await showToast(TOAST_TYPE.ERROR, "请勿频繁获取验证码");
+      return;
+    }
+
+    const res = await api.getCountByUserKey({phone: registerForm.phoneNo});
+    if (res.status) {
+      if (res.data > 0) {
+        await showToast(TOAST_TYPE.ERROR, "该手机号已存在");
+        return;
+      }
+    } else {
+      await showToast(TOAST_TYPE.ERROR, res.msg);
+      return;
+    }
+
+    codeTimer.phoneCodeText = "59秒后重发";
+    codeTimer.phoneNextSend = 59;
+    codeTimer.phoneCodeTimer = setInterval(() => {
+      codeTimer.phoneNextSend --;
+
+      codeTimer.phoneCodeText = codeTimer.phoneNextSend +"秒后重发";
+      if (codeTimer.phoneNextSend <= 0 && codeTimer.phoneCodeTimer) {
+        codeTimer.phoneCodeText = "获取验证码";
+        clearInterval(codeTimer.phoneCodeTimer);
+      }
+    }, 1000);
+
+    const params = {
+      phoneNo: registerForm.phoneNo as string
+    };
+    console.log("发送短信验证码...", params);
+    api.sendCodeByPhoneNo(params).then(res => {
+      if (res.status) {
+        showToast(TOAST_TYPE.SUCCESS, res.msg);
+      } else {
+        if (codeTimer.phoneCodeTimer) clearInterval(codeTimer.phoneCodeTimer);
+        codeTimer.phoneNextSend = 0;
+        codeTimer.phoneCodeText = "获取验证码";
+        showToast(TOAST_TYPE.ERROR, res.msg);
+      }
+    });
+  }, 300);
+  debounce();
+}
+
+/**
+ * 获取邮箱验证码
+ */
+const getEmailCode = () => {
+  if(!isEmail(registerForm.email)){
+    showToast(TOAST_TYPE.ERROR, "请输入正确的邮箱");
+    return;
+  }
+  const debounce = mrsThrottle(async() => {
+    if(codeTimer.emailNextSend > 0){
+      await showToast(TOAST_TYPE.ERROR, "请勿频繁获取验证码");
+      return;
+    }
+
+    const res = await api.getCountByUserKey({email: registerForm.email});
+    if (res.status) {
+      if (res.data > 0) {
+        await showToast(TOAST_TYPE.ERROR, "该邮箱已存在");
+        return;
+      }
+    } else {
+      await showToast(TOAST_TYPE.ERROR, res.msg);
+      return;
+    }
+
+    codeTimer.emailNextSend = 59;
+    codeTimer.emailCodeText = `${codeTimer.emailNextSend}秒后重发`;
+    codeTimer.emailCodeTimer = setInterval(() => {
+      codeTimer.emailNextSend --;
+      codeTimer.emailCodeText = `${codeTimer.emailNextSend}秒后重发`;
+      if (codeTimer.emailNextSend <= 0 && codeTimer.emailCodeTimer) {
+        codeTimer.emailCodeText = "获取验证码";
+        clearInterval(codeTimer.emailCodeTimer);
+      }
+    }, 1000);
+
+    const params = {
+      email: registerForm.email as string
+    };
+    console.log("发送邮件验证码...", params);
+    api.sendCodeByEmail(params).then(res => {
+      if (res.status) {
+        showToast(TOAST_TYPE.SUCCESS, res.msg);
+      } else {
+        if (codeTimer.emailCodeTimer) clearInterval(codeTimer.emailCodeTimer);
+        codeTimer.emailNextSend = 0;
+        codeTimer.emailCodeText = "获取验证码";
+        showToast(TOAST_TYPE.ERROR, res.msg);
+      }
+    });
+  }, 300);
+  debounce();
 }
 
 onMounted(() => {
@@ -291,5 +463,9 @@ onMounted(() => {
       }
     }
   }
+}
+
+.input-line-btn{
+  padding: 0 5px;
 }
 </style>

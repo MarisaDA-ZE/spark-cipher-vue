@@ -41,6 +41,14 @@ const apiService = {
     },
 
     /**
+     * 根据邮箱发送验证码
+     * @param params    邮箱号
+     */
+    sendCodeByEmail(params: { email: string }): Promise<MrsResult<null>> {
+        return get("/login/getCodeEmail", params);
+    },
+
+    /**
      * 退出登录
      */
     logout(): Promise<MrsResult<string>> {

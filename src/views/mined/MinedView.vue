@@ -170,7 +170,7 @@ onMounted(() => {
   .user-info {
     position: relative;
     width: 100%;
-    height: 180px;
+    height: 200px;
     overflow: hidden;
     z-index: 0;
     background-color: #FFF;
@@ -194,8 +194,8 @@ onMounted(() => {
       // 头像
       .user-avatar {
         margin-right: 10px;
-        width: 100px;
-        height: 100px;
+        width:  75px;
+        height: 75px;
         border-radius: 100%;
         overflow: hidden;
         background: var(--avatar) center center/100% no-repeat;
